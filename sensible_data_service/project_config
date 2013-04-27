@@ -1,0 +1,11 @@
+{
+	"database":
+		{
+			"backend":"mongodb",
+			"params":
+				{
+					"url":"mongodb://%s:%s@ds045047.mongolab.com:45047/sensibledtu-data",
+					"database":"sensibledtu-data"
+				}
+		}
+}
