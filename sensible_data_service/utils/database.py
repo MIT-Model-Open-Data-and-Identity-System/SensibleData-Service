@@ -1,17 +1,16 @@
 from pymongo import MongoClient
-from service_config import Config
+import service_config
+import SECURE_service_config
 
 class Database:
 	client = None
 	db = None
-	config = None
 
 	def __init__(self):
-		self.config = Config()
-		self.client = MongoClient(self.config.config['database']['params']['url']%(self.config.secure_config['database']['username'],self.config.secure_config['database']['password']))
-		self.db = self.client[self.config.config['database']['params']['database']]
+		self.client = MongoClient(service_config.DATABASE['params']['url']%(SECURE_service_config.DATABASE['username'],SECURE_service_config.DATABASE['password']))
+		self.db = self.client[service_config.DATABASE['params']['database']]
 
-	def insertDocument(self, document, collection):
+	def insert(self, document, collection):
 		coll = self.db[collection]
 		doc_id = coll.insert(document)
 		return doc_id

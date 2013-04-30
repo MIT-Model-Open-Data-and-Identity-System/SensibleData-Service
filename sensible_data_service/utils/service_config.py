@@ -1,13 +1,28 @@
-import json
+DATABASE = {
+			"backend":"mongodb",
+			"params":
+				{
+					"url":"mongodb://%s:%s@ds045047.mongolab.com:45047/sensibledtu-data",
+					"database":"sensibledtu-data"
+				}
+		}
 
-class Config:
+AUTH_DATABASE = {
+			"backend":"mongodb",
+			"params":
+				{
+					"url":"mongodb://%s:%s@ds035237.mongolab.com:35237/sensibledtu-auth",
+					"database":"sensibledtu-auth"
+				}
+		}
 
-	CONFIG_LOCATION = '/home/arks/MODIS/Sensible-Data-Service/sensible_data_service/project_config'
-	SECURE_CONFIG_LOCATION = '/home/arks/MODIS/Sensible-Data-Service/sensible_data_service/secure_project_config'
-	config = None
-	secure_config = None
 
-	def __init__(self):
-		self.config = json.loads(open(self.CONFIG_LOCATION).read())
-		self.secure_config = json.loads(open(self.SECURE_CONFIG_LOCATION).read())
+FUNF = {
+	"upload_path" : "/sensible-data/connector_funf/upload/", #must be www-data writable
+	"upload_not_authorized_path" : "/sensible-data/connector_funf/upload_not_authorized/", #must be www-data writable
 
+
+	}
+
+
+LOG_FILE_PATH = "/sensible-data/log/" #must be www-data writable

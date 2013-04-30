@@ -5,5 +5,6 @@ from django.conf.urls import patterns, include, url
 # admin.autodiscover()
 
 urlpatterns = patterns('',
-	 url(r'^connectors/', include('connectors.urls')),
+	 url(r'^upload/', 'connectors.connector_funf.connector_funf.upload'),
+	 url(r'^config/', 'connectors.connector_funf.connector_funf.config'),
 )

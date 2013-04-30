@@ -1,15 +1,19 @@
 import os, sys
-lib_path = os.path.abspath('../../utils')
-sys.path.append(lib_path)
-from database import Database
+try:
+	lib_path = os.path.abspath('../../utils')
+	sys.path.append(lib_path)
+	from database import Database
+	import service_config
+	import SECURE_service_config
+except ImportError:
+	from utils.database import Database
+	from utils import service_config
+	from utils import SECURE_service_config
 
-
-class Connector:
+class Connector(object):
 	db = None
-	
+
 	def __init__(self):
-		db = Database()
-		db.insertDocument({'hello':'world'}, 'test')
+		self.db = Database()
 
 
-connector = Connector()

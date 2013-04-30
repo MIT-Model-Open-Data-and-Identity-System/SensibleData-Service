@@ -5,5 +5,5 @@ from django.conf.urls import patterns, include, url
 # admin.autodiscover()
 
 urlpatterns = patterns('',
-	 url(r'^connectors/', include('connectors.urls')),
+	 url(r'^connector_funf/', include('connectors.connector_funf.urls')),
 )
