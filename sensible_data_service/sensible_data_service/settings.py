@@ -129,6 +129,9 @@ INSTALLED_APPS = (
     'utils',
     'connector_pipes',
     'authorization_manager',
+    'application_manager',
+    'testing',
+    'connectors.connector_funf',
     # Uncomment the next line to enable the admin:
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:

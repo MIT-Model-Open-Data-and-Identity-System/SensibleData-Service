@@ -2,7 +2,6 @@ import os.path
 import shutil
 import datetime
 import time
-import json
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
@@ -15,7 +14,7 @@ from utils import log
 
 from connector_pipes.connector_pipe_funf import connector_pipe_funf
 from connectors.connector import connector
-		
+import bson.json_util as json
 
 class ConnectorFunf(connector.Connector):
 
@@ -28,6 +27,7 @@ class ConnectorFunf(connector.Connector):
 
 	def upload(self, request):
 		log.log('Debug', 'Received POST')
+		scope = 'all_probes'
 
 		access_token = request.REQUEST.get('access_token', '')
 
@@ -39,17 +39,17 @@ class ConnectorFunf(connector.Connector):
 				if uploaded_file:
 					try:
 						
-						user = self.pipe.getUser(access_token)
+						authorization = self.pipe.getAuthorization(access_token, scope=scope)
 				
-						if user == '':
-							upload_path = service_config.FUNF["upload_not_authorized_path"]
+						if 'error' in authorization:
+							upload_path = service_config.CONNECTORS["connector_funf"]["config"]["upload_not_authorized_path"]
 						else:
-							upload_path = service_config.FUNF["upload_path"]
+							upload_path = service_config.CONNECTORS["connector_funf"]["config"]["upload_path"]
 
 						if not os.path.exists(upload_path):
 							os.mkdir(upload_path)
 						
-						filepath = os.path.join(upload_path, uploaded_file.name)
+						filepath = os.path.join(upload_path, uploaded_file.name.split('.')[0].split('_')[0]+'_'+access_token+'_'+str(int(time.time()))+'.db')
 						
 						self.write_file(filepath, uploaded_file)
 
@@ -76,8 +76,25 @@ class ConnectorFunf(connector.Connector):
 
 
 	def config(self, request):
-		pass
+		log.log('Debug', 'GET for config')
+		access_token = request.REQUEST.get('access_token', '')
+		authorization = self.pipe.getAuthorization(access_token)
+		config = self.readConfig(authorization['user'])
+		if config:
+			return HttpResponse(config)
+	        else:
+        		return HttpResponse(status='500')
 
+	def readConfig(self, user):
+		config = None
+		try:
+			with open(service_config.CONNECTORS["connector_funf"]["config"]["config_path"]+self.chooseConfig(user)) as config_file:
+				config = config_file.read()
+		except IOError: pass
+		return config
+
+	def chooseConfig(self, user):
+		return "config.json"
 
 @csrf_exempt
 def upload(request):

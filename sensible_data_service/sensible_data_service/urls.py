@@ -5,5 +5,9 @@ from django.conf.urls import patterns, include, url
 # admin.autodiscover()
 
 urlpatterns = patterns('',
-	 url(r'^connectors/', include('connectors.urls')),
+	url(r'^connectors/', include('connectors.urls')),
+	#url(r'^authorization_manager/', include('authorization_manager.urls')),
+	url(r'^application_manager/', include('application_manager.urls')),
+	 
+	url(r'^test/', include('testing.urls')),
 )
