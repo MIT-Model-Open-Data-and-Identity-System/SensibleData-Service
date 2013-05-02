@@ -10,10 +10,14 @@ class Database:
 		self.client = MongoClient(service_config.DATABASE['params']['url']%(SECURE_service_config.DATABASE['username'],SECURE_service_config.DATABASE['password']))
 		self.db = self.client[service_config.DATABASE['params']['database']]
 
-	def insert(self, document, collection):
+	def insert(self, documents, collection):
 		coll = self.db[collection]
-		doc_id = coll.insert(document)
+		doc_id = coll.insert(documents,  continue_on_error=True)
+		coll = self.db[collection]
 		return doc_id
+
+		
+
 
 	def getDocuments(self, query, collection):
 		coll = self.db[collection]
