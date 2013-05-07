@@ -12,11 +12,8 @@ class Database:
 
 	def insert(self, documents, collection):
 		coll = self.db[collection]
-		doc_id = coll.insert(documents,  continue_on_error=True)
+		doc_id = coll.insert(documents, continue_on_error=True)
 		coll = self.db[collection]
-		return doc_id
-
-		
 
 
 	def getDocuments(self, query, collection):
