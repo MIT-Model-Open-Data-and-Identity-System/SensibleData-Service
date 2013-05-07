@@ -1,8 +1,8 @@
 DATABASE = {
 			"backend":"mongodb",
 			"params": {
-					"url":"mongodb://%s:%s@ds045047.mongolab.com:45047/sensibledtu-data",
-					"database":"sensibledtu-data"
+					"url":"mongodb://%s:%s@ds059557.mongolab.com:59557/sensible-data2",
+					"database":"sensible-data2"
 			}
 }
 
@@ -39,7 +39,7 @@ CONNECTORS = {
 			"backup_path": "/sensible-data/connector_funf/backup/", #must be www-data writable
 			"connector_type": "resource_provider", #client registers to this connector
 			"max_population_processes": 4,
-			"max_population_files": 10,
+			"max_population_files": 100,
 
 		},
 		"schedule": {
