@@ -17,7 +17,9 @@ def decrypt_directory(directory_to_decrypt=service_config.CONNECTORS['connector_
 	decrypted_directory_path = service_config.CONNECTORS['connector_funf']['config']['decrypted_path']
 	decryption_failed_path = service_config.CONNECTORS['connector_funf']['config']['decryption_failed_path']
 	backup_path = service_config.CONNECTORS['connector_funf']['config']['backup_path']
-	raw_filenames = [filename for filename in os.listdir(directory_to_decrypt) if fnmatch.fnmatch(filename, '*.db')]
+	#TODO
+	#raw_filenames = [filename for filename in os.listdir(directory_to_decrypt) if fnmatch.fnmatch(filename, '*.db')]
+	raw_filenames = [filename for filename in os.listdir(directory_to_decrypt) if fnmatch.fnmatch(filename, '*.orig')]
 	filenames = [os.path.join(directory_to_decrypt, filename) for filename in raw_filenames]
 	proc_dir = os.path.join(directory_to_decrypt, 'processing')
 	failed_filenames = []
@@ -40,7 +42,8 @@ def decrypt_directory(directory_to_decrypt=service_config.CONNECTORS['connector_
 				fail.safe_move(filename, decrypted_directory_path)
 
 				# Move original db file to original directory if it exists -- if db file is already decrypted .orig will not exist
-				orig_filename = filename + '.orig'
+				#orig_filename = filename + '.orig'
+				orig_filename = filename
 				if os.path.exists(orig_filename):
 					fail.safe_move(orig_filename, backup_path)
 
