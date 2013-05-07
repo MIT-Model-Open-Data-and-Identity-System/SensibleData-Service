@@ -1,0 +1,4 @@
+[subtree "sensible_data_service/connectors_core"]
+	url = git@github.com:MIT-Model-Open-Data-and-Identity-System/Core-Service-Connectors.git
+	path = sensible_data_service/connectors_core
+	branch = master
