@@ -1,3 +1,5 @@
+BASE_PATH = "/home/arks/MODIS/Sensible-Data-Service/sensible_data_service"
+
 DATABASE = {
 			"backend":"mongodb",
 			"params": {
