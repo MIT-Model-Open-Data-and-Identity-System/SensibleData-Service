@@ -27,6 +27,14 @@ class Anonymizer(object):
 			return value
 		self.key = key.decode("hex")
 		return self.encrypt(value)
+	
+	def deanonymizeValue(self, key_v, value):
+		try:
+			key = SECURE_service_config.VALUE_KEYS[key_v]
+		except KeyError:
+			return value
+		self.key = key.decode("hex")
+		return self.decrypt(value)
 
 	def anonymizeDocument(self, document, probe):
 		
@@ -50,8 +58,8 @@ class Anonymizer(object):
 		
 	def anonymizeWifi(self, document):
 		for scan in document['SCAN_RESULTS']:
-			scan['SSID'] = self.encrypt(scan['SSID'])
-			scan['BSSID'] = self.encrypt(scan['BSSID'])
+			#scan['SSID'] = self.encrypt(scan['SSID'])
+			#scan['BSSID'] = self.encrypt(scan['BSSID'])
 			scan['wifiSsid'] = {}
 	
 	def anonymizeBluetooth(self, document):
@@ -101,8 +109,9 @@ class Anonymizer(object):
 					if 'ONE_WAY_HASH' in entry[key]:
 						entry[key] = json.loads(entry[key])["ONE_WAY_HASH"]
 				except TypeError: pass
-
-		document['display_name'] = json.loads(document['display_name'])["ONE_WAY_HASH"]
+		try:
+			document['display_name'] = json.loads(document['display_name'])["ONE_WAY_HASH"]
+		except KeyError: pass
 
 	def encrypt(self, raw):
 		raw = unicode(raw).encode('utf-8')
@@ -116,7 +125,8 @@ class Anonymizer(object):
 		enc = enc.decode("hex")
 		#iv = enc[:16]
 		iv = SECURE_service_config.IV['iv']
-		enc = enc[16:]
+		#enc = enc[16:]
 		cipher = AES.new(self.key, AES.MODE_CBC, iv)
+		print cipher.decrypt(enc)
 		return self.unpad(cipher.decrypt(enc))
 		
