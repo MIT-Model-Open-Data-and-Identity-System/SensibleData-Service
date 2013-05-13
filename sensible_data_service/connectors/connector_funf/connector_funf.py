@@ -64,7 +64,7 @@ class ConnectorFunf(connector.Connector):
 				log.log('Error', 'Key error: ' + str(e))
 				pass
 		# bad request
-		return HttpResponse('here')
+		return HttpResponse(status='500')
 
 	def write_file(self, filepath, file):
 		with open(filepath, 'wb') as output_file:
