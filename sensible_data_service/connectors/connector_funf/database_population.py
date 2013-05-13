@@ -53,7 +53,6 @@ def run(db):
 	decrypted_path = service_config.CONNECTORS['connector_funf']['config']['decrypted_path']
 	load_failed_path = service_config.CONNECTORS['connector_funf']['config']['load_failed_path']
 	#TODO
-	#raw_filenames = [filename for filename in os.listdir(decrypted_path) if fnmatch.fnmatch(filename, '*.db')]
 	raw_filenames = [filename for filename in os.listdir(decrypted_path) if fnmatch.fnmatch(filename, '*.orig')]
 
 	anonymizerObject = Anonymizer()
@@ -100,15 +99,16 @@ def run(db):
 			uuid = cursor.execute('select uuid from file_info').fetchone()[0]
 			device_id = ''
 			try:
-				device_id = cursor.execute('select device_id from file_info').fetchone()[0]
+				device_id = anonymizerObject.anonymizeValue('device_id',str(cursor.execute('select device_id from file_info').fetchone()[0]))
+			#	device_id = str(cursor.execute('select device_id from file_info').fetchone()[0])
 			except Exception as e:
 				fail.fail(filename, load_failed_path, 'Exception thrown: ' + str(e) + '. While trying to extract device_id from file: ' + filename)
 				continue
 
 			#TODO: replace device_id with token
-			#user = 'todo_user'
 			try:
-				user = anonymizerObject.anonymizeValue('user', authorizationManager.getAuthorizationForToken('connector_funf', 'all_probes', device_id)['user'])
+			#	user = anonymizerObject.anonymizeValue('user', authorizationManager.getAuthorizationForToken('connector_funf', 'all_probes', device_id)['user'])
+				user = authorizationManager.getAuthorizationForToken('connector_funf', 'all_probes', device_id)['user']
 			except KeyError: user = None
 			if not user:
 				log.log('Debug', 'User does not exist for device id: ' + str(device_id))
@@ -128,8 +128,7 @@ def run(db):
 				doc['_id'] = hashlib.sha1(json.dumps(data)).hexdigest()+'_'+user+'_'+str(int(timestamp))
 				doc['uuid'] = uuid
 				doc['device'] = device
-				doc['device_id'] = anonymizerObject.anonymizeValue('device_id', device_id)
-				#doc['user'] = anonymizerObject.anonymizeValue('user', user)
+				doc['device_id'] = device_id
 				doc['user'] = user
 				doc['probe'] = data['PROBE'].replace('.','_')
 				doc['data'] = anonymizerObject.anonymizeDocument(data, doc['probe'])
@@ -159,6 +158,7 @@ def run(db):
 
 
 	for filename in filenames_to_remove:
+		print "removing ",filename
 		os.remove(filename)
 
 
