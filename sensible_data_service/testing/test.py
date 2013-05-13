@@ -27,3 +27,4 @@ def testing(request):
 	#response = pipe.getAuthorization('aaaa')
 
 	return HttpResponse(json.dumps(response))
+
