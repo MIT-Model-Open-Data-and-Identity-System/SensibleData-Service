@@ -43,7 +43,7 @@ class Anonymizer(object):
 		except KeyError:
 			return document
 		self.key = key.decode("hex")
-		#TODO: move from secure config to config
+		#TODO: figure out the configuration setup for the probes
 
 
 		if probe == 'edu_mit_media_funf_probe_builtin_WifiProbe': self.anonymizeWifi(document)
@@ -123,10 +123,7 @@ class Anonymizer(object):
 
 	def decrypt(self, enc):
 		enc = enc.decode("hex")
-		#iv = enc[:16]
 		iv = SECURE_service_config.IV['iv']
-		#enc = enc[16:]
 		cipher = AES.new(self.key, AES.MODE_CBC, iv)
-		print cipher.decrypt(enc)
 		return self.unpad(cipher.decrypt(enc))
 		
