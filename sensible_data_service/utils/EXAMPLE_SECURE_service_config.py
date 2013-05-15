@@ -15,6 +15,9 @@ CONNECTORS= {
 
 }
 
+SERVICE_CLIENT_ID = ""
+SERVICE_CLIENT_SECRET = ""
+
 PROBE_KEYS= {
         "edu_mit_media_funf_probe_builtin_CellProbe": "",
         "edu_mit_media_funf_probe_builtin_WifiProbe": "",
