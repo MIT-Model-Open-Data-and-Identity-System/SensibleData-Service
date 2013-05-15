@@ -130,6 +130,8 @@ INSTALLED_APPS = (
     'connector_pipes',
     'authorization_manager',
     'application_manager',
+    'identity_manager',
+    'platform_manager',
     'testing',
     'connectors.connector_funf',
     'anonymizer',
