@@ -20,7 +20,10 @@ class ApplicationManager(object):
 		application['owner'] = owner
 		application['connector'] = connector
 		application['scopes'] = scopes.split(',')
-		application['params'] = json.loads(params)
+		if params == '': params = '{}'
+		params_json = json.loads(params)
+		params_json['client_id'] = application['id']
+		application['params'] = params_json
 		application['description'] = description
 		application['connector_type'] = connector_type
 
@@ -30,6 +33,8 @@ class ApplicationManager(object):
 		if 'error' in validation:			
 			return validation
 
+
+		application['scopes'] = [connector+'.'+v for v in application['scopes']]
 			
 		application['required_pipes'] = []
 		for scope in application['scopes']:
@@ -37,7 +42,6 @@ class ApplicationManager(object):
 		
 
 		self.authDatabase.insert(application, 'application')
-
 
 		return application
 
@@ -60,10 +64,10 @@ class ApplicationManager(object):
 			if not scope in service_config.CONNECTORS[application['connector']]['scopes']: 	
 				validation['error'] = 'invalid scope'
 				return validation
-		if self.authDatabase.getDocuments({'name':application['name']}, 'application').count():
+		if self.authDatabase.getDocuments({'name': application['name']}, 'application').count():
 			validation['error'] = 'application name already exists'
 			return validation
-		if self.authDatabase.getDocuments({'params':application['params']}, 'application').count():
+		if self.authDatabase.getDocuments({'params': application['params']}, 'application').count():
 			validation['error'] = 'application with those parameters already exists'
 			return validation
 			
@@ -78,18 +82,35 @@ class ApplicationManager(object):
 
 
 	def registerResourceApplication(self, name, owner, connector, scopes, description, params):
+		return self.registerApplication(name, owner, connector, scopes, description, params, connector_type='resource')
+
+	def registerClientApplication(self, name, owner, connector, scopes, description, params):
 		return self.registerApplication(name, owner, connector, scopes, description, params, connector_type='client')
+		
 
 
 def registerResourceApp(request):
 	name = request.REQUEST.get('name', '')
-	#TODO: owner comes from authentication
+	#TODO: IDENTITY owner comes from authentication
 	owner = request.REQUEST.get('owner', '')
 	connector = request.REQUEST.get('connector', '')
-	scopes = request.REQUEST.get('scopes', '')
+	scope = request.REQUEST.get('scope', '')
 	description = request.REQUEST.get('description', '')
 	params = request.REQUEST.get('params', '')
 
 	applicationManager = ApplicationManager()
-	response = applicationManager.registerResourceApplication(name, owner, connector, scopes, description, params)
+	response = applicationManager.registerResourceApplication(name, owner, connector, scope, description, params)
+	return HttpResponse(json.dumps(response))
+
+def registerClientApp(request):
+	name = request.REQUEST.get('name', '')
+	#TODO: IDENTITY owner comes from authentication
+	owner = request.REQUEST.get('owner', '')
+	connector = request.REQUEST.get('connector', '')
+	scope = request.REQUEST.get('scope', '')
+	description = request.REQUEST.get('description', '')
+	params = request.REQUEST.get('params', '')
+
+	applicationManager = ApplicationManager()
+	response = applicationManager.registerClientApplication(name, owner, connector, scope, description, params)
 	return HttpResponse(json.dumps(response))
