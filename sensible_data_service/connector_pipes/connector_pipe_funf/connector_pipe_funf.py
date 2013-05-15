@@ -6,4 +6,4 @@ class ConnectorFunfPipe(connector_pipe.ConnectorPipe):
 
 
 	def getAuthorization(self, token, scope):
-		return self.authorizationManager.getAuthorizationForToken('connector_funf',scope, token)
+		return self.authorizationManager.getAuthorizationForToken('connector_funf', scope, token)
