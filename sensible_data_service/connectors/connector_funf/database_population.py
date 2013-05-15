@@ -47,6 +47,10 @@ def start(pid):
 	DatabasePopulationAgent.objects.create(pid=str(pid))
 	return True
 
+def cleanFailedFilenames(failed_filenames):
+	for filename in failed_filenames:
+		log.log('Debug', 'File: ' + str(filename) + ' already exists.')
+
 def run(db):
 	print 'running'
 	authorizationManager = AuthorizationManager()
@@ -68,12 +72,12 @@ def run(db):
 		try:
 			shutil.move(f, proc_dir)
 		except Exception as e:
-			log.log('Debug', 'File: ' + str(f) + ' already exists.')
-			#TODO: remove files that already exist
 			failed_filenames.append(os.path.basename(f))
 
 	raw_filenames = [e for e in raw_filenames if e not in failed_filenames]
 	filenames = [os.path.join(proc_dir, filename) for filename in raw_filenames]
+
+	cleanFailedFilenames(failed_filenames)
 
 	cursor = None
 	documents_to_insert = defaultdict(list)
