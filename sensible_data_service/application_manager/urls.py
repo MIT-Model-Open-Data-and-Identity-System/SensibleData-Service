@@ -4,6 +4,7 @@ from django.conf.urls import patterns, include, url
 # from django.contrib import admin
 # admin.autodiscover()
 
-urlpatterns = patterns('',
-	url(r'^register_resource_application/?', 'application_manager.application_manager.registerResourceApp'),
+urlpatterns = patterns('application_manager.application_manager',
+	url(r'^register_resource_application/?', 'registerResourceApp'),
+	url(r'^register_client_application/?', 'registerClientApp'),
 )
