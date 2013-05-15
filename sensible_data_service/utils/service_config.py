@@ -1,4 +1,5 @@
 BASE_PATH = "/home/arks/MODIS/Sensible-Data-Service/sensible_data_service"
+DATA_BASE_PATH = ""
 
 DATABASE = {
 			"backend":"mongodb",
@@ -17,10 +18,11 @@ AUTH_DATABASE = {
 }
 
 
-LOG_FILE_PATH = "/sensible-data/log/" #must be www-data writable
-SERVICE_NAME = "SensibleDTU-1k" #must be www-data writable
+LOG_FILE_PATH = DATA_BASE_PATH+"/sensible-data/log/" #must be www-data writable
+SERVICE_NAME = "SensibleDTU-1k"
 
 
+#TODO: separate paths for 'processing'
 CONNECTORS = {
 	"connector_funf": {
 		"scopes": {
@@ -32,14 +34,14 @@ CONNECTORS = {
 
 		},
 		"config": {
-			"upload_path": "/sensible-data/connector_funf/upload/", #must be www-data writable
-			"upload_not_authorized_path" : "/sensible-data/connector_funf/upload_not_authorized/", #must be www-data writable
-			"decrypted_path" : "/sensible-data/connector_funf/decrypted/", #must be www-data writable
-			"decryption_failed_path" : "/sensible-data/connector_funf/decryption_failed/", #must be www-data writable
-			"load_failed_path" : "/sensible-data/connector_funf/load_failed/", #must be www-data writable
-			"config_path": "/sensible-data/connector_funf/config/", #must be www-data writable
-			"backup_path": "/sensible-data/connector_funf/backup/", #must be www-data writable
-			"connector_type": "resource_provider", #client registers to this connector
+			"upload_path": DATA_BASE_PATH+"/sensible-data/connector_funf/upload/", #must be www-data writable
+			"upload_not_authorized_path" : DATA_BASE_PATH+"/sensible-data/connector_funf/upload_not_authorized/", #must be www-data writable
+			"decrypted_path" : DATA_BASE_PATH+"/sensible-data/connector_funf/decrypted/", #must be www-data writable
+			"decryption_failed_path" : DATA_BASE_PATH+"/sensible-data/connector_funf/decryption_failed/", #must be www-data writable
+			"load_failed_path" : DATA_BASE_PATH+"/sensible-data/connector_funf/load_failed/", #must be www-data writable
+			"config_path": DATA_BASE_PATH+"/sensible-data/connector_funf/config/", #must be www-data writable
+			"backup_path": DATA_BASE_PATH+"/sensible-data/connector_funf/backup/", #must be www-data writable
+			"connector_type": "client",
 			"max_population_processes": 4,
 			"max_population_files": 100,
 
@@ -58,7 +60,7 @@ CONNECTORS = {
 
 		},
 		"config": {
-			"connector_type": "client"
+			"connector_type": "resource"
 
 		}
 	}
