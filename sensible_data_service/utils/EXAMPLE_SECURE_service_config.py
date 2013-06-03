@@ -30,28 +30,6 @@ PROBE_KEYS= {
 
 }
 
-
-#TODO
-PIIS= {
-	"edu_mit_media_funf_probe_builtin_CellProbe": {
-		"cid": "",
-		"lac": "",
-	},
-	"edu_mit_media_funf_probe_builtin_WifiProbe": {
-		"SCAN_RESULTS": {
-			"SSID": "",
-			"BSSID": "",
-		}
-	},
-	"edu_mit_media_funf_probe_builtin_BluetoothProbe": {
-		"DEVICES": {
-			"android_bluetooth_device_extra_DEVICE":{
-				"mAddress": ""
-			}
-		}
-	},
-}
-
 VALUE_KEYS= {
 	"user": "",
 	"device_id": "",
