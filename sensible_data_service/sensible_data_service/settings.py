@@ -17,7 +17,7 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),                      # Or path to database file if using sqlite3.
+        'NAME': os.path.join(BASE_DIR, 'SECURE_db.sqlite3'),                      # Or path to database file if using sqlite3.
         # The following settings are not used with sqlite3:
         'USER': '',
         'PASSWORD': '',
@@ -25,6 +25,19 @@ DATABASES = {
         'PORT': '',                      # Set to empty string for default.
     }
 }
+
+
+LOGIN_URL = '/openid/login/'
+LOGIN_REDIRECT_URL = '/'
+OPENID_SSO_SERVER_URL = 'http://166.78.249.214:8081/openid/xrds/'
+OPENID_USE_EMAIL_FOR_USERNAME = False
+AUTHENTICATION_BACKENDS = (
+            'django_openid_auth.auth.OpenIDBackend',
+            'django.contrib.auth.backends.ModelBackend',
+        )
+
+OPENID_CREATE_USERS = True
+OPENID_UPDATE_DETAILS_FROM_SREG = False
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
@@ -130,15 +143,13 @@ INSTALLED_APPS = (
     'connector_pipes',
     'authorization_manager',
     'application_manager',
-    'identity_manager',
+    'accounts',
     'platform_manager',
     'testing',
     'connectors.connector_funf',
     'anonymizer',
-    # Uncomment the next line to enable the admin:
-    # 'django.contrib.admin',
-    # Uncomment the next line to enable admin documentation:
-    # 'django.contrib.admindocs',
+    'django.contrib.admin',
+    'django_openid_auth'
 )
 
 # A sample logging configuration. The only tangible logging
@@ -169,3 +180,6 @@ LOGGING = {
         },
     }
 }
+
+import hashlib
+SESSION_COOKIE_NAME = str(hashlib.sha1(SECRET_KEY).hexdigest())
