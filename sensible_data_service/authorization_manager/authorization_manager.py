@@ -6,7 +6,7 @@ from django.http import HttpResponse
 from bson import json_util as json
 import uuid
 import time
-from identity_manager import identity_manager
+#from accounts import accounts
 from platform_manager import platform_manager
 
 class AuthorizationManager(object):
@@ -18,7 +18,8 @@ class AuthorizationManager(object):
 	def __init__(self):
 		self.authDatabase = AuthDatabase()
 		self.applicationManager = application_manager.ApplicationManager()
-		self.identityManager = identity_manager.IdentityManager()
+		#TODO:
+		#self.accountManager = identity_manager.IdentityManager()
 
 
 	def getAuthorizationForToken(self, connector, scope, token):
