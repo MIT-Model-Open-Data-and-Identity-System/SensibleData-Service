@@ -101,8 +101,6 @@ def upload(request):
 	connectorFunf = ConnectorFunf()
 	return connectorFunf.upload(request)
 
-
-
 	
 def config(request):
 	connectorFunf = ConnectorFunf()
