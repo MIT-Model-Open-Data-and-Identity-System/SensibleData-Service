@@ -33,3 +33,6 @@ class Application(models.Model):
 	params = models.ManyToManyField(Parameter)
 	description = models.TextField(null=True, blank=True)
 	connector_type = models.CharField(max_length=100)
+	
+	def __unicode__(self):
+		return self.name+':'+self._id
