@@ -27,7 +27,7 @@ PLATFORM = {
 	"platform_uri_dashboard": "http://166.78.249.214:8081/dashboard/",
 	"redirect_uri": "http://166.78.249.214:8082/platform_api/redirect_uri/",
 	"required_scopes": ["enroll", "view_real_name"],
-	"ip_addr": ["166.78.249.214", "18.111.3.213"]
+	"ip_addr": ["166.78.249.214"] #list of ip addresses of the platform authorized to make calls
 }
 
 CONNECTORS = {
