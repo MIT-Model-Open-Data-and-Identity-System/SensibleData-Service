@@ -4,6 +4,8 @@ from django.conf.urls import patterns, include, url
 # from django.contrib import admin
 # admin.autodiscover()
 
-urlpatterns = patterns('authorization_manager.authorization_manager',
-	url(r'^create_authorization/connector_funf/?', 'connectorFunf'),
+urlpatterns = patterns('authorization_manager',
+	url(r'^grant/connector_funf/?', 'connector_funf.grant'),
+	url(r'^revoke/connector_funf/?', 'connector_funf.revoke'),
+	url(r'^sync/connector_funf/?', 'connector_funf.sync'),
 )
