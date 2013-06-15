@@ -7,7 +7,7 @@ from application_manager import application_manager
 from collections import defaultdict
 
 
-from authorization_manager import connector_funf
+from authorization_manager import authorization_manager
 
 
 def serviceAuthorizations(request):
@@ -49,6 +49,5 @@ def getAuthorizationStatus(user, application, scope):
 def createUri(user, application, connector):
 	#authorizations = authorization_manager.getAuthorization(user, application, scope)
 	uri = {}
-	if connector.name == 'connector_funf':
-		uri = connector_funf.buildUri(connector, application)
+	uri = authorization_manager.buildUri(connector, application)
 	return uri
