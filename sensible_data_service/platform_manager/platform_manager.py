@@ -8,8 +8,7 @@ def authenticate(request):
         host = request.META['REMOTE_ADDR']
 	if not host in service_config.PLATFORM['ip_addr']: return {'error': 'ip address not authorized', 'response': json.dumps({'error': 'ip address not authorized'})}
 
-	try: user = AccessToken.objects.get(token=token).user
-        except AccessToken.DoesNotExist: return {'error': 'no user found', 'response': json.dumps({'error': 'no user found'})}
+	try: user = PlatformAccessToken.objects.get(token=token).user
+        except PlatformAccessToken.DoesNotExist: return {'error': 'no user found', 'response': json.dumps({'error': 'no user found'})}
 
-	#TODO: logging
 	return {'ok':'authenticated', 'user': user}

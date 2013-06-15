@@ -10,9 +10,9 @@ from utils import service_config, SECURE_service_config
 from django.shortcuts import redirect
 
 def saveCode(code, user, scope):
-	c = Code.objects.create(code=code, user=user, time_generated=int(time.time()))
+	c = Platform.Code.objects.create(code=code, user=user, time_generated=int(time.time()))
 	for s in scope:
-		c.scope.add(Scope.objects.get(key=s))
+		c.scope.add(PlatformScope.objects.get(key=s))
 	c.save()
 	return True
 
@@ -31,16 +31,13 @@ def exchangeCodeForToken(code):
 		response = e.read()
 		return response
 
-
-	
-
 	return json.loads(response)
 	
 def saveToken(user, token, code):
-	c = Code.objects.get(code=code)
-	t = AccessToken.objects.create(user = user, token = token['access_token'], token_type = token['token_type'], refresh_token = token['refresh_token'], expire = int(int(time.time()) + int(token['expires_in'])), code = c)
+	c = PlatformCode.objects.get(code=code)
+	t = PlatformAccessToken.objects.create(user = user, token = token['access_token'], token_type = token['token_type'], refresh_token = token['refresh_token'], expire = int(int(time.time()) + int(token['expires_in'])), code = c)
 	for s in token['scope'].split(','):
-		t.scope.add(Scope.objects.get(key=s))
+		t.scope.add(PlatformScope.objects.get(key=s))
 	t.save()
 
 	c.exchanged = True
