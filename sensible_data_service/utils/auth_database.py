@@ -2,6 +2,8 @@ from pymongo import MongoClient
 import service_config
 import SECURE_service_config
 
+#TODO: delete this module?
+
 class AuthDatabase(object):
         client = None
         db = None
