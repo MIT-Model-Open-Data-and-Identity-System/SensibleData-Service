@@ -149,7 +149,8 @@ INSTALLED_APPS = (
     'connectors.connector_funf',
     'anonymizer',
     'django.contrib.admin',
-    'django_openid_auth'
+    'django_openid_auth',
+    'oauth2app',
 )
 
 # A sample logging configuration. The only tangible logging
