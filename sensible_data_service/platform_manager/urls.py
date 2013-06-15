@@ -1,9 +1,5 @@
 from django.conf.urls import patterns, include, url
 
-# Uncomment the next two lines to enable the admin:
-# from django.contrib import admin
-# admin.autodiscover()
-
 urlpatterns = patterns('',
 	url(r'^redirect_uri/?$', 'platform_manager.registration.callback'),
 	url(r'^discover/?$', 'platform_manager.discover.init'),
