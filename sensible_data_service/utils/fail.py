@@ -4,6 +4,8 @@ import time
 import shutil
 from utils import log
 
+#TODO: split or rename this
+
 def fail(filename, failed_directory_path, message):
 	log.log('Error', message)
 	safe_move(filename, failed_directory_path)
