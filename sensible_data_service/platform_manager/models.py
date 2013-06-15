@@ -7,7 +7,7 @@ REFRESH_TOKEN_LENGTH = 10
 ACCESS_TOKEN_LENGTH = 10
 
 
-class Scope(models.Model):
+class PlatformScope(models.Model):
     """Stores scope to be used between service and platform.
 
     **Args:**
@@ -25,7 +25,7 @@ class Scope(models.Model):
     description = models.TextField(blank=True)
 
 
-class Code(models.Model):
+class PlatformCode(models.Model):
     """Stores authorization code data.
 
     **Args:**
@@ -45,15 +45,15 @@ class Code(models.Model):
         unique=True,
         max_length=CODE_KEY_LENGTH,
         db_index=True)
-    scope = models.ManyToManyField(Scope)
+    scope = models.ManyToManyField(PlatformScope)
     exchanged = models.BooleanField(default=False)
     time_generated = models.PositiveIntegerField()
     time_exchanged = models.PositiveIntegerField(null=True)
 
 
-class AccessToken(models.Model):
+class PlatformAccessToken(models.Model):
     user = models.ForeignKey(User)
-    code = models.ForeignKey(Code)
+    code = models.ForeignKey(PlatformCode)
     token = models.CharField(
         unique=True,
         max_length=ACCESS_TOKEN_LENGTH,
@@ -66,4 +66,4 @@ class AccessToken(models.Model):
         max_length=REFRESH_TOKEN_LENGTH,
         db_index=True)
     expire = models.PositiveIntegerField()
-    scope = models.ManyToManyField(Scope)
+    scope = models.ManyToManyField(PlatformScope)
