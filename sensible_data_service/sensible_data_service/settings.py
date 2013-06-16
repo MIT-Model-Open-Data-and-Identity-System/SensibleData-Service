@@ -87,6 +87,7 @@ STATIC_URL = '/static/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
+	'/home/arks/MODIS/Sensible-Data-Service/sensible_data_service/static',
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
@@ -126,6 +127,7 @@ ROOT_URLCONF = 'sensible_data_service.urls'
 WSGI_APPLICATION = 'sensible_data_service.wsgi.application'
 
 TEMPLATE_DIRS = (
+	'/home/arks/MODIS/Sensible-Data-Service/sensible_data_service/templates',
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
@@ -138,6 +140,11 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.admin',
+    'django_openid_auth',
+    'bootstrap_toolkit',
+    'uni_form',
+    'south',
     'connectors',
     'utils',
     'connector_pipes',
@@ -148,8 +155,6 @@ INSTALLED_APPS = (
     'testing',
     'connectors.connector_funf',
     'anonymizer',
-    'django.contrib.admin',
-    'django_openid_auth',
     'oauth2app',
 )
 
