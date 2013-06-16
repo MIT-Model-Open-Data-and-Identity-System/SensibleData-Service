@@ -12,8 +12,3 @@ class Authorization(models.Model):
 	created_at = models.PositiveIntegerField(null=True)
 	revoked_at = models.PositiveIntegerField(null=True)
 
-class GcmRegistration(models.Model):
-	user = models.ForeignKey(User)
-	device_id = models.CharField(max_length=256)
-	gcm_id = models.CharField(max_length=256)
-	
