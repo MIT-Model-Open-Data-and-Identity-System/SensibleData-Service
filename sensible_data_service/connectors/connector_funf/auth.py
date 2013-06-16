@@ -1,34 +1,56 @@
 import authorization_manager
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
+import json
+from application_manager.models import Application, GcmRegistration
+from oauth2app.models import Client
+from django.shortcuts import redirect
+import uuid
 
 @login_required
 def grant(request):
 
         user = request.user
-        scope = request.REQUEST.get('scope').split(',')
+	try: scope = request.REQUEST.get('scope').split(',')
+	except AttributeError: return HttpResponse(json.dumps({"error":"no scope provided"}))
         client_id = request.REQUEST.get('client_id', '')
         device_id = request.REQUEST.get('device_id', '')
         gcm_id = request.REQUEST.get('gcm_id', '')
 
-        #do we know gcm_id for this user:device_id?
-        #if gcm_id is provided update, if not take existing one
-        #otherwise we should return error that the authorization needs to be initiated from the phone
+	try:
+		gcm_registration = GcmRegistration.objects.get(user=user, device_id=device_id, application=Application.objects.get(client=Client.objects.get(key=client_id)))
+	except: gcm_registration = None
 
-        #push user to oauth2 grant auth site, with redirect_uri back to here (connector)
-        #ask for token directly, not code
+	if gcm_id == '' and gcm_registration == None:
+		#we cannot start authorization, we don\t know the gcm id
+		return HttpResponse(json.dumps({'error':'please start registration from your phone'}))
 
+	if gcm_id != '' and gcm_registration != None:
+		#we should update gcm_id
+		gcm_registration.gcm_id = gcm_id
+		gcm_registration.save()
 
+	#TODO: veriy params
+	#TODO: check scopes that are allowed for this app
 
-        return HttpResponse(str(user) + ' ' + str(scope) + ' ' + client_id)
+	redirect_uri = '/authorization_manager/oauth2/authorize/?'
+	redirect_uri += 'client_id='+client_id
+	redirect_uri += '&response_type=token'
+	redirect_uri += '&scope='+','.join(scope)
+	redirect_uri += '&redirect_uri='+Client.objects.get(key=client_id).redirect_uri
+
+	return redirect(redirect_uri)
 
 @login_required
-def authorizationGranted(request):
+def granted(request):
         #TODO: wrap token in authorization
         #push the token to the phone over GCM
-        #get confirmation somehow?
+        #get confirmation
         #redirect user back to platform
-        return HttpResponse('authorization granted')
+
+	server_nonce = str(uuid.uuid4())
+
+        return HttpResponse('authorization granted '+server_nonce)
 
 @login_required
 def revoke(request):
