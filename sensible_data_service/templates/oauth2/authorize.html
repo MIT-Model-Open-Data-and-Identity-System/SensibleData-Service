@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load uni_form_tags %}
+
+<link href='http://fonts.googleapis.com/css?family=Cabin:regular,bold&v1' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="/static/css/reset.css" type="text/css" media="screen, projection" />
+        <link rel="stylesheet" href="/static/css/global.css" type="text/css" media="screen, projection" />
+        <link rel="stylesheet" href="/static/css/uni-form.css" type="text/css" />
+        <link rel="stylesheet" href="/static/css/blue.uni-form.css" type="text/css" />
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js" type="text/javascript"></script>
+        <script src="/static/js/uni-form-validation.jquery.js" type="text/javascript"></script>
+
+{% block title %}Authorize “{{ client.name }}”{% endblock %}
+
+{% block content %}
+
+	<h1>Authorize</h1>
+
+	<div class="content_container">
+		<p>Grant “{{ client.name }}” access to {% if access_ranges %}the following parts of{% endif %} your account?</p>
+		{% if scopes %}
+		<table class="table table-striped">
+			<tr>
+				<th>Scope</th>
+				<th>Description</th>
+			</tr>		
+			{% for scope in scopes %}
+			<tr>
+				<td>{{ scope.scope }}</td>
+				<td>{{ scope.description }}</td>
+			</tr>
+			{% endfor %}
+		</table>
+		{% endif %}
+	</div>
+
+	<div class="form_container">
+	{% uni_form form helper %}
+	</div>
+
+	<script type="text/javascript">
+		$(document).ready(function(){
+			$('form.uniForm').uniform();
+		});
+	</script>
+
+{% endblock %}
