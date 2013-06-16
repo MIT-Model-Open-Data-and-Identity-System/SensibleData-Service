@@ -15,8 +15,9 @@ from .consts import ACCESS_TOKEN_EXPIRATION, REFRESH_TOKEN_LENGTH
 from .consts import AUTHENTICATION_METHOD, MAC, BEARER, MAC_KEY_LENGTH
 from .consts import REFRESHABLE
 from .lib.uri import normalize
-from .models import Client, AccessRange, Code, AccessToken, TimestampGenerator
+from .models import Client, Code, AccessToken, TimestampGenerator
 from .models import KeyGenerator
+from connectors.models import Scope
 
 
 class AccessTokenException(OAuth2Exception):
@@ -121,10 +122,10 @@ class TokenGenerator(object):
         self.authentication_method = authentication_method
         if scope is None:
             self.authorized_scope = None
-        elif isinstance(scope, AccessRange):
-            self.authorized_scope = set([scope.key])
+        elif isinstance(scope, Scope):
+            self.authorized_scope = set([scope.scope])
         else:
-            self.authorized_scope = set([x.key for x in scope])
+            self.authorized_scope = set([x.scope for x in scope])
 
     @csrf_exempt
     def __call__(self, request):
@@ -191,8 +192,8 @@ class TokenGenerator(object):
             raise InvalidClient("client_id %s doesn't exist" % self.client_id)
         # Scope
         if self.scope is not None:
-            access_ranges = AccessRange.objects.filter(key__in=self.scope)
-            access_ranges = set(access_ranges.values_list('key', flat=True))
+            access_ranges = Scope.objects.filter(scope__in=self.scope)
+            access_ranges = set(access_ranges.values_list('scope', flat=True))
             difference = access_ranges.symmetric_difference(self.scope)
             if len(difference) != 0:
                 raise InvalidScope("Following access ranges doesn't exist: "
@@ -238,7 +239,7 @@ class TokenGenerator(object):
         now = TimestampGenerator()()
         if self.code.expire < now:
             raise InvalidGrant("Provided code is expired")
-        self.scope = set([x.key for x in self.code.scope.all()])
+        self.scope = set([x.scope for x in self.code.scope.all()])
         if self.redirect_uri is None:
             raise InvalidRequest('No redirect_uri')
         if normalize(self.redirect_uri) != normalize(self.code.redirect_uri):
@@ -251,8 +252,8 @@ class TokenGenerator(object):
         if self.password is None:
             raise InvalidRequest('No password')
         if self.scope is not None:
-            access_ranges = AccessRange.objects.filter(key__in=self.scope)
-            access_ranges = set(access_ranges.values_list('key', flat=True))
+            access_ranges = Scope.objects.filter(scope__in=self.scope)
+            access_ranges = set(access_ranges.values_list('scope', flat=True))
             difference = access_ranges.symmetric_difference(self.scope)
             if len(difference) != 0:
                 raise InvalidScope("""Following access ranges do not
@@ -298,7 +299,7 @@ class TokenGenerator(object):
         if not self.access_token.refreshable:
             raise InvalidGrant("Access token is not refreshable.")
         if self.scope is not None:
-            access_ranges = set([x.key for x in self.access_token.scope.all()])
+            access_ranges = set([x.scope for x in self.access_token.scope.all()])
             new_scope = self.scope - access_ranges
             if len(new_scope) > 0:
                 raise InvalidScope("Refresh request requested scopes beyond"
@@ -373,7 +374,7 @@ class TokenGenerator(object):
             refreshable=self.refreshable)
         if self.authentication_method == MAC:
             access_token.mac_key = KeyGenerator(MAC_KEY_LENGTH)()
-        access_ranges = AccessRange.objects.filter(key__in=self.scope) if self.scope else []
+        access_ranges = Scope.objects.filter(scope__in=self.scope) if self.scope else []
         access_token.scope = access_ranges
         access_token.save()
         self.code.delete()
@@ -387,7 +388,7 @@ class TokenGenerator(object):
             refreshable=self.refreshable)
         if self.authentication_method == MAC:
             access_token.mac_key = KeyGenerator(MAC_KEY_LENGTH)()
-        access_ranges = AccessRange.objects.filter(key__in=self.scope) if self.scope else []
+        access_ranges = Scope.objects.filter(scope__in=self.scope) if self.scope else []
         access_token.scope = access_ranges
         access_token.save()
         return access_token
@@ -397,7 +398,7 @@ class TokenGenerator(object):
         self.access_token.refresh_token = KeyGenerator(REFRESH_TOKEN_LENGTH)()
         self.access_token.expire = TimestampGenerator(ACCESS_TOKEN_EXPIRATION)()
         if self.scope:
-            self.access_token.scope = AccessRange.objects.filter(key__in=self.scope)
+            self.access_token.scope = Scope.objects.filter(scope__in=self.scope)
         elif not self.access_token.scope.exists():
             self.access_token.scope = []
         self.access_token.save()
@@ -411,7 +412,7 @@ class TokenGenerator(object):
             refreshable=self.refreshable)
         if self.authentication_method == MAC:
             access_token.mac_key = KeyGenerator(MAC_KEY_LENGTH)()
-        access_ranges = AccessRange.objects.filter(key__in=self.scope) if self.scope else []
+        access_ranges = Scope.objects.filter(scope__in=self.scope) if self.scope else []
         access_token.scope = access_ranges
         access_token.save()
         return access_token

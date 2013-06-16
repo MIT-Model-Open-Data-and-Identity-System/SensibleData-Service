@@ -14,6 +14,7 @@ from .consts import SCOPE_LENGTH
 from .consts import ACCESS_TOKEN_LENGTH, REFRESH_TOKEN_LENGTH
 from .consts import ACCESS_TOKEN_EXPIRATION, MAC_KEY_LENGTH, REFRESHABLE
 from .consts import CODE_KEY_LENGTH, CODE_EXPIRATION
+from connectors.models import Scope
 
 
 class TimestampGenerator(object):
@@ -72,7 +73,7 @@ class Client(models.Model):
     """
     name = models.CharField(max_length=256)
     user = models.ForeignKey(User)
-    description = models.TextField(null=True, blank=True)
+    #description = models.TextField(null=True, blank=True)
     key = models.CharField(
         unique=True,
         max_length=CLIENT_KEY_LENGTH,
@@ -83,26 +84,9 @@ class Client(models.Model):
         max_length=CLIENT_SECRET_LENGTH,
         default=KeyGenerator(CLIENT_SECRET_LENGTH))
     redirect_uri = models.URLField(null=True)
-    api_uri = models.URLField(null=True)
 
-
-class AccessRange(models.Model):
-    """Stores access range data, also known as scope.
-
-    **Args:**
-
-    * *key:* A string representing the access range scope. Used in access
-      token requests.
-
-    **Kwargs:**
-
-    * *description:* A string representing the access range description.
-      *Default None*
-
-    """
-    key = models.CharField(unique=True, max_length=SCOPE_LENGTH, db_index=True)
-    description = models.TextField(blank=True)
-
+    def __unicode__(self):
+        return self.name + ':' + self.key
 
 class AccessToken(models.Model):
     """Stores access token data.
@@ -151,7 +135,7 @@ class AccessToken(models.Model):
         default=TimestampGenerator())
     expire = models.PositiveIntegerField(
         default=TimestampGenerator(ACCESS_TOKEN_EXPIRATION))
-    scope = models.ManyToManyField(AccessRange)
+    scope = models.ManyToManyField(Scope)
     refreshable = models.BooleanField(default=REFRESHABLE)
 
 
@@ -187,7 +171,7 @@ class Code(models.Model):
     expire = models.PositiveIntegerField(
         default=TimestampGenerator(CODE_EXPIRATION))
     redirect_uri = models.URLField(null=True)
-    scope = models.ManyToManyField(AccessRange)
+    scope = models.ManyToManyField(Scope)
 
 
 class MACNonce(models.Model):

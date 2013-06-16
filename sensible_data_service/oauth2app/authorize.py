@@ -17,7 +17,8 @@ from .consts import CODE, TOKEN, CODE_AND_TOKEN
 from .consts import AUTHENTICATION_METHOD, MAC, BEARER, MAC_KEY_LENGTH
 from .exceptions import OAuth2Exception
 from .lib.uri import add_parameters, add_fragments, normalize
-from .models import Client, AccessRange, Code, AccessToken, KeyGenerator
+from .models import Client, Code, AccessToken, KeyGenerator
+from connectors.models import Scope
 
 
 class AuthorizationException(OAuth2Exception):
@@ -122,10 +123,10 @@ class Authorizer(object):
         self.authentication_method = authentication_method
         if scope is None:
             self.authorized_scope = None
-        elif isinstance(scope, AccessRange):
-            self.authorized_scope = set([scope.key])
+        elif isinstance(scope, Scope):
+            self.authorized_scope = set([scope.scope])
         else:
-            self.authorized_scope = set([x.key for x in scope])
+            self.authorized_scope = set([x.scope for x in scope])
 
     def __call__(self, request):
         """Validate the request. Returns an error redirect if the
@@ -206,8 +207,8 @@ class Authorizer(object):
         if self.authorized_scope is not None and self.scope is None:
             self.scope = self.authorized_scope
         if self.scope is not None:
-            self.access_ranges = AccessRange.objects.filter(key__in=self.scope)
-            access_ranges = set(self.access_ranges.values_list('key', flat=True))
+            self.access_ranges = Scope.objects.filter(scope__in=self.scope)
+            access_ranges = set(self.access_ranges.values_list('scope', flat=True))
             difference = access_ranges.symmetric_difference(self.scope)
             if len(difference) != 0:
                 raise InvalidScope("Following access ranges do not "
@@ -284,7 +285,7 @@ class Authorizer(object):
             parameters = {}
             fragments = {}
             if self.scope is not None:
-                access_ranges = list(AccessRange.objects.filter(key__in=self.scope))
+                access_ranges = list(Scope.objects.filter(scope__in=self.scope))
             else:
                 access_ranges = []
             if RESPONSE_TYPES[self.response_type] & CODE != 0:
