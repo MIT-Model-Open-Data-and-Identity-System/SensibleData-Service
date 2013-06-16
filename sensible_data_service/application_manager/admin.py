@@ -3,7 +3,7 @@ from django.contrib import admin
 from .models import *
 
 class ApplicationAdmin(admin.ModelAdmin):
-        list_display = ('name', 'user')
+        list_display = ('name', 'user', 'client')
 
 admin.site.register(Application, ApplicationAdmin)
 
