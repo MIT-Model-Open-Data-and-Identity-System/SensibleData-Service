@@ -2,16 +2,9 @@ from .models import *
 from django.contrib import admin
 from oauth2app.models import *
 
-class AccessRangeAdmin(admin.ModelAdmin):
-        list_display = ('key', 'description')
-        class Meta:
-                verbose_name = 'scope'
-
-
-admin.site.register(AccessRange, AccessRangeAdmin)
 
 class ClientAdmin(admin.ModelAdmin):
-        list_display = ('name', 'description', 'user', 'api_uri')
+        list_display = ('name', 'user')
         def get_readonly_fields(self, request, obj=None):
                 if obj is not None:
                         return self.readonly_fields + ('user',)
