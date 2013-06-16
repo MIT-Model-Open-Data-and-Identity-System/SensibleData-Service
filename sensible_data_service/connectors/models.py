@@ -28,7 +28,3 @@ class Scope(models.Model):
 	def __unicode__(self):
 		return self.scope
 
-	#class Meta:
-	 #       unique_together = (('connector', 'scope'),)
-
-
