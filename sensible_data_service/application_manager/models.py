@@ -3,6 +3,7 @@ from hashlib import sha512
 from uuid import uuid4
 from django.contrib.auth.models import User
 from connectors.models import *
+from oauth2app.models import Client
 
 class KeyGenerator(object):
     """Callable Key Generator that returns a random keystring.
@@ -30,9 +31,16 @@ class Application(models.Model):
 	_id = models.CharField(unique=True, max_length=20, default=KeyGenerator(20), db_index=True)
 	user = models.ForeignKey(User)
 	scopes = models.ManyToManyField(Scope)
-	params = models.ManyToManyField(Parameter)
+	params = models.ManyToManyField(Parameter, null=True, blank=True)
 	description = models.TextField(null=True, blank=True)
 	connector_type = models.CharField(max_length=100)
+	client = models.ForeignKey(Client, null=True, blank=True)
 	
 	def __unicode__(self):
 		return self.name+':'+self._id
+
+class GcmRegistration(models.Model):
+	user = models.ForeignKey(User)
+	application = models.ForeignKey(Application, null=True)
+	device_id = models.CharField(max_length=256)
+	gcm_id = models.CharField(max_length=256)
