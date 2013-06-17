@@ -3,7 +3,8 @@ from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 import json
 from application_manager.models import Application, GcmRegistration
-from oauth2app.models import Client
+from authorization_manager.models import Authorization
+from oauth2app.models import Client, AccessToken
 from django.shortcuts import redirect
 import uuid
 
@@ -43,14 +44,20 @@ def grant(request):
 
 @login_required
 def granted(request):
-        #TODO: wrap token in authorization
+        #TODO: create authorization, add token
         #push the token to the phone over GCM
         #get confirmation
         #redirect user back to platform
 
+	access_token = AccessToken.objects.get(token=request.REQUEST.get('access_token'))
+
 	server_nonce = str(uuid.uuid4())
 
-        return HttpResponse('authorization granted '+server_nonce)
+	#TODO: one authorization per scope
+#	authorization = Authorization.create()
+	
+
+        return HttpResponse('authorization granted '+server_nonce+' '+access_token.token)
 
 @login_required
 def revoke(request):
