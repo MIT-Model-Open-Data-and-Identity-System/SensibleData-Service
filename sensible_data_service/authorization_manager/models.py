@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from connectors.models import *
 from application_manager.models import *
+from oauth2app.models import AccessToken
 
 class Authorization(models.Model):
 	user = models.ForeignKey(User)
@@ -11,4 +12,4 @@ class Authorization(models.Model):
 	active = models.BooleanField()
 	created_at = models.PositiveIntegerField(null=True)
 	revoked_at = models.PositiveIntegerField(null=True)
-
+	access_token = models.ForeignKey(AccessToken, null=True)
