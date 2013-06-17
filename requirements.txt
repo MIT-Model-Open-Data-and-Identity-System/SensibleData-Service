@@ -1,1 +1,3 @@
 django-bootstrap-toolkit
+distribute>=0.6.28
+mysql-python
