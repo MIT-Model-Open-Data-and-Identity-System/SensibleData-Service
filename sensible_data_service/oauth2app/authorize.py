@@ -319,7 +319,8 @@ class Authorizer(object):
             if self.state is not None:
                 parameters['state'] = self.state
             redirect_uri = add_parameters(self.redirect_uri, parameters)
-            redirect_uri = add_fragments(redirect_uri, fragments)
+            #redirect_uri = add_fragments(redirect_uri, fragments)
+            redirect_uri = add_parameters(redirect_uri, fragments)
             return HttpResponseRedirect(redirect_uri)
         else:
             raise UnauthenticatedUser("Django user object associated with the "
