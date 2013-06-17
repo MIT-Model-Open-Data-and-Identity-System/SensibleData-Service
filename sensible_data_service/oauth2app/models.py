@@ -139,6 +139,9 @@ class AccessToken(models.Model):
     refreshable = models.BooleanField(default=REFRESHABLE)
 
 
+    def __unicode__(self):
+        return self.user.username+':'+self.client.name+':'+self.token
+
 class Code(models.Model):
     """Stores authorization code data.
 
