@@ -7,6 +7,7 @@ from authorization_manager.models import Authorization
 from oauth2app.models import Client, AccessToken
 from django.shortcuts import redirect
 import uuid
+import hashlib
 
 @login_required
 def grant(request):
@@ -44,20 +45,20 @@ def grant(request):
 
 @login_required
 def granted(request):
-        #TODO: create authorization, add token
-        #push the token to the phone over GCM
-        #get confirmation
-        #redirect user back to platform
+        #TODO: push the token to the phone over GCM
+        #TODO: get confirmation
+        #TODO: redirect user back to platform
 
 	access_token = AccessToken.objects.get(token=request.REQUEST.get('access_token'))
 
-	server_nonce = str(uuid.uuid4())
+	server_nonce = hashlib.sha256(str(uuid.uuid4())).hexdigest() #we do it here not in the model, so all authorizations from this batch have the same nonce
+	t= ''
+	for scope in access_token.scope.all():
+		authorization = Authorization.objects.create(user=access_token.user, scope=scope, application=Application.objects.get(client=access_token.client), access_token=access_token, nonce=server_nonce)
 
-	#TODO: one authorization per scope
-#	authorization = Authorization.create()
 	
 
-        return HttpResponse('authorization granted '+server_nonce+' '+access_token.token)
+        return HttpResponse('authorization granted '+access_token.token+' '+t)
 
 @login_required
 def revoke(request):
