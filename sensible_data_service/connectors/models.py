@@ -7,11 +7,11 @@ class ConnectorManager(models.Manager):
 class Connector(models.Model):
 	objects = ConnectorManager()
 
-	name = models.CharField(unique=True, max_length=256)
+	name = models.CharField(unique=True, max_length=100)
 	description = models.TextField(blank=True)
 	grant_url = models.URLField(null=True)
 	revoke_url = models.URLField(null=True)
-	connector_type = models.CharField(unique=True, max_length=256)
+	connector_type = models.CharField(max_length=100)
 
 	def __unicode__(self):
 		return self.name
