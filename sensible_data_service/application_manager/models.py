@@ -27,7 +27,7 @@ class Parameter(models.Model):
 		return self.key+':'+self.value
 
 class Application(models.Model):
-	name = models.CharField(unique=True, max_length=256)
+	name = models.CharField(unique=True, max_length=100)
 	_id = models.CharField(unique=True, max_length=20, default=KeyGenerator(20), db_index=True)
 	user = models.ForeignKey(User)
 	scopes = models.ManyToManyField(Scope)
