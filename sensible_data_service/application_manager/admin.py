@@ -11,3 +11,8 @@ class ParameterAdmin(admin.ModelAdmin):
         list_display = ('key', 'value')
 
 admin.site.register(Parameter, ParameterAdmin)
+
+class DeviceAdmin(admin.ModelAdmin):
+        list_display = ('user', 'device_id')
+
+admin.site.register(Device, DeviceAdmin)

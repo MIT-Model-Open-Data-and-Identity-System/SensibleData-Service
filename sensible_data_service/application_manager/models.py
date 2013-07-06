@@ -39,8 +39,13 @@ class Application(models.Model):
 	def __unicode__(self):
 		return self.name+':'+self._id
 
+class Device(models.Model):
+	user = models.ForeignKey(User)
+	device_id = models.CharField(max_length=100, unique=True)
+	
+
 class GcmRegistration(models.Model):
 	user = models.ForeignKey(User)
+	device_id = models.ForeignKey(Device)
 	application = models.ForeignKey(Application, null=True)
-	device_id = models.CharField(max_length=256)
 	gcm_id = models.CharField(max_length=256)

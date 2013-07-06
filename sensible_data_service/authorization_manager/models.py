@@ -15,3 +15,4 @@ class Authorization(models.Model):
 	revoked_at = models.PositiveIntegerField(null=True)
 	access_token = models.ForeignKey(AccessToken, null=True)
 	nonce = models.CharField(null=True, blank=True, max_length=100, default=KeyGenerator(10))
+	device = models.ForeignKey(Device, null=True)

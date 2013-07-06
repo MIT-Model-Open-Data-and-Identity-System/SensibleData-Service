@@ -1,8 +1,9 @@
 import authorization_manager
+from authorization_manager import gcm
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 import json
-from application_manager.models import Application, GcmRegistration
+from application_manager.models import Application, GcmRegistration, Device
 from authorization_manager.models import Authorization
 from oauth2app.models import Client, AccessToken
 from django.shortcuts import redirect
@@ -19,19 +20,24 @@ def grant(request):
         device_id = request.REQUEST.get('device_id', '')
         gcm_id = request.REQUEST.get('gcm_id', '')
 
+
+	#TODO: device support
 	try:
 		gcm_registration = GcmRegistration.objects.get(user=user, device_id=device_id, application=Application.objects.get(client=Client.objects.get(key=client_id)))
 	except: gcm_registration = None
 
+
 	if gcm_id == '' and gcm_registration == None:
-		#we cannot start authorization, we don\t know the gcm id
+		#we cannot start authorization, we don't know the gcm id
 		return HttpResponse(json.dumps({'error':'please start registration from your phone'}))
 
-	if gcm_id != '' and gcm_registration != None:
+	if gcm_id != '' and device_id != None and gcm_registration != None:
 		#we should update gcm_id
 		gcm_registration.gcm_id = gcm_id
+		gcm_registration.device_id = gcm_id
 		gcm_registration.save()
 
+	#TODO: create new gcm registration
 	#TODO: veriy params
 	#TODO: check scopes that are allowed for this app
 
@@ -56,7 +62,8 @@ def granted(request):
 	for scope in access_token.scope.all():
 		authorization = Authorization.objects.create(user=access_token.user, scope=scope, application=Application.objects.get(client=access_token.client), access_token=access_token, nonce=server_nonce)
 
-	
+	#to user, application, device, parameters, nonce
+	gcm.sendAuthorization()
 
         return HttpResponse('authorization granted '+access_token.token+' '+t)
 
