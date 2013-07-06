@@ -151,6 +151,7 @@ INSTALLED_APPS = (
     'platform_manager',
     'testing',
     'connectors.connector_funf',
+    'connectors.connector_questionnaire',
     'anonymizer',
     'oauth2app',
 )

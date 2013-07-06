@@ -34,6 +34,26 @@ CONNECTORS = {
                 }
 
         },
+        "ConnectorQuestionnaire": {
+                "name": "connector_questionnaire",
+                "description": "This is a questionnaire application.",
+                "scopes": {
+                        "input_form_data": {
+                                "description": "This scope allows the application to submit your data.",
+                        }
+
+                },
+                "config": {
+                        "connector_type": "client",
+                        "grant_url" : "http://test.com",
+                        "revoke_url": "http://test.com",
+
+                },
+                "schedule": {
+
+                }
+
+        },
  	"connector_facebook": {
                 "scopes": {
                         "read_friendlists": {

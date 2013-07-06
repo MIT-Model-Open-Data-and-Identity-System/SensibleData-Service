@@ -32,6 +32,7 @@ PLATFORM = {
 
 CONNECTORS = {
 	"ConnectorFunf": True,
+	"ConnectorQuestionnaire": True,
 	"ConnectorFacebook": False,
 
 }

@@ -2,6 +2,7 @@ from utils.log import log
 from utils import service_config
 from connectors import connectors_config
 from connectors.connector_funf.models import *
+from connectors.connector_questionnaire.models import *
 from connectors.models import *
 import json
 
@@ -15,6 +16,7 @@ class Command(NoArgsCommand):
 			except KeyError: continue
 
 			if connector == 'ConnectorFunf': self.populateConnectorFunf(connectors_config.CONNECTORS[connector])
+			if connector == 'ConnectorQuestionnaire': self.populateConnectorQuestionnaire(connectors_config.CONNECTORS[connector])
 
 	def populateConnectorFunf(self, data):
 		connector = ConnectorFunf.objects.create(name=data['name'],
@@ -38,3 +40,19 @@ class Command(NoArgsCommand):
 
 
 		print 'created funf connector: '+json.dumps(data)
+	
+
+
+	def populateConnectorQuestionnaire(self, data):
+		connector = ConnectorQuestionnaire.objects.create(name=data['name'],
+							description=data['description'],
+							connector_type=data['config']['connector_type'],
+							grant_url=data['config']['grant_url'],
+							revoke_url=data['config']['revoke_url'],
+							)
+
+		for scope in data['scopes']:
+			Scope.objects.create(connector=connector, scope=data['name']+'.'+scope, description=data['scopes'][scope]['description'])
+
+
+		print 'created questionnaire connector: '+json.dumps(data)
