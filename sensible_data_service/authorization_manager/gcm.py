@@ -1,0 +1,3 @@
+
+def sendAuthorization():
+	return True
