@@ -11,7 +11,7 @@ from django.http import HttpResponse
 from django.contrib.auth import authenticate
 from django.views.decorators.csrf import csrf_exempt
 from .exceptions import OAuth2Exception
-from .consts import ACCESS_TOKEN_EXPIRATION, REFRESH_TOKEN_LENGTH
+from .consts import ACCESS_TOKEN_EXPIRATION, REFRESH_TOKEN_LENGTH, ACCESS_TOKEN_LENGTH
 from .consts import AUTHENTICATION_METHOD, MAC, BEARER, MAC_KEY_LENGTH
 from .consts import REFRESHABLE
 from .lib.uri import normalize
@@ -396,6 +396,7 @@ class TokenGenerator(object):
     def _get_refresh_token(self):
         """Generate an access token after refresh authorization."""
         self.access_token.refresh_token = KeyGenerator(REFRESH_TOKEN_LENGTH)()
+	self.access_token.token = KeyGenerator(ACCESS_TOKEN_LENGTH)()
         self.access_token.expire = TimestampGenerator(ACCESS_TOKEN_EXPIRATION)()
         if self.scope:
             self.access_token.scope = Scope.objects.filter(scope__in=self.scope)
