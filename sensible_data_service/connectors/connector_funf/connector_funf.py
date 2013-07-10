@@ -17,9 +17,6 @@ import bson.json_util as json
 
 class ConnectorFunf(connector.Connector):
 
-	pipe = None
-
-
 	def __init__(self): 
 		super(ConnectorFunf, self).__init__()
 
@@ -37,7 +34,8 @@ class ConnectorFunf(connector.Connector):
 				if uploaded_file:
 					try:
 						
-						authorization = self.pipe.getAuthorization(access_token, scope=scope)
+						#authorization = self.pipe.getAuthorization(access_token, scope=scope)
+						authorization = ''
 				
 						if 'error' in authorization:
 							upload_path = service_config.CONNECTORS["connector_funf"]["config"]["upload_not_authorized_path"]
