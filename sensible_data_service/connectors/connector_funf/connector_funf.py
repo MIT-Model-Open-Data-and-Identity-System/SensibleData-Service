@@ -12,7 +12,6 @@ from utils import service_config
 from utils import SECURE_service_config
 from utils import log
 
-from connector_pipes.connector_pipe_funf import connector_pipe_funf
 from connectors.connector import connector
 import bson.json_util as json
 
@@ -23,7 +22,6 @@ class ConnectorFunf(connector.Connector):
 
 	def __init__(self): 
 		super(ConnectorFunf, self).__init__()
-		self.pipe = connector_pipe_funf.ConnectorFunfPipe()
 
 	def upload(self, request):
 		log.log('Debug', 'Received POST')

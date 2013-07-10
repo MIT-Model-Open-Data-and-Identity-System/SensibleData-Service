@@ -144,7 +144,6 @@ INSTALLED_APPS = (
     'south',
     'connectors',
     'utils',
-    'connector_pipes',
     'authorization_manager',
     'application_manager',
     'accounts',
