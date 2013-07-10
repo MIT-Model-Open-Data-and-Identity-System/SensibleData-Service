@@ -3,7 +3,11 @@ from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 import json
 from django.shortcuts import redirect
-from oauth2app.models import Client, AccessToken
+from oauth2app.models import Client, AccessToken, Code
+import urllib, urllib2
+from django.views.decorators.csrf import csrf_exempt
+from authorization_manager import authorization_manager
+import json
 
 @login_required
 def grant(request):
@@ -19,5 +23,18 @@ def grant(request):
         redirect_uri += '&response_type='+response_type
         redirect_uri += '&scope='+','.join(scope)
         redirect_uri += '&redirect_uri='+Client.objects.get(key=client_id).redirect_uri+'&state='+state
+        #redirect_uri += '&redirect_uri='+'/authorization_manager/connector_questionnaire/auth/granted/'+'&state='+state
 	
 	return redirect(redirect_uri)
+
+
+@csrf_exempt
+def token(request):
+	code = request.POST.get('code')
+	client_id = request.POST.get('client_id')
+	client_secret = request.POST.get('client_secret')
+	redirect_uri = request.POST.get('redirect_uri')
+
+	response = authorization_manager.token(code, client_id, client_secret, redirect_uri)
+        return HttpResponse(response)
+
