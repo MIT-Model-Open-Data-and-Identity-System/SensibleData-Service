@@ -6,6 +6,7 @@
     <title>SensibleDTU</title>
     <meta name="description" content="">
     <meta name="author" content="Arkadiusz Stopczynski">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% bootstrap_stylesheet_tag %}
     {% bootstrap_stylesheet_tag "responsive" %}
     <style type="text/css">
@@ -29,23 +30,23 @@
             <a class="brand" href="/">SensibleDTU</a>
             <ul class="nav">
             </ul>
-	<ul class="nav pull-right action">
-        <li class="btn-group">
-          <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-            {{ username }}
-            <span class="caret"></span>
-          </a>
-          <ul class="dropdown-menu">
-            <li><a href="/logout">Logout</a></li>
-          </ul>
-        </li>
+<ul class="nav pull-right action">
+        {% if user.is_authenticated %}
+                  <a class="btn btn-primary" data-toggle="dropdown" href="" disabled='true'>
+			<i class="icon-user icon-white"></i>
+                    {{ user.username }}
+                  </a>
+        {% else %}
+                <a class="btn btn-primary" href="{% url 'login' %}">
+                <i class="icon-user icon-white"></i> Login</a>
+        {% endif %}
       </ul>
-
 
 
         </div>
     </div>
 </div>
+
 
 <div class="container">
 
@@ -56,6 +57,9 @@
     <p><hr></p>
 
     <footer class="row">
+        <div class="span6">
+            <p>This is <a href="https://github.com/organizations/MIT-Model-Open-Data-and-Identity-System">SensibleDTU, an openPDS system</a></p>
+        </div>
         <div class="span6" style="text-align:right">
             <p>
                 &copy; <a href="http://stopczynski.com">Arkadiusz Stopczynski</a> 2013
