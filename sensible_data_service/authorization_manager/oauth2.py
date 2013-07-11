@@ -41,7 +41,7 @@ def authorize(request):
         helper = FormHelper()
         no_submit = Submit('connect','No', css_class='btn btn-large')
         helper.add_input(no_submit)
-        yes_submit = Submit('connect', 'Yes', css_class='btn btn-large btn-success')
+        yes_submit = Submit('connect', 'Yes', css_class='btn btn-large btn-primary')
         helper.add_input(yes_submit)
         helper.form_action = '/authorization_manager/oauth2/authorize?%s' % authorizer.query_string
         helper.form_method = 'POST'
