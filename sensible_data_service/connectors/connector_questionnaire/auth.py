@@ -38,3 +38,13 @@ def token(request):
 	response = authorization_manager.token(code, client_id, client_secret, redirect_uri)
         return HttpResponse(response)
 
+@csrf_exempt
+def refresh_token(request):
+	refresh_token = request.POST.get('refresh_token')
+	client_id = request.POST.get('client_id')
+	client_secret = request.POST.get('client_secret')
+	redirect_uri = request.POST.get('redirect_uri')
+	scope = request.POST.get('scope')
+	
+	response = authorization_manager.refresh_token(refresh_token, client_id, client_secret, redirect_uri, scope)
+        return HttpResponse(response)
