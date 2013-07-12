@@ -5,7 +5,6 @@ import os
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 ADMINS = (
@@ -13,20 +12,23 @@ ADMINS = (
 )
 
 MANAGERS = ADMINS
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+ROOT_DIR = '/home/sensibleDTU/sensible-dtu-service/SensibleData-Service/sensible_data_service/'
+ROOT_URL = '/sensible-dtu/'
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
 	'OPTIONS': {
-            'read_default_file': os.path.join(BASE_DIR,'SECURE_mysql.cnf'),
+            'read_default_file': os.path.join(BASE_DIR,'SECURE_my.cnf'),
         },
     }
 }
 
 
-LOGIN_URL = '/openid/login/'
-LOGIN_REDIRECT_URL = '/'
-OPENID_SSO_SERVER_URL = 'http://166.78.249.214:8081/openid/xrds/'
+LOGIN_URL = ROOT_URL+'openid/login/'
+LOGIN_REDIRECT_URL = ROOT_URL
+OPENID_SSO_SERVER_URL = 'https://www.sensible.dtu.dk/sensible-data/openid/xrds/'
 OPENID_USE_EMAIL_FOR_USERNAME = False
 AUTHENTICATION_BACKENDS = (
             'django_openid_auth.auth.OpenIDBackend',
@@ -76,15 +78,15 @@ MEDIA_URL = ''
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/var/www/example.com/static/"
-STATIC_ROOT = ''
+STATIC_ROOT = ROOT_DIR+'static_root'
 
 # URL prefix for static files.
 # Example: "http://example.com/static/", "http://static.example.com/"
-STATIC_URL = '/static/'
+STATIC_URL = ROOT_URL+'/static/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
-	'/home/arks/MODIS/Sensible-Data-Service/sensible_data_service/static',
+	ROOT_DIR + 'static',
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
@@ -118,13 +120,18 @@ MIDDLEWARE_CLASSES = (
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
+TEMPLATE_CONTEXT_PROCESSORS = (
+        'django.core.context_processors.static',
+        'django.contrib.auth.context_processors.auth',
+)
+
 ROOT_URLCONF = 'sensible_data_service.urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'sensible_data_service.wsgi.application'
 
 TEMPLATE_DIRS = (
-	'/home/arks/MODIS/Sensible-Data-Service/sensible_data_service/templates',
+	ROOT_DIR+'templates',
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
@@ -134,7 +141,6 @@ INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.admin',
