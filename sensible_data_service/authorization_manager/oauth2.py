@@ -10,7 +10,7 @@ from oauth2app.authorize import UnvalidatedRequest, UnauthenticatedUser
 from oauth2app.models import *
 from oauth2app.consts import CODE, TOKEN, CODE_AND_TOKEN
 from .forms import AuthorizeForm
-
+from django.core.urlresolvers import reverse
 
 @login_required
 def missing_redirect_uri(request):
@@ -43,7 +43,8 @@ def authorize(request):
         helper.add_input(no_submit)
         yes_submit = Submit('connect', 'Yes', css_class='btn btn-large btn-primary')
         helper.add_input(yes_submit)
-        helper.form_action = '/authorization_manager/oauth2/authorize?%s' % authorizer.query_string
+        #helper.form_action = '/authorization_manager/oauth2/authorize?%s' % authorizer.query_string
+        helper.form_action = reverse('oauth2_authorize') + '?%s' % authorizer.query_string
         helper.form_method = 'POST'
         template["helper"] = helper
         return render_to_response(
