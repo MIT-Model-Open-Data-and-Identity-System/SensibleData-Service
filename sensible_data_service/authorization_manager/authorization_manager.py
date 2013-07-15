@@ -32,7 +32,8 @@ def token(code, client_id, client_secret, redirect_uri):
         values['redirect_uri'] = redirect_uri
         data = urllib.urlencode(values)
 
-	request_uri = 'http://166.78.249.214:8082/authorization_manager/oauth2/token'
+	#TODO pull this from config
+	request_uri = 'https://www.sensible.dtu.dk/sensible-dtu/authorization_manager/oauth2/token/'
 
         req = urllib2.Request(request_uri, data)
         try:
@@ -55,8 +56,8 @@ def refresh_token(refresh_token, client_id, client_secret, redirect_uri, scope):
         values['scope'] = scope
         data = urllib.urlencode(values)
 
-	
-	request_uri = 'http://166.78.249.214:8082/authorization_manager/oauth2/token'
+	#TODO	
+	request_uri = 'https://www.sensible.dtu.dk/sensible-dtu/authorization_manager/oauth2/token/'
 
         req = urllib2.Request(request_uri, data)
         try:
