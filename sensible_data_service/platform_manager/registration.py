@@ -10,7 +10,7 @@ from utils import service_config, SECURE_service_config
 from django.shortcuts import redirect
 
 def saveCode(code, user, scope):
-	c = Platform.Code.objects.create(code=code, user=user, time_generated=int(time.time()))
+	c = PlatformCode.objects.create(code=code, user=user, time_generated=int(time.time()))
 	for s in scope:
 		c.scope.add(PlatformScope.objects.get(key=s))
 	c.save()
@@ -56,9 +56,22 @@ def updateUserStatus(user):
 
 	return True
 	
+@login_required
+def authorize(request):
+	url = service_config.PLATFORM['platform_uri']+'oauth2/oauth2/authorize/'
+	url += '?redirect_uri='+service_config.PLATFORM['redirect_uri']
+	url += '&scope='+'enroll'
+	url += '&client_id='+SECURE_service_config.PLATFORM['client_id']
+	url += '&response_type='+'code'
+	#return HttpResponse(url)
+	return redirect(url)
 
 @login_required
 def callback(request):
+	error = request.REQUEST.get('error', '')
+	if not error == '':
+		return redirect(service_config.PLATFORM['platform_uri']+'?status=auth_error')
+
 	code = request.REQUEST.get('code')
 	scope = request.REQUEST.get('scope').split(',')
 	user = request.user
@@ -66,10 +79,10 @@ def callback(request):
 	saveCode(code, user, scope)
 	token = exchangeCodeForToken(code)
 	if 'error' in token:
-		return redirect(service_config.PLATFORM['platform_uri_dashboard']+'?status=token_error')
+		return redirect(service_config.PLATFORM['platform_uri']+'?status=token_error')
 	if not saveToken(user, token, code):
-		return redirect(service_config.PLATFORM['platform_uri_dashboard']+'?status=save_token_error')
+		return redirect(service_config.PLATFORM['platform_uri']+'?status=save_token_error')
 	
-	updateUserStatus(user)
+	#updateUserStatus(user)
 	
-	return redirect(service_config.PLATFORM['platform_uri_dashboard']+'?status=success')
+	return redirect(service_config.PLATFORM['platform_uri']+'?status=success')
