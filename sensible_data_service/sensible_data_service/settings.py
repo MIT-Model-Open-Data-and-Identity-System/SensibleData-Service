@@ -1,6 +1,7 @@
 # Django settings for sensible_data_service project.
 
 import os
+import LOCAL_SETTINGS
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -12,23 +13,16 @@ ADMINS = (
 )
 
 MANAGERS = ADMINS
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-ROOT_DIR = '/home/sensibleDTU/sensible-dtu-service/SensibleData-Service/sensible_data_service/'
-ROOT_URL = '/sensible-dtu/'
+BASE_DIR = LOCAL_SETTINGS.BASE_DIR
+ROOT_DIR = LOCAL_SETTINGS.ROOT_DIR
+ROOT_URL = LOCAL_SETTINGS.ROOT_URL
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-	'OPTIONS': {
-            'read_default_file': os.path.join(BASE_DIR,'SECURE_my.cnf'),
-        },
-    }
-}
+DATABASES = LOCAL_SETTINGS.DATABASES
 
 
 LOGIN_URL = ROOT_URL+'openid/login/'
 LOGIN_REDIRECT_URL = ROOT_URL
-OPENID_SSO_SERVER_URL = 'https://www.sensible.dtu.dk/sensible-data/openid/xrds/'
+OPENID_SSO_SERVER_URL = LOCAL_SETTINGS.OPENID_SSO_SERVER_URL
 OPENID_USE_EMAIL_FOR_USERNAME = False
 AUTHENTICATION_BACKENDS = (
             'django_openid_auth.auth.OpenIDBackend',
@@ -82,7 +76,7 @@ STATIC_ROOT = ROOT_DIR+'static_root'
 
 # URL prefix for static files.
 # Example: "http://example.com/static/", "http://static.example.com/"
-STATIC_URL = ROOT_URL+'/static/'
+STATIC_URL = ROOT_URL+'static/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
