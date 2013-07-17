@@ -19,10 +19,10 @@ def grant(request):
 	response_type = request.REQUEST.get('response_type', '')
 
 	redirect_uri = '/authorization_manager/oauth2/authorize/?'
-        redirect_uri += 'client_id='+client_id
-        redirect_uri += '&response_type='+response_type
-        redirect_uri += '&scope='+','.join(scope)
-        redirect_uri += '&redirect_uri='+Client.objects.get(key=client_id).redirect_uri+'&state='+state
+	redirect_uri += 'client_id='+client_id
+	redirect_uri += '&response_type='+response_type
+	redirect_uri += '&scope='+','.join(scope)
+	redirect_uri += '&redirect_uri='+Client.objects.get(key=client_id).redirect_uri+'&state='+state
         #redirect_uri += '&redirect_uri='+'/authorization_manager/connector_questionnaire/auth/granted/'+'&state='+state
 	
 	return redirect(redirect_uri)
@@ -36,7 +36,7 @@ def token(request):
 	redirect_uri = request.POST.get('redirect_uri')
 
 	response = authorization_manager.token(code, client_id, client_secret, redirect_uri)
-        return HttpResponse(response)
+   	return HttpResponse(response)
 
 @csrf_exempt
 def refresh_token(request):
