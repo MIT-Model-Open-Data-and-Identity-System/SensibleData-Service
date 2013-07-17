@@ -10,6 +10,7 @@ urlpatterns = patterns('',
 	url(r'^platform_api/', include('platform_manager.urls')),
 	url(r'^openid/', include('django_openid_auth.urls')),
 	url(r'^admin/', include(admin.site.urls)),
+	url(r'^quit/', 'application_manager.quit.quit'),
 	 
 	url(r'^test/', include('testing.urls')),
 )
