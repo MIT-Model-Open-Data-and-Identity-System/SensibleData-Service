@@ -1,5 +1,4 @@
 from .models import *
-from connectors.connector_funf import auth
 from application_manager.models import Application
 import hashlib
 import uuid
@@ -19,9 +18,6 @@ def createAuthorization(response):
         for scope in access_token.scope.all():
                 authorization = Authorization.objects.create(user=access_token.user, scope=scope, application=Application.objects.get(client=access_token.client), access_token=access_token, nonce=server_nonce, active=True, activated_at=time.time())
 
-def buildUri(connector, application):
-	if connector.name == 'connector_funf':
-		return auth.buildUri(connector, application)
 
 
 def token(code, client_id, client_secret, redirect_uri):
