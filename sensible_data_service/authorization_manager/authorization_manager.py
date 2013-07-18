@@ -7,6 +7,7 @@ import time
 import urllib, urllib2
 import json
 from oauth2app.authenticate import Authenticator, AuthenticationException
+from django.conf import settings
 
 def getAuthorization(user, scope, application):
 	authorizations = Authorization.objects.filter(active=True, user=user, scope=scope, application=application)
@@ -25,7 +26,7 @@ def buildUri(connector, application):
 
 def token(code, client_id, client_secret, redirect_uri):
 	values = {}
- 	values['code'] = code
+	values['code'] = code
 	values['grant_type'] = 'authorization_code'
 	values['client_id'] = client_id
 	values['client_secret'] = client_secret
@@ -33,41 +34,36 @@ def token(code, client_id, client_secret, redirect_uri):
 	data = urllib.urlencode(values)
 
 	#TODO
-	request_uri = 'http://ec2-54-229-13-160.eu-west-1.compute.amazonaws.com:8082/authorization_manager/oauth2/token'
+	request_uri = settings.BASE_URL+'authorization_manager/oauth2/token'
 
-        req = urllib2.Request(request_uri, data)
-        try:
-                response = urllib2.urlopen(req).read()
-        except urllib2.HTTPError as e:
-                response = e.read()
-                return response
-	
+	req = urllib2.Request(request_uri, data)
+	try: response = urllib2.urlopen(req).read()
+	except urllib2.HTTPError as e:
+		response = e.read()
+		return response
 
 	createAuthorization(json.loads(response))
 	return response
 
 def refresh_token(refresh_token, client_id, client_secret, redirect_uri, scope):
 	values = {}
-        values['refresh_token'] = refresh_token
-        values['grant_type'] = 'refresh_token'
-        values['client_id'] = client_id
-        values['client_secret'] = client_secret
-        values['redirect_uri'] = redirect_uri
-        values['scope'] = scope
-        data = urllib.urlencode(values)
+	values['refresh_token'] = refresh_token
+	values['grant_type'] = 'refresh_token'
+	values['client_id'] = client_id
+	values['client_secret'] = client_secret
+	values['redirect_uri'] = redirect_uri
+	values['scope'] = scope
+	data = urllib.urlencode(values)
+	request_uri = settings.BASE_URL+'authorization_manager/oauth2/token'
 
-	
-	request_uri = 'http://ec2-54-229-13-160.eu-west-1.compute.amazonaws.com:8082/authorization_manager/oauth2/token'
-
-        req = urllib2.Request(request_uri, data)
-        try:
-                response = urllib2.urlopen(req).read()
-        except urllib2.HTTPError as e:
-                response = e.read()
-                return response
+	req = urllib2.Request(request_uri, data)
+	try: response = urllib2.urlopen(req).read()
+	except urllib2.HTTPError as e:
+		response = e.read()
+		return response
 
 	createAuthorization(json.loads(response))
-        return response
+	return response
 
 def authenticate_token(request):
 	authenticator = Authenticator()

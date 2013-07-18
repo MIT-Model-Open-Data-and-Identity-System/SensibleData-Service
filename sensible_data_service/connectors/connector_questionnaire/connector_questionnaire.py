@@ -9,7 +9,6 @@ def upload(request):
 	auth = authorization_manager.authenticate_token(request)
 	if 'error' in auth:
 		return HttpResponse(json.dumps(auth), status=401)
-	
 
 	user = auth['user']
 	database = Database()

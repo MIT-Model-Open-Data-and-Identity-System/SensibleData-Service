@@ -8,6 +8,8 @@ import urllib, urllib2
 from django.views.decorators.csrf import csrf_exempt
 from authorization_manager import authorization_manager
 import json
+from django.core.urlresolvers import reverse
+from django.conf import settings
 
 @login_required
 def grant(request):
@@ -18,12 +20,12 @@ def grant(request):
 	state = request.REQUEST.get('state', '')
 	response_type = request.REQUEST.get('response_type', '')
 
-	redirect_uri = '/authorization_manager/oauth2/authorize/?'
-	redirect_uri += 'client_id='+client_id
+	#TODO: fix this to dynamic reverse
+	redirect_uri = settings.BASE_URL + 'authorization_manager/oauth2/authorize/?'
+	redirect_uri += '&client_id='+client_id
 	redirect_uri += '&response_type='+response_type
 	redirect_uri += '&scope='+','.join(scope)
 	redirect_uri += '&redirect_uri='+Client.objects.get(key=client_id).redirect_uri+'&state='+state
-        #redirect_uri += '&redirect_uri='+'/authorization_manager/connector_questionnaire/auth/granted/'+'&state='+state
 	
 	return redirect(redirect_uri)
 
