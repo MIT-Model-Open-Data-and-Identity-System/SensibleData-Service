@@ -4,19 +4,19 @@ import shutil
 import fnmatch
 from dbdecrypt import decrypt_if_not_db_file
 from decrypt import key_from_password
-from utils import service_config
-from utils import SECURE_service_config
+from utils import SECURE_settings
 from utils import log, fail
+from django.conf import settings
 
-key = key_from_password(SECURE_service_config.CONNECTORS['connector_funf']['db_pass'])
+key = key_from_password(SECURE_settings.CONNECTORS['connector_funf']['db_pass'])
 
 def decrypt():
 	decrypt_directory()
 
-def decrypt_directory(directory_to_decrypt=service_config.CONNECTORS['connector_funf']['config']['upload_path']):
-	decrypted_directory_path = service_config.CONNECTORS['connector_funf']['config']['decrypted_path']
-	decryption_failed_path = service_config.CONNECTORS['connector_funf']['config']['decryption_failed_path']
-	backup_path = service_config.CONNECTORS['connector_funf']['config']['backup_path']
+def decrypt_directory(directory_to_decrypt=settings.CONNECTORS['connector_funf']['config']['upload_path']):
+	decrypted_directory_path = settings.CONNECTORS['connector_funf']['config']['decrypted_path']
+	decryption_failed_path = settings.CONNECTORS['connector_funf']['config']['decryption_failed_path']
+	backup_path = settings.CONNECTORS['connector_funf']['config']['backup_path']
 	#TODO
 	#raw_filenames = [filename for filename in os.listdir(directory_to_decrypt) if fnmatch.fnmatch(filename, '*.db')]
 	raw_filenames = [filename for filename in os.listdir(directory_to_decrypt) if fnmatch.fnmatch(filename, '*.orig')]

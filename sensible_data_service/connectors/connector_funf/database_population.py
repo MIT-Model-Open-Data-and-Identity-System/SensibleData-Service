@@ -3,7 +3,6 @@ import os
 import fnmatch
 
 from models import *
-from utils import service_config
 from utils import fail
 from utils import log
 import sqlite3
@@ -15,6 +14,7 @@ from anonymizer.anonymizer import Anonymizer
 from collections import defaultdict
 import sys, traceback
 from authorization_manager.authorization_manager import *
+from django.conf import settings
 
 
 #TODO: add turn on in config
@@ -42,7 +42,7 @@ def removeCreationLock():
 def start(pid):
 	active_processes = checkActiveProcesses()
 	print active_processes
-	if active_processes >= service_config.CONNECTORS['connector_funf']['config']['max_population_processes']:
+	if active_processes >= settings.CONNECTORS['connector_funf']['config']['max_population_processes']:
 		return False
 	DatabasePopulationAgent.objects.create(pid=str(pid))
 	return True
@@ -54,14 +54,14 @@ def cleanFailedFilenames(failed_filenames):
 def run(db):
 	print 'running'
 	authorizationManager = AuthorizationManager()
-	decrypted_path = service_config.CONNECTORS['connector_funf']['config']['decrypted_path']
-	load_failed_path = service_config.CONNECTORS['connector_funf']['config']['load_failed_path']
+	decrypted_path = settings.CONNECTORS['connector_funf']['config']['decrypted_path']
+	load_failed_path = settings.CONNECTORS['connector_funf']['config']['load_failed_path']
 	#TODO
 	raw_filenames = [filename for filename in os.listdir(decrypted_path) if fnmatch.fnmatch(filename, '*.orig')]
 
 	anonymizerObject = Anonymizer()
 
-	raw_filenames = raw_filenames[:service_config.CONNECTORS['connector_funf']['config']['max_population_files']]
+	raw_filenames = raw_filenames[:settings.CONNECTORS['connector_funf']['config']['max_population_files']]
 	filenames = [os.path.join(decrypted_path, filename) for filename in raw_filenames]
 
 	print raw_filenames

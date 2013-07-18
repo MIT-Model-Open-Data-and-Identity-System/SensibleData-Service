@@ -8,9 +8,8 @@ from django.views.decorators.csrf import csrf_exempt
 
 from django.core.servers.basehttp import FileWrapper
 import mimetypes
-from utils import service_config
-from utils import SECURE_service_config
 from utils import log
+from django.conf import settings
 
 from connectors.connector import connector
 import bson.json_util as json
@@ -38,9 +37,9 @@ class ConnectorFunf(connector.Connector):
 						authorization = ''
 				
 						if 'error' in authorization:
-							upload_path = service_config.CONNECTORS["connector_funf"]["config"]["upload_not_authorized_path"]
+							upload_path = settings.CONNECTORS["connector_funf"]["config"]["upload_not_authorized_path"]
 						else:
-							upload_path = service_config.CONNECTORS["connector_funf"]["config"]["upload_path"]
+							upload_path = settings.CONNECTORS["connector_funf"]["config"]["upload_path"]
 
 						if not os.path.exists(upload_path):
 							os.mkdir(upload_path)
@@ -84,7 +83,7 @@ class ConnectorFunf(connector.Connector):
 	def readConfig(self, user):
 		config = None
 		try:
-			with open(service_config.CONNECTORS["connector_funf"]["config"]["config_path"]+self.chooseConfig(user)) as config_file:
+			with open(settings.CONNECTORS["connector_funf"]["config"]["config_path"]+self.chooseConfig(user)) as config_file:
 				config = config_file.read()
 		except IOError: pass
 		return config

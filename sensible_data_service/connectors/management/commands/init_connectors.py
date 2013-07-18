@@ -1,18 +1,17 @@
 from utils.log import log
-from utils import service_config
 from connectors import connectors_config
 from connectors.connector_funf.models import *
 from connectors.connector_questionnaire.models import *
 from connectors.models import *
 import json
-
+from django.conf import settings
 from django.core.management.base import NoArgsCommand
 
 class Command(NoArgsCommand):
 	def handle_noargs(self, **options):
 		for connector in connectors_config.CONNECTORS:
 			try:
-				if not service_config.CONNECTORS[connector]: continue
+				if not settings.CONNECTORS[connector]: continue
 			except KeyError: continue
 
 			if connector == 'ConnectorFunf': self.populateConnectorFunf(connectors_config.CONNECTORS[connector])
