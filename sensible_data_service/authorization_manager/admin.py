@@ -23,6 +23,6 @@ class AuthorizationAdmin(admin.ModelAdmin):
 admin.site.register(Authorization, AuthorizationAdmin)
 
 class GcmRegistrationAdmin(admin.ModelAdmin):
-	list_display = ('user', 'device_id', 'gcm_id')
+	list_display = ('user', 'gcm_id')
 
 admin.site.register(GcmRegistration, GcmRegistrationAdmin)
