@@ -1,14 +1,14 @@
 from pymongo import MongoClient
-import service_config
-import SECURE_service_config
+import SECURE_settings
+from django.conf import settings
 
 class Database:
 	client = None
 	db = None
 
 	def __init__(self):
-		self.client = MongoClient(service_config.DATABASE['params']['url']%(SECURE_service_config.DATABASE['username'],SECURE_service_config.DATABASE['password']))
-		self.db = self.client[service_config.DATABASE['params']['database']]
+		self.client = MongoClient(settings.DATA_DATABASE['params']['url']%(SECURE_settings.DATA_DATABASE['username'],SECURE_settings.DATA_DATABASE['password']))
+		self.db = self.client[settings.DATABASE['params']['database']]
 
 	def insert(self, documents, collection):
 		coll = self.db[collection]

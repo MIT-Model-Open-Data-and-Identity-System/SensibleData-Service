@@ -1,6 +1,6 @@
 from Crypto.Cipher import AES
 from Crypto import Random
-from utils import SECURE_service_config
+from utils import SECURE_settings
 import bson.json_util as json
 
 
@@ -22,7 +22,7 @@ class Anonymizer(object):
 
 	def anonymizeValue(self, key_v, value):
 		try:
-			key = SECURE_service_config.VALUE_KEYS[key_v]
+			key = SECURE_settings.VALUE_KEYS[key_v]
 		except KeyError:
 			return value
 		self.key = key.decode("hex")
@@ -30,7 +30,7 @@ class Anonymizer(object):
 	
 	def deanonymizeValue(self, key_v, value):
 		try:
-			key = SECURE_service_config.VALUE_KEYS[key_v]
+			key = SECURE_settings.VALUE_KEYS[key_v]
 		except KeyError:
 			return value
 		self.key = key.decode("hex")
@@ -39,7 +39,7 @@ class Anonymizer(object):
 	def anonymizeDocument(self, document, probe):
 		
 		try:
-			key = SECURE_service_config.PROBE_KEYS[probe]
+			key = SECURE_settings.PROBE_KEYS[probe]
 		except KeyError:
 			return document
 		self.key = key.decode("hex")
@@ -117,13 +117,13 @@ class Anonymizer(object):
 		raw = unicode(raw).encode('utf-8')
 		raw = self.pad(raw)
 		#we use fixed iv to have consistent encryption
-		iv = SECURE_service_config.IV['iv']
+		iv = SECURE_settings.IV['iv']
 		cipher = AES.new(self.key, AES.MODE_CBC, iv)
 		return (cipher.encrypt(raw)).encode("hex")
 
 	def decrypt(self, enc):
 		enc = enc.decode("hex")
-		iv = SECURE_service_config.IV['iv']
+		iv = SECURE_settings.IV['iv']
 		cipher = AES.new(self.key, AES.MODE_CBC, iv)
 		return self.unpad(cipher.decrypt(enc))
 		

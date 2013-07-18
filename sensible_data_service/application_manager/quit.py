@@ -1,7 +1,6 @@
 from django.http import HttpResponse
 from django.shortcuts import redirect
-from utils import service_config
-
+from django.conf import settings
 
 def quit(request):
-	return redirect(service_config.PLATFORM['platform_uri'])
+	return redirect(settings.PLATFORM['platform_uri'])
