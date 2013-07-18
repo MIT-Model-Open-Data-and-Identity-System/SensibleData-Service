@@ -49,4 +49,4 @@ def refresh_token(request):
 	scope = request.POST.get('scope')
 	
 	response = authorization_manager.refresh_token(refresh_token, client_id, client_secret, redirect_uri, scope)
-        return HttpResponse(response)
+	return HttpResponse(response)
