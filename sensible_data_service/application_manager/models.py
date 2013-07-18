@@ -35,7 +35,7 @@ class Application(models.Model):
 	description = models.TextField(null=True, blank=True)
 	connector_type = models.CharField(max_length=100)
 	client = models.ForeignKey(Client, null=True, blank=True)
-	url = models.URLField(null=True)
+	url = models.URLField(null=True, blank=True)
 	
 	def __unicode__(self):
 		return self.name+':'+self._id
@@ -43,10 +43,13 @@ class Application(models.Model):
 class Device(models.Model):
 	user = models.ForeignKey(User)
 	device_id = models.CharField(max_length=100, unique=True)
+
+	def __unicode__(self):
+		return self.device_id
 	
 
 class GcmRegistration(models.Model):
 	user = models.ForeignKey(User)
-	device_id = models.ForeignKey(Device)
+	device = models.ForeignKey(Device)
 	application = models.ForeignKey(Application, null=True)
 	gcm_id = models.CharField(max_length=256)
