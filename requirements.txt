@@ -3,3 +3,4 @@ distribute>=0.6.28
 mysql-python
 django-openid-auth
 pymongo
+python-gcm
