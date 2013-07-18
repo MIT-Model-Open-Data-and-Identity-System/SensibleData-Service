@@ -1,5 +1,4 @@
 from django.http import HttpResponse
-from utils import service_config
 import json
 from .models import *
 import platform_manager

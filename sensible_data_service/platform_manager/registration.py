@@ -6,8 +6,9 @@ import time
 import urllib2
 import urllib
 import json
-from utils import service_config, SECURE_service_config
+from utils import SECURE_settings
 from django.shortcuts import redirect
+from django.conf import settings
 
 def saveCode(code, user, scope):
 	c = PlatformCode.objects.create(code=code, user=user, time_generated=int(time.time()))
@@ -20,11 +21,11 @@ def exchangeCodeForToken(code):
 	values = {}
 	values['code'] = code
 	values['grant_type'] = 'authorization_code'
-	values['client_id'] = SECURE_service_config.PLATFORM['client_id']
-	values['client_secret'] = SECURE_service_config.PLATFORM['client_secret']
-	values['redirect_uri'] = service_config.PLATFORM['redirect_uri']
+	values['client_id'] = SECURE_settings.PLATFORM['client_id']
+	values['client_secret'] = SECURE_settings.PLATFORM['client_secret']
+	values['redirect_uri'] = settings.PLATFORM['redirect_uri']
 	data = urllib.urlencode(values)
-	req = urllib2.Request(service_config.PLATFORM['platform_uri_token'], data)
+	req = urllib2.Request(settings.PLATFORM['platform_uri_token'], data)
 	try:
 		response = urllib2.urlopen(req).read()
 	except urllib2.HTTPError as e: 
@@ -58,10 +59,10 @@ def updateUserStatus(user):
 	
 @login_required
 def authorize(request):
-	url = service_config.PLATFORM['platform_uri']+'oauth2/oauth2/authorize/'
-	url += '?redirect_uri='+service_config.PLATFORM['redirect_uri']
+	url = settings.PLATFORM['platform_uri']+'oauth2/oauth2/authorize/'
+	url += '?redirect_uri='+settings.PLATFORM['redirect_uri']
 	url += '&scope='+'enroll'
-	url += '&client_id='+SECURE_service_config.PLATFORM['client_id']
+	url += '&client_id='+SECURE_settings.PLATFORM['client_id']
 	url += '&response_type='+'code'
 	#return HttpResponse(url)
 	return redirect(url)
@@ -70,7 +71,7 @@ def authorize(request):
 def callback(request):
 	error = request.REQUEST.get('error', '')
 	if not error == '':
-		return redirect(service_config.PLATFORM['platform_uri']+'?status=auth_error')
+		return redirect(settings.PLATFORM['platform_uri']+'?status=auth_error')
 
 	code = request.REQUEST.get('code')
 	scope = request.REQUEST.get('scope').split(',')
@@ -79,10 +80,10 @@ def callback(request):
 	saveCode(code, user, scope)
 	token = exchangeCodeForToken(code)
 	if 'error' in token:
-		return redirect(service_config.PLATFORM['platform_uri']+'?status=token_error')
+		return redirect(settings.PLATFORM['platform_uri']+'?status=token_error')
 	if not saveToken(user, token, code):
-		return redirect(service_config.PLATFORM['platform_uri']+'?status=save_token_error')
+		return redirect(settings.PLATFORM['platform_uri']+'?status=save_token_error')
 	
 	#updateUserStatus(user)
 	
-	return redirect(service_config.PLATFORM['platform_uri']+'?status=success')
+	return redirect(settings.PLATFORM['platform_uri']+'?status=success')

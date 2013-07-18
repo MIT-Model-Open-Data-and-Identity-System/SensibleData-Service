@@ -2,7 +2,6 @@ from django.http import HttpResponse
 import json
 import platform_manager
 from authorization_manager import authorization_manager
-from utils import service_config
 from application_manager import application_manager
 from collections import defaultdict
 
