@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 
-from accounts.models import Participant, UserRole
+from accounts.models import Participant, UserRole, Role
 
 class ParticipantInline(admin.StackedInline):
 	model = Participant
@@ -18,3 +18,9 @@ class UserAdmin(UserAdmin):
 
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
+
+
+class RoleAdmin(admin.ModelAdmin):
+	        list_display = ('role',)
+
+admin.site.register(Role, RoleAdmin)
