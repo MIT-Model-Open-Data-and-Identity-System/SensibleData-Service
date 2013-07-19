@@ -14,9 +14,14 @@ def getAuthorization(user, scope, application):
 
 def createAuthorization(response):
 	access_token = AccessToken.objects.get(token=response['access_token'])
-        server_nonce = hashlib.sha256(str(uuid.uuid4())).hexdigest()
-        for scope in access_token.scope.all():
-                authorization = Authorization.objects.create(user=access_token.user, scope=scope, application=Application.objects.get(client=access_token.client), access_token=access_token, nonce=server_nonce, active=True, activated_at=time.time())
+
+	try: TosAcceptance.objects.filter(user=access_token.user)
+	except TosAcceptance.DoesNotExist: return {'error':'user is not enrolled in the study'}
+
+
+	server_nonce = hashlib.sha256(str(uuid.uuid4())).hexdigest()
+	for scope in access_token.scope.all():
+		authorization = Authorization.objects.create(user=access_token.user, scope=scope, application=Application.objects.get(client=access_token.client), access_token=access_token, nonce=server_nonce, active=True, activated_at=time.time())
 
 
 
