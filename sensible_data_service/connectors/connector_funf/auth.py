@@ -12,6 +12,9 @@ import hashlib
 from connectors.models import Scope
 from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import render_to_response
+from django.template import RequestContext
+
 
 
 @login_required
@@ -94,29 +97,14 @@ def granted(request):
 
 	#response = gcm_server.sendNotification(gcm_id, data={'message': '', 'code': code}, type='auth_code')
 
-	return HttpResponse('dupa')
+	return render_to_response('authorization_in_progress.html', {}, RequestContext(request))
 
-	#access_token = AccessToken.objects.get(token=request.REQUEST.get('access_token'))
-
-	#server_nonce = hashlib.sha256(str(uuid.uuid4())).hexdigest() #we do it here not in the model, so all authorizations from this batch have the same nonce
-	#t= ''
-	#for scope in access_token.scope.all():
-	#	authorization = Authorization.objects.create(user=access_token.user, scope=scope, application=Application.objects.get(client=access_token.client), access_token=access_token, nonce=server_nonce)
-
-	#to user, application, device, parameters, nonce
-	#gcm.sendAuthorization()
-
-     #   return HttpResponse('authorization granted '+access_token.token+' '+t)
 
 @csrf_exempt
 def token(request):
-	#TODO change to POST after testing
 	code = request.POST.get('code')
 	client_id = request.POST.get('client_id')
 	client_secret = request.POST.get('client_secret')
-	#code = request.GET.get('code')
-	#client_id = request.GET.get('client_id')
-	#client_secret = request.GET.get('client_secret')
 	
 	redirect_uri = Client.objects.get(key=client_id).redirect_uri
 
@@ -134,13 +122,9 @@ def token(request):
 
 @csrf_exempt
 def refresh_token(request):
-	#TODO change to POST after testing
-	#refresh_token = request.POST.get('refresh_token')
-	#client_id = request.POST.get('client_id')
-	#client_secret = request.POST.get('client_secret')
-	refresh_token = request.GET.get('refresh_token')
-	client_id = request.GET.get('client_id')
-	client_secret = request.GET.get('client_secret')
+	refresh_token = request.POST.get('refresh_token')
+	client_id = request.POST.get('client_id')
+	client_secret = request.POST.get('client_secret')
 	redirect_uri = Client.objects.get(key=client_id).redirect_uri
 	scope = ','.join([x.scope for x in AccessToken.objects.get(refresh_token=refresh_token).scope.all()])
 
