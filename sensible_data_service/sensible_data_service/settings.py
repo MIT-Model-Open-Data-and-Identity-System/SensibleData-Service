@@ -159,6 +159,7 @@ INSTALLED_APPS = (
     'connectors.connector_questionnaire',
     'anonymizer',
     'oauth2app',
+    'documents',
 )
 
 # A sample logging configuration. The only tangible logging
