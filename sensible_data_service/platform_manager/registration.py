@@ -9,6 +9,7 @@ import json
 from utils import SECURE_settings
 from django.shortcuts import redirect
 from django.conf import settings
+from documents import create_document
 
 def saveCode(code, user, scope):
 	c = PlatformCode.objects.create(code=code, user=user, time_generated=int(time.time()))
@@ -84,6 +85,8 @@ def callback(request):
 	if not saveToken(user, token, code):
 		return redirect(settings.PLATFORM['platform_uri']+'?status=save_token_error')
 	
-	#updateUserStatus(user)
+	if 'enroll' in scope:
+		create_document.createTosAcceptance(user, 'en')
 	
+	#return HttpResponse(json.dumps(scope))
 	return redirect(settings.PLATFORM['platform_uri']+'?status=success')
