@@ -6,9 +6,9 @@ that DTU has obtained permission to collect and record my data for the Project w
 
 that My personal data will only be used for research - and will not be shared with others, neither private companies nor the DTU student administration.   
 
-that I should contact Associate Professor Sune Lehmann J\u00f8rgensen with questions regarding the Project.   
+that I should contact Associate Professor Sune Lehmann Jørgensen with questions regarding the Project.   
 
-that It is permitted to withdraw from the Project at any time. To do so, I must return the mobile phone and contact Associate Professor Sune Lehmann J\u00f8rgensen.   
+that It is permitted to withdraw from the Project at any time. To do so, I must return the mobile phone and contact Associate Professor Sune Lehmann Jørgensen.   
 
 Further, I agree that my participation in the project and a phone to use during the project is contingent upon:  
 
@@ -18,7 +18,7 @@ that my deposit will be refunded when I return the phone and the phone is in a g
 
 that I will insert my SIM card into the phone and use it as my primary (mobile) phone.
 
-that I agree the DTU (for the Project) may record and collect data regarding Bluetooth, mobile masts, WiFi networks, named (but hashed / anonymous) phone numbers and call times (no content), sent SMS and time (no content; numbers hashed as above), contacts in the phone directory (also hashed information). In addition, information is collected regarding connections in online social networks (eg Facebook).   
+that I agree the DTU (for the Project) may record and collect data regarding Bluetooth, mobile masts, WiFi networks, named (but hashed / anonymous) phone numbers and call times (no content), sent SMS and time (no content; numbers hashed as above), contacts in the phone directory (also hashed information). In addition, information is collected regarding connections in online social networks (eg. Facebook).   
 
 that I agree that the collected data will be used in the Project. The purpose of the Project is to publish research findings.   
 
