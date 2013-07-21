@@ -1,63 +1,30 @@
-As a participant of the project SensibleDTU (the Project) led by Associate Professor Sune Lehmann Jørgensen, at DTU Compute,  I agree to have been informed of the following:  
 
-<div class="legal legal-purpose-study">
-that the research project, (which the Project is a part of) is designed to measure and analyze social networks and movement patterns amongst a group of DTU students.   
-</div>
+Version 0.0.1
 
-<div class="legal legal-trustmark">
-that DTU has obtained permission to collect and record my data for the Project with the <div class="legal-trustmark-approver">Danish Data Protection Agency</div>.  
-</div>
+legal-purpose-study
 
-<div class="legal legal-purpose-data" id="legal-purpose-data_1">
-that My personal data will primarly be used for research - and will not be shared with others, neither private companies nor the DTU student administration.   
-<div>
+legal-purpose-data legal-purpose-data_1
 
-<div class="legal legal-study-contact">
-that I should contact Associate Professor Sune Lehmann Jørgensen with questions regarding the Project.   
-</div>
+legal-purpose-data legal-purpose-data_2
 
-<div class="legal legal-study-withdraw">
-that It is permitted to withdraw from the Project at any time. To do so, I must return the mobile phone and contact Associate Professor Sune Lehmann Jørgensen.   
-</div>
+legal-study-contact
 
-<div class="legal legal-study-participant-obligations">
-Further, I agree that my participation in the project and a phone to use during the project is contingent upon:  
+legal-study-withdraw
 
-that by receiving a smartphone (LG Nexus 4) for use during my participation in the Project, I must pay a deposit of DKK 300.00. This deposit may be used by DTU as collateral to ensure the return of the phone back in excellent condition at the end of my participation - or DTU when asks me to return the phone.   
+legal-study-participant-obligations
 
-that my deposit will be refunded when I return the phone and the phone is in a good general condition.   
+legal-prohibited
 
-that I will insert my SIM card into the phone and use it as my primary (mobile) phone.
-</div>
+legal-study-scopes
 
-<div class="legal legal-study-scopes">
-that I agree the DTU (for the Project) may record and collect data regarding Bluetooth, mobile masts, WiFi networks, named (but hashed / anonymous) phone numbers and call times (no content), sent SMS and time (no content; numbers hashed as above), contacts in the phone directory (also hashed information). In addition, information is collected regarding connections in online social networks (eg. Facebook).   
-</div>
+legal-purpose-solicitation
 
-<div class="legal legal-purpose-data" id="legal-purpose-data_2">
-that I agree that the collected data will be used in the Project. The purpose of the Project is to publish research findings.   
-</div>
+legal-trustmark
 
-<div class="legal legal-purpose-solicitation">
-that I may be asked to participate in surveys and personality tests. If I choose to participate in these, it is agreed that results from those may be used - in anonymised form - in the research project on an equal footing with the data collected through my phone use during the project.   
-</div>
+legal-notice
 
-<div class="legal legal-prohibited">
-that DTU is not responsible for my use of mobile the phone during the project. This means that if I, for example, upload, download or transmit copyrighted material illegally, upload, download or transmit otherwise illegal material, or get, or spread viruses via mobile phone, I can not hold DTU responsible for these acts.   
-</div>
+legal-liability-damages
 
-<div class="legal legal-notice">
-that the mobile phone I have received for the project is on loan and DTU will require the phone returned. DTU will provide me with reasonable notice of the return of the phone (at least 2 months), unless DTU's restitution claims are justified based on my use of, or treatment of the phone   
-</div>
+legal-liability-taxes
 
-<div class="legal legal-liability-damages">
-that DTU may claim damages against me if I intentionally, or through gross negligence, destroy, or damage mobile phone. For example by using mobile phone for illegal activities or anything that causes DTU loss.   
-</div>
-
-<div class="legal legal-liability-taxes">
-that DTU may not be held responsible for any tax consequences in connection with my loan and use of the mobile phone during the Project.   
-</div>
-
-<div class="legal legal-signature-statement">
-By approving below, I enter into this accession agreement.
-</div>
+legal-signature-statement
