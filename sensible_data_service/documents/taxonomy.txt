@@ -1,0 +1,30 @@
+
+Version 0.0.1
+
+legal-purpose-study
+
+legal-purpose-data legal-purpose-data_1
+
+legal-purpose-data legal-purpose-data_2
+
+legal-study-contact
+
+legal-study-withdraw
+
+legal-study-participant-obligations
+
+legal-prohibited
+
+legal-study-scopes
+
+legal-purpose-solicitation
+
+legal-trustmark
+
+legal-notice
+
+legal-liability-damages
+
+legal-liability-taxes
+
+legal-signature-statement
