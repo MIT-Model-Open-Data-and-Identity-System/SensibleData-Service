@@ -7,6 +7,7 @@ import urllib, urllib2
 import json
 from oauth2app.authenticate import Authenticator, AuthenticationException
 from django.conf import settings
+from documents.models import TosAcceptance
 
 def getAuthorization(user, scope, application):
 	authorizations = Authorization.objects.filter(active=True, user=user, scope=scope, application=application)
@@ -14,9 +15,9 @@ def getAuthorization(user, scope, application):
 
 def createAuthorization(response):
 	access_token = AccessToken.objects.get(token=response['access_token'])
-
-	try: TosAcceptance.objects.filter(user=access_token.user)
-	except TosAcceptance.DoesNotExist: return {'error':'user is not enrolled in the study'}
+	
+	if len(TosAcceptance.objects.filter(user=access_token.user).all()) == 0:        
+		return {'error':'user is not enrolled in the study'}
 
 
 	server_nonce = hashlib.sha256(str(uuid.uuid4())).hexdigest()
