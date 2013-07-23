@@ -4,6 +4,7 @@ from .models import *
 import platform_manager
 from application_manager import application_manager
 from authorization_manager import authorization_manager
+from documents.models import TosAcceptance
 
 def userStatus(request):
 	authentication = platform_manager.authenticate(request)
@@ -11,10 +12,13 @@ def userStatus(request):
 		return HttpResponse(authentication['response'])
 
 
+
 	user = authentication['user']
 	response = {}
 	response['applications'] = {}
 	applications = application_manager.getApplications()
+	if len(TosAcceptance.objects.filter(user=user).all()) == 0:
+		return HttpResponse(json.dumps({'error':'not enrolled'}))
 	
 	for application in applications:
 		response['applications'][application.name] = {}
