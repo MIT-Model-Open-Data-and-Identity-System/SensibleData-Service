@@ -19,8 +19,7 @@ from django.template import RequestContext
 
 @login_required
 def initiateGrant(request):
-	#TODO: display message about go to the device
-	return HttpResponse(scope)
+	return HttpResponse('TODO: display message about starting the process on the device')
 
 
 @login_required
@@ -36,7 +35,7 @@ def grant(request):
 	except Application.DoesNotExist: return HttpResponse(json.dumps({'error':'client_id does not exist'}))
 	except Client.DoesNotExist: return HttpResponse(json.dumps({'error':'client_id does not exist'}))
 
-	try: gcm_registration = GcmRegistration.objects.get(user=user, device=Device.objects.get(device_id=device_id), application=Application.objects.get(client=Client.objects.get(key=client_id)))
+	try: gcm_registration = GcmRegistration.objects.get(user=user, device=Device.objects.get(user=user, device_id=device_id), application=Application.objects.get(client=Client.objects.get(key=client_id)))
 	except: gcm_registration = None
 
 
