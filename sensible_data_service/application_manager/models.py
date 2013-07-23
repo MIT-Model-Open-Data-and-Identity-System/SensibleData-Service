@@ -42,7 +42,7 @@ class Application(models.Model):
 
 class Device(models.Model):
 	user = models.ForeignKey(User)
-	device_id = models.CharField(max_length=100, unique=True)
+	device_id = models.CharField(max_length=100)
 
 	def __unicode__(self):
 		return self.device_id
