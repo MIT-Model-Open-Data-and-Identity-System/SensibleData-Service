@@ -11,6 +11,7 @@ urlpatterns = patterns('',
 	url(r'^openid/', include('django_openid_auth.urls')),
 	url(r'^admin/', include(admin.site.urls)),
 	url(r'^quit/', 'application_manager.quit.quit'),
+	url(r'^logout/', 'application_manager.logout.logout', name='logout'),
 	 
 	url(r'^test/', include('testing.urls')),
 )
