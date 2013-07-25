@@ -1,7 +1,7 @@
 As a participant of the project SensibleDTU (the Project) led by Associate Professor Sune Lehmann Jørgensen, at DTU Compute,  I agree to have been informed of the following:  
 
 <div class="legal legal-purpose-study">
-that the research project, (which the Project is a part of) is designed to measure and analyze social networks and dynamic processes unfolding on such networks.   
+that the research project, (which the Project is a part of) is designed to measure and analyze social networks and dynamic (social) processes unfolding on such networks.   
 </div>
 
 <div class="legal legal-trustmark">
@@ -9,15 +9,15 @@ that DTU has obtained permission to collect and record my data for the Project w
 </div>
 
 <div class="legal legal-purpose-data" id="legal-purpose-data_1">
-that my personal data will primarly be used for research - and will not be shared with others, neither private companies nor the DTU student administration.   
+that my personal data will be used only for research - and will not be shared with others, neither private companies nor the DTU administration.   
 <div>
-
-<div class="legal legal-study-contact">
-that I should contact support@sensible.dtu.dk with questions regarding the Project.   
-</div>
 
 <div class="legal legal-study-withdraw">
 that it is permitted to withdraw from the Project at any time. To do so, I must return the mobile phone and contact support@sensible.dtu.dk for further instructions.   
+</div>
+
+<div class="legal legal-study-contact">
+that I should contact support@sensible.dtu.dk with any questions regarding the Project.   
 </div>
 
 <div class="legal legal-study-participant-obligations">
@@ -27,7 +27,7 @@ that I commit to inserting my SIM card into the phone and that I will use it as 
 
 that in order to receive a phone (LG Nexus 4) for use during my participation in the Project, I must pay a deposit of DKK 300.00. This deposit may be used by DTU as collateral to ensure the return of the phone good general condition at the end of my participation - or DTU when asks me to return the phone.   
 
-that my deposit will be refunded upond return of the phone (in reasonable condition).   
+that my deposit will be refunded upond return of the phone.   
 
 </div>
 
@@ -44,15 +44,15 @@ that I will be asked to participate in surveys and personality tests. It is agre
 </div>
 
 <div class="legal legal-prohibited">
-that DTU is not responsible for my use of the phone during the project. This means that if I, for example,willingly upload, download or transmit copyrighted material, illegally, upload, download or transmit otherwise illegal material, or spread viruses via mobile phone, I cannot hold DTU responsible for these acts.   
+that DTU is not responsible for my use of the phone during the project. This means that if I, for example, willingly upload, download or transmit copyrighted material, illegally, upload, download or transmit otherwise illegal material, or spread viruses via mobile phone, I cannot hold DTU responsible for these acts.   
 </div>
 
 <div class="legal legal-notice">
-that the mobile phone I have received for the project is on loan and DTU will require the phone returned. DTU will guarantee use for at least 12 months, and beyond that provide me with reasonable notice of the return of the phone (at least 2 months), unless DTU's restitution claims are justified based on my use of - or treatment of the phone. 
+that the smartphone is on loan and DTU will require the phone returned. DTU will guarantee use for at least 12 months, and beyond that provide me with reasonable notice of the return of the phone (at least 3 months), unless DTU's restitution claims are justified based on my use of - or treatment of - the phone. 
 </div>
 
 <div class="legal legal-liability-damages">
-that DTU may claim damages against me if I intentionally, or through gross negligence, destroy, or damage mobile phone. For example by using mobile phone for illegal activities or anything that causes DTU a loss.   
+that DTU may claim damages against me if I intentionally, or through gross negligence, destroy or damage the smartphone. 
 </div>
 
 <div class="legal legal-liability-taxes">
