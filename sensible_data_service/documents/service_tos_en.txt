@@ -9,49 +9,50 @@ that DTU has obtained permission to collect and record my data for the Project w
 </div>
 
 <div class="legal legal-purpose-data" id="legal-purpose-data_1">
-that My personal data will primarly be used for research - and will not be shared with others, neither private companies nor the DTU student administration.   
+that my personal data will primarly be used for research - and will not be shared with others, neither private companies nor the DTU student administration.   
 <div>
 
 <div class="legal legal-study-contact">
-that I should contact Associate Professor Sune Lehmann Jørgensen with questions regarding the Project.   
+that I should contact support@sensible.dtu.dk with questions regarding the Project.   
 </div>
 
 <div class="legal legal-study-withdraw">
-that It is permitted to withdraw from the Project at any time. To do so, I must return the mobile phone and contact Associate Professor Sune Lehmann Jørgensen.   
+that it is permitted to withdraw from the Project at any time. To do so, I must return the mobile phone and contact support@sensible.dtu.dk for further instructions.   
 </div>
 
 <div class="legal legal-study-participant-obligations">
-Further, I agree that my participation in the project and a phone to use during the project is contingent upon:  
+Further, I agree that my participation in the project and access to a smartphone for personal use during the project is contingent upon:  
 
-that by receiving a smartphone (LG Nexus 4) for use during my participation in the Project, I must pay a deposit of DKK 300.00. This deposit may be used by DTU as collateral to ensure the return of the phone back in excellent condition at the end of my participation - or DTU when asks me to return the phone.   
+that I commit to inserting my SIM card into the phone and that I will use it as my primary mobile phone.
 
-that my deposit will be refunded when I return the phone and the phone is in a good general condition.   
+that in order to receive a phone (LG Nexus 4) for use during my participation in the Project, I must pay a deposit of DKK 300.00. This deposit may be used by DTU as collateral to ensure the return of the phone good general condition at the end of my participation - or DTU when asks me to return the phone.   
 
-that I will insert my SIM card into the phone and use it as my primary (mobile) phone.
+that my deposit will be refunded upond return of the phone (in reasonable condition).   
+
 </div>
 
 <div class="legal legal-study-scopes">
-that I agree the DTU (for the Project) may record and collect data regarding Bluetooth, mobile masts, WiFi networks, named (but hashed / anonymous) phone numbers and call times (no content), sent SMS and time (no content; numbers hashed as above), contacts in the phone directory (also hashed information). In addition, information is collected regarding connections in online social networks (eg. Facebook).   
+that I agree the DTU (for the Project) may record and collect data regarding Bluetooth, mobile masts, WiFi networks, named (but hashed/anonymized) phone numbers and call times (no content), sent/reveived SMS and time (no content; numbers hashe), contacts in the phone directory (also hashed). In addition, information may be regarding activity on online social networks (eg. Facebook).
 </div>
 
 <div class="legal legal-purpose-data" id="legal-purpose-data_2">
-that I agree that the collected data will be used in the Project. The purpose of the Project is to publish research findings.   
+that I agree that the collected data will for the Project. The purpose of the Project is to publish research findings.   
 </div>
 
 <div class="legal legal-purpose-solicitation">
-that I may be asked to participate in surveys and personality tests. If I choose to participate in these, it is agreed that results from those may be used - in anonymised form - in the research project on an equal footing with the data collected through my phone use during the project.   
+that I will be asked to participate in surveys and personality tests. It is agreed that results from those may be used - in anonymised form - in the research project on an equal footing with the data collected through my phone use during the project.   
 </div>
 
 <div class="legal legal-prohibited">
-that DTU is not responsible for my use of mobile the phone during the project. This means that if I, for example, upload, download or transmit copyrighted material illegally, upload, download or transmit otherwise illegal material, or get, or spread viruses via mobile phone, I can not hold DTU responsible for these acts.   
+that DTU is not responsible for my use of the phone during the project. This means that if I, for example,willingly upload, download or transmit copyrighted material, illegally, upload, download or transmit otherwise illegal material, or spread viruses via mobile phone, I cannot hold DTU responsible for these acts.   
 </div>
 
 <div class="legal legal-notice">
-that the mobile phone I have received for the project is on loan and DTU will require the phone returned. DTU will provide me with reasonable notice of the return of the phone (at least 2 months), unless DTU's restitution claims are justified based on my use of, or treatment of the phone   
+that the mobile phone I have received for the project is on loan and DTU will require the phone returned. DTU will guarantee use for at least 12 months, and beyond that provide me with reasonable notice of the return of the phone (at least 2 months), unless DTU's restitution claims are justified based on my use of - or treatment of the phone. 
 </div>
 
 <div class="legal legal-liability-damages">
-that DTU may claim damages against me if I intentionally, or through gross negligence, destroy, or damage mobile phone. For example by using mobile phone for illegal activities or anything that causes DTU loss.   
+that DTU may claim damages against me if I intentionally, or through gross negligence, destroy, or damage mobile phone. For example by using mobile phone for illegal activities or anything that causes DTU a loss.   
 </div>
 
 <div class="legal legal-liability-taxes">
