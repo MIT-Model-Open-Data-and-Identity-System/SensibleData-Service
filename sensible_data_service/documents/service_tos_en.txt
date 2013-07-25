@@ -1,7 +1,7 @@
 As a participant of the project SensibleDTU (the Project) led by Associate Professor Sune Lehmann Jørgensen, at DTU Compute,  I agree to have been informed of the following:  
 
 <div class="legal legal-purpose-study">
-that the research project, (which the Project is a part of) is designed to measure and analyze social networks and movement patterns amongst a group of DTU students.   
+that the research project, (which the Project is a part of) is designed to measure and analyze social networks and dynamic processes unfolding on such networks.   
 </div>
 
 <div class="legal legal-trustmark">
@@ -32,11 +32,11 @@ that my deposit will be refunded upond return of the phone (in reasonable condit
 </div>
 
 <div class="legal legal-study-scopes">
-that I agree the DTU (for the Project) may record and collect data regarding Bluetooth, mobile masts, WiFi networks, named (but hashed/anonymized) phone numbers and call times (no content), sent/reveived SMS and time (no content; numbers hashe), contacts in the phone directory (also hashed). In addition, information may be regarding activity on online social networks (eg. Facebook).
+that I agree the DTU (for the Project) may record and collect data regarding Bluetooth, GSM towers (mobile cell towers), WiFi networks, GPS, named (but hashed/anonymized) phone numbers and call times (no content), sent/reveived SMS and time (no content; numbers hashe), contacts in the phone directory (also hashed). In addition, information regarding activity on online social networks (eg. Facebook) may be collected.
 </div>
 
 <div class="legal legal-purpose-data" id="legal-purpose-data_2">
-that I agree that the collected data will for the Project. The purpose of the Project is to publish research findings.   
+that I agree that the collected data will used only for the Project. The purpose of the Project is to publish research findings.   
 </div>
 
 <div class="legal legal-purpose-solicitation">
