@@ -14,7 +14,7 @@ from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-
+from django.conf import settings
 
 
 @login_required
@@ -78,7 +78,7 @@ def grant(request):
 		return HttpResponse(json.dumps({'error':'no valid scope provided'}))
 
 
-	redirect_uri = '/authorization_manager/oauth2/authorize/?'
+	redirect_uri = settings.ROOT_URL+'authorization_manager/oauth2/authorize/?'
 	redirect_uri += 'client_id='+client_id
 	redirect_uri += '&response_type=code'
 	redirect_uri += '&scope='+','.join(final_scopes)
