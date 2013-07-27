@@ -32,6 +32,7 @@ def userStatus(request):
 			response['applications'][application.name]['scopes'][scope.scope]['authorized'] = 1 if len(auth)>0 else 0 
 			response['applications'][application.name]['scopes'][scope.scope]['description'] = scope.description
 			response['applications'][application.name]['scopes'][scope.scope]['auth_url'] = scope.connector.grant_url
+	#		response['applications'][application.name]['scopes'][scope.scope]['auth_url'] = authorization_manager.buildAuthUrl(scope.connector)['url']
 		
 
 	return HttpResponse(json.dumps(response))
