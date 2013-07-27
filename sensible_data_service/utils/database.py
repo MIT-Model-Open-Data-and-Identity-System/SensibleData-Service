@@ -8,7 +8,7 @@ class Database:
 
 	def __init__(self):
 		self.client = MongoClient(settings.DATA_DATABASE['params']['url']%(SECURE_settings.DATA_DATABASE['username'],SECURE_settings.DATA_DATABASE['password']))
-		self.db = self.client[settings.DATABASE['params']['database']]
+		self.db = self.client[settings.DATA_DATABASE['params']['database']]
 
 	def insert(self, documents, collection):
 		coll = self.db[collection]

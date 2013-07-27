@@ -10,6 +10,7 @@ from authorization_manager import authorization_manager
 import json
 from django.core.urlresolvers import reverse
 from django.conf import settings
+from django.db import transaction
 
 @login_required
 def grant(request):
@@ -31,6 +32,7 @@ def grant(request):
 
 
 @csrf_exempt
+@transaction.commit_manually
 def token(request):
 	code = request.POST.get('code')
 	client_id = request.POST.get('client_id')
@@ -38,9 +40,11 @@ def token(request):
 	redirect_uri = request.POST.get('redirect_uri')
 
 	response = authorization_manager.token(code, client_id, client_secret, redirect_uri)
+	transaction.commit()
    	return HttpResponse(response)
 
 @csrf_exempt
+@transaction.commit_manually
 def refresh_token(request):
 	refresh_token = request.POST.get('refresh_token')
 	client_id = request.POST.get('client_id')
@@ -49,4 +53,5 @@ def refresh_token(request):
 	scope = request.POST.get('scope')
 	
 	response = authorization_manager.refresh_token(refresh_token, client_id, client_secret, redirect_uri, scope)
+	transaction.commit()
 	return HttpResponse(response)
