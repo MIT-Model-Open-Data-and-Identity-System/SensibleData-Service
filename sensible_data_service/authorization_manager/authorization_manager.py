@@ -83,3 +83,35 @@ def authenticate_token(request, scope=None, client_id=None):
 			return {'error':'token not authorized for this client_id'}
 
 	return {'ok': 'success', 'user': authenticator.user, 'scope': auth_scope, 'client_id': auth_client_id}
+
+
+def registerGcm(request, scope):
+	device_id = request.REQUEST.get('device_id', '')
+	gcm_id = request.REQUEST.get('gcm_id', '')
+	access_token = request.REQUEST.get('access_token', '')
+	auth = authenticate_token(request, scope)
+	if 'error' in auth: return auth
+	user = auth['user']
+	client_id = auth['client_id']
+	if gcm_id == '': return {'error':'no gcm_id provided'}
+	if device_id == '': return {'error':'no device_id provided'}
+
+	try:
+		device = Device.objects.get(user=user, device_id=device_id)
+	except Device.DoesNotExist:
+		device = Device.objects.create(user=user, device_id=device_id)
+
+	try:
+		gcm_registration = GcmRegistration.objects.get(user=user, device=device, application=Application.objects.get(client=Client.objects.get(key=client_id)))
+		gcm_registration.gcm_id = gcm_id
+		gcm_registration.save()
+
+	except GcmRegistration.DoesNotExist:
+		gcm_registration = GcmRegistration.objects.create(user=user, device=device, application=Application.objects.get(client=Client.objects.get(key=client_id)), gcm_id=gcm_id)
+		gcm_registration.save()
+	except Application.DoesNotExist:
+		return {'error':'application does not exist'}
+	except Client.DoesNotExist:
+		return {'error':'client does not exist'}
+
+	return {'ok':'gcm registration complete'}
