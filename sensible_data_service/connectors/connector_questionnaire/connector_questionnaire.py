@@ -6,7 +6,7 @@ import urllib
 
 def upload(request):
 
-	auth = authorization_manager.authenticate_token(request)
+	auth = authorization_manager.authenticate_token(request, 'connector_questionnaire.input_form_data')
 	if 'error' in auth:
 		return HttpResponse(json.dumps(auth), status=401)
 
