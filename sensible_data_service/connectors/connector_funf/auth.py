@@ -158,3 +158,6 @@ def confirm(request):
 
 def gcm(request):
 	return HttpResponse(json.dumps(authorization_manager.registerGcm(request, scope = 'connector_funf.submit_data')))
+
+def buildAuthUrl():
+	return {'url':'http://dupa.com'}
