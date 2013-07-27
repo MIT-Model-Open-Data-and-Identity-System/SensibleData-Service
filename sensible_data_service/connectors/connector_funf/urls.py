@@ -12,5 +12,4 @@ urlpatterns = patterns('',
 	 url(r'^auth/refresh_token/', 'connectors.connector_funf.auth.refresh_token', name='connector_funf_auth_refresh_token'),
 	 url(r'^auth/revoke/', 'connectors.connector_funf.auth.revoke'),
 	 url(r'^auth/sync/', 'connectors.connector_funf.auth.sync'),
-	 url(r'^auth/confirm/', 'connectors.connector_funf.auth.confirm'),
 )
