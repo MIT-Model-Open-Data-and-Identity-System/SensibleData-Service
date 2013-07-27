@@ -155,18 +155,6 @@ def sync(request):
 def confirm(request):
 	return HttpResponse('confirmed')
 
-def buildUri(connector, application):
-        grant_uri = connector.grant_url+'?'
-        revoke_uri = connector.revoke_url+'?'
-        for param in application.params.all():
-                if param.key == 'client_id':
-                        grant_uri += 'client_id='+param.value+'&'
-                        revoke_uri += 'client_id='+param.value+'&'
-        grant_uri += 'scope=_scope_'
-        revoke_uri += 'scope=_scope_'
-
-        #TODO: add message for the empty uris, when the action needs to be initiated from somewhere else
-        return {'grant_uri':grant_uri, 'revoke_uri': revoke_uri}
 
 def gcm(request):
 	return HttpResponse(json.dumps(authorization_manager.registerGcm(request, scope = 'connector_funf.submit_data')))
