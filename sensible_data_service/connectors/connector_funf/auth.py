@@ -15,7 +15,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.conf import settings
-
+from django.db import transaction
 
 @login_required
 def initiateGrant(request):
@@ -100,43 +100,60 @@ def granted(request):
 
 
 @csrf_exempt
+@transaction.commit_manually
 def token(request):
-	code = request.POST.get('code')
-	client_id = request.POST.get('client_id')
-	client_secret = request.POST.get('client_secret')
-	
-	redirect_uri = Client.objects.get(key=client_id).redirect_uri
+	try:
+		code = request.POST.get('code')
+		client_id = request.POST.get('client_id')
+		client_secret = request.POST.get('client_secret')
+		
+		redirect_uri = Client.objects.get(key=client_id).redirect_uri
 
-	response = authorization_manager.token(code, client_id, client_secret, redirect_uri)
-	if not 'error' in response:
-		token = AccessToken.objects.get(token = json.loads(response)['access_token'])
-		#we generate long-lived (10 years) tokens, still supporting endpoint for refresh that should be performed every N days
-		#those are not strictly OAuth2 tokens in this context, they are not used in the connection but as authorization code...
-		token.expire += 10*365*24*60*60 
-		token.save()
+		response = authorization_manager.token(code, client_id, client_secret, redirect_uri)
+		
+			
+		transaction.commit()
+		if not 'error' in response:
+			token = AccessToken.objects.get(token = json.loads(response)['access_token'])
+			#we generate long-lived (10 years) tokens, still supporting endpoint for refresh that should be performed every N days
+			#those are not strictly OAuth2 tokens in this context, they are not used in the connection but as authorization code...
+			token.expire += 10*365*24*60*60 
+			token.save()
 	
-	return HttpResponse(response)
+		return HttpResponse(response)
+	
+	except:
+        	transaction.rollback()
+    	finally:
+        	transaction.commit()
 
 
 
 @csrf_exempt
+@transaction.commit_manually
 def refresh_token(request):
-	refresh_token = request.POST.get('refresh_token')
-	client_id = request.POST.get('client_id')
-	client_secret = request.POST.get('client_secret')
-	redirect_uri = Client.objects.get(key=client_id).redirect_uri
-	scope = ','.join([x.scope for x in AccessToken.objects.get(refresh_token=refresh_token).scope.all()])
+	try:
+		refresh_token = request.POST.get('refresh_token')
+		client_id = request.POST.get('client_id')
+		client_secret = request.POST.get('client_secret')
+		redirect_uri = Client.objects.get(key=client_id).redirect_uri
+		scope = ','.join([x.scope for x in AccessToken.objects.get(refresh_token=refresh_token).scope.all()])
 
-	
-	response = authorization_manager.refresh_token(refresh_token, client_id, client_secret, redirect_uri, scope)
-	if not 'error' in response:
-		token = AccessToken.objects.get(token = json.loads(response)['access_token'])
-		#we generate long-lived (10 years) tokens, still supporting endpoint for refresh that should be performed every N days
-		#those are not strictly OAuth2 tokens in this context, they are not used in the connection but as authorization code...
-		token.expire += 10*365*24*60*60 
-		token.save()
-	
-	return HttpResponse(response)
+		
+		response = authorization_manager.refresh_token(refresh_token, client_id, client_secret, redirect_uri, scope)
+		transaction.commit()
+		if not 'error' in response:
+			token = AccessToken.objects.get(token = json.loads(response)['access_token'])
+			#we generate long-lived (10 years) tokens, still supporting endpoint for refresh that should be performed every N days
+			#those are not strictly OAuth2 tokens in this context, they are not used in the connection but as authorization code...
+			token.expire += 10*365*24*60*60 
+			token.save()
+		
+		return HttpResponse(response)
+	except:
+        	transaction.rollback()
+    	finally:
+        	transaction.commit()
 
 @login_required
 def revoke(request):
