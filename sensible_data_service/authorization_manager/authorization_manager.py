@@ -8,6 +8,7 @@ import json
 from oauth2app.authenticate import Authenticator, AuthenticationException
 from django.conf import settings
 from documents.models import TosAcceptance
+from django.db import transaction
 
 from connectors import connector_funf
 from connectors import connector_questionnaire
@@ -22,7 +23,8 @@ def getAuthorization(user, scope, application):
 	return authorizations
 
 def createAuthorization(response):
-	access_token = AccessToken.objects.get(token=response['access_token'])
+	access_token_to_query = response['access_token']
+	access_token = AccessToken.objects.get(token=str(access_token_to_query))
 	
 	if len(TosAcceptance.objects.filter(user=access_token.user).all()) == 0:        
 		return {'error':'user is not enrolled in the study'}
@@ -42,7 +44,6 @@ def token(code, client_id, client_secret, redirect_uri):
 	values['redirect_uri'] = redirect_uri
 	data = urllib.urlencode(values)
 
-	#TODO
 	request_uri = settings.BASE_URL+'authorization_manager/oauth2/token'
 
 	req = urllib2.Request(request_uri, data)
@@ -51,6 +52,7 @@ def token(code, client_id, client_secret, redirect_uri):
 		response = e.read()
 		return response
 
+	transaction.commit()
 	createAuthorization(json.loads(response))
 	return response
 
@@ -71,6 +73,7 @@ def refresh_token(refresh_token, client_id, client_secret, redirect_uri, scope):
 		response = e.read()
 		return response
 
+	transaction.commit()
 	createAuthorization(json.loads(response))
 	return response
 

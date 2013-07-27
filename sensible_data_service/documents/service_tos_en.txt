@@ -5,7 +5,7 @@ that the research project, (which the Project is a part of) is designed to measu
 </div>
 
 <div class="legal legal-trustmark">
-that DTU has obtained permission to collect and record my data for the Project with the <div class="legal-trustmark-approver">Danish Data Protection Agency</div>.  
+that DTU has obtained permission to collect and record my data for the Project with the <div class="legal-trustmark-approver">Danish Data Protection Agency. 
 </div>
 
 <div class="legal legal-purpose-data" id="legal-purpose-data_1">
