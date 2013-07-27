@@ -9,6 +9,14 @@ from oauth2app.authenticate import Authenticator, AuthenticationException
 from django.conf import settings
 from documents.models import TosAcceptance
 
+from connectors import connector_funf
+from connectors import connector_questionnaire
+
+def buildAuthUrl(connector):
+	if connector.connector_type == 'connector_funf':
+		return connector_funf.auth.buildAuthUrl()
+	return {'error':'no valid connector provided'}
+
 def getAuthorization(user, scope, application):
 	authorizations = Authorization.objects.filter(active=True, user=user, scope=scope, application=application)
 	return authorizations
@@ -18,7 +26,6 @@ def createAuthorization(response):
 	
 	if len(TosAcceptance.objects.filter(user=access_token.user).all()) == 0:        
 		return {'error':'user is not enrolled in the study'}
-
 
 	server_nonce = hashlib.sha256(str(uuid.uuid4())).hexdigest()
 	for scope in access_token.scope.all():
