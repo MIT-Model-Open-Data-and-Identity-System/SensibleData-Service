@@ -5,6 +5,7 @@ urlpatterns = patterns('',
 	 url(r'^config/', 'connectors.connector_funf.connector_funf.config'),
 	
 	 url(r'^auth/grant/', 'connectors.connector_funf.auth.grant'),
+	 url(r'^auth/gcm/', 'connectors.connector_funf.auth.gcm'),
 	 url(r'^auth/initiate_grant/', 'connectors.connector_funf.auth.initiateGrant'),
 	 url(r'^auth/granted/', 'connectors.connector_funf.auth.granted', name='connector_funf_auth_granted'),
 	 url(r'^auth/token/', 'connectors.connector_funf.auth.token', name='connector_funf_auth_token'),

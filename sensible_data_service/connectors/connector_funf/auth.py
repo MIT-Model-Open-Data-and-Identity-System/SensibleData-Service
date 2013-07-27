@@ -167,3 +167,38 @@ def buildUri(connector, application):
 
         #TODO: add message for the empty uris, when the action needs to be initiated from somewhere else
         return {'grant_uri':grant_uri, 'revoke_uri': revoke_uri}
+
+def gcm(request):
+	device_id = request.REQUEST.get('device_id', '')
+	gcm_id = request.REQUEST.get('gcm_id', '')
+	access_token = request.REQUEST.get('access_token', '')
+	auth = authorization_manager.authenticate_token(request, 'connector_funf.submit_data')
+	if 'error' in auth:	        
+		return HttpResponse(json.dumps(auth), status=401)
+	user = auth['user']
+	client_id = auth['client_id']
+
+	if gcm_id == '': 
+		return HttpResponse(json.dumps({'error':'no gcm_id provided'}))
+	if device_id == '': 
+		return HttpResponse(json.dumps({'error':'no device_id provided'}))
+
+	try:
+		device = Device.objects.get(user=user, device_id=device_id)
+	except Device.DoesNotExist:
+		device = Device.objects.create(user=user, device_id=device_id)
+	
+	try: 
+		gcm_registration = GcmRegistration.objects.get(user=user, device=device, application=Application.objects.get(client=Client.objects.get(key=client_id)))
+		gcm_registration.gcm_id = gcm_id
+		gcm_registration.save()
+
+	except GcmRegistration.DoesNotExist:
+		gcm_registration = GcmRegistration.objects.create(user=user, device=device, application=Application.objects.get(client=Client.objects.get(key=client_id)), gcm_id=gcm_id)
+		gcm_registration.save()
+	except Application.DoesNotExist:
+		return HttpResponse(json.dumps({'error':'application does not exist'}))
+	except Client.DoesNotExist:
+		return HttpResponse(json.dumps({'error':'client does not exist'}))
+
+	return HttpResponse(json.dumps({'ok':'gcm registration complete'}))
