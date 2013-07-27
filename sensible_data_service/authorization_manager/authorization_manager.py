@@ -67,8 +67,19 @@ def refresh_token(refresh_token, client_id, client_secret, redirect_uri, scope):
 	createAuthorization(json.loads(response))
 	return response
 
-def authenticate_token(request):
+def authenticate_token(request, scope=None, client_id=None):
 	authenticator = Authenticator()
 	try: authenticator.validate(request)
-   	except AuthenticationException: return {'error':'authentication error'}
-	return {'ok':'success', 'user':authenticator.user}
+   	except AuthenticationException: return {'error': authenticator.error.message}
+	auth_client_id = AccessToken.objects.get(token=request.REQUEST.get('bearer_token')).client.key
+	auth_scope = [x.scope for x in authenticator.scope]
+	if type(scope) == str: scope = [scope]
+	if not scope == None:
+		if not set(scope).issubset(set(auth_scope)):
+			return {'error':'token not authorized for this scope'}
+
+	if not client_id == None:
+		if not client_id == auth_client_id:
+			return {'error':'token not authorized for this client_id'}
+
+	return {'ok': 'success', 'user': authenticator.user, 'scope': auth_scope, 'client_id': auth_client_id}
