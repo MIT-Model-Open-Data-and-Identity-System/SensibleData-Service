@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="page-header">
+	      <h1>Service Test Page</h1>
+	  </div>
+
+<div class="row">
+
+	<div class="well span5">
+		<h2>User</h2>
+		<hr>
+		<p class="lead">username: {{ user.username }}</p>
+		<p class="lead">email: {{ user.email }}</p>
+	</div>
+	
+	<div class="well span5">
+		<h2>Config</h2>
+		<hr>
+		{% for key, value in config.items %}
+			<p><b>{{ key }}</b></p>
+			<p>{{ value }}</p>
+			<hr>
+		{% endfor %}
+	</div>
+
+
+</div>
+{% endblock %}
