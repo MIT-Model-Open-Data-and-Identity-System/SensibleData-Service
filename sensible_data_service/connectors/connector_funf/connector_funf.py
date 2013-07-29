@@ -38,20 +38,27 @@ def upload(request):
 						upload_path = mConnector.upload_not_authorized_path;
 					else:
 						upload_path = mConnector.upload_path
+						
+					backup_path = mConnector.backup_path
 
 					if not os.path.exists(upload_path):
-						os.mkdir(upload_path)
+						os.makedirs(upload_path)
+					if not os.path.exists(backup_path):
+						os.makedirs(backup_path)
 					
-					filepath = os.path.join(upload_path, uploaded_file.name.split('.')[0].split('_')[0]+'_'+access_token+'_'+str(int(time.time()))+'.db')
+					filename = uploaded_file.name.split('.')[0].split('_')[0]+'_'+access_token+'_'+str(int(time.time()))+'.db'
+					filepath = os.path.join(upload_path, filename)
 					while os.path.exists(filepath):
-						parts = filepath.split('.db');
+						parts = filename.split('.db');
 						counted_parts = re.split('__',parts[0]);
 						counter = -1;
 						if len(counted_parts) > 0:
 							counter = int(counted_parts[1]);
-						filepath = counted_parts[0] + '__' + str(counter + 1) + '.db'
+						filename = counted_parts[0] + '__' + str(counter + 1) + '.db'
+						filepath = os.path.join(upload_path, filename)
 
 					write_file(filepath, uploaded_file)
+					shutil.copy(filepath, os.path.join(backup_path, filename))
 
 				except Exception as e:
 					log.log('Error', 'Could not write: ' + str(e))

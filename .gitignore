@@ -15,4 +15,4 @@ sensible_data_service/connectors/connector_funf/upload/ef1ba605-7a6d-48f0-a0f3-6
 sensible_data_service/connectors/connector_funf/tester.py
 
 log/*.txt
-
+sensible_data_service/connectors/connector_funf/temp/*
