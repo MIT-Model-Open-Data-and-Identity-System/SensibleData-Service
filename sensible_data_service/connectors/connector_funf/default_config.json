@@ -1,0 +1,18 @@
+{
+    "configUpdatePeriod": 200,
+    "configUpdateUrl": "https://www.sensible.dtu.dk/sensible-dtu/authorization_manager/connector_funf/config",
+    "dataArchivePeriod": 300,
+    "dataRequests": {
+        "edu.mit.media.funf.probe.builtin.BatteryProbe": [
+            {
+                "PERIOD": 3600,
+                "DURATION": 30
+            }
+        ]
+    },
+    "dataUploadOnWifiOnly": true,
+    "dataUploadPeriod": 7200,
+    "dataUploadUrl": "http://changeme.com/",
+    "name": "dataCollector",
+    "version": 1
+}

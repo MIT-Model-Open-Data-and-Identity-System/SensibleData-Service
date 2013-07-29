@@ -3,3 +3,4 @@ distribute>=0.6.28
 django-openid-auth
 pymongo
 python-gcm
+django-uni-form
