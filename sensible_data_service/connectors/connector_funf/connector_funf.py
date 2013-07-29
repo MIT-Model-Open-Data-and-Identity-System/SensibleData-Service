@@ -33,17 +33,24 @@ def upload(request):
 					
 					#authorization = self.pipe.getAuthorization(access_token, scope=scope)
 					authorization = ''
-			
+					mConnector = ConnectorFunf.objects.all()[0];
 					if 'error' in authorization:
-						upload_path = settings.CONNECTORS["connector_funf"]["config"]["upload_not_authorized_path"]
+						upload_path = mConnector.upload_not_authorized_path;
 					else:
-						upload_path = settings.CONNECTORS["connector_funf"]["config"]["upload_path"]
+						upload_path = mConnector.upload_path
 
 					if not os.path.exists(upload_path):
 						os.mkdir(upload_path)
 					
 					filepath = os.path.join(upload_path, uploaded_file.name.split('.')[0].split('_')[0]+'_'+access_token+'_'+str(int(time.time()))+'.db')
-					
+					while os.path.exists(filepath):
+						parts = filepath.split('.db');
+						counted_parts = re.split('__',parts[0]);
+						counter = -1;
+						if len(counted_parts) > 0:
+							counter = int(counted_parts[1]);
+						filepath = counted_parts[0] + '__' + str(counter + 1) + '.db'
+
 					write_file(filepath, uploaded_file)
 
 				except Exception as e:
