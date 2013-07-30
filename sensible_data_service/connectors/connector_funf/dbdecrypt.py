@@ -44,13 +44,13 @@ def is_funf_database(file_name):
 
 def decrypt_if_not_db_file(file_name, key, extension=None):
     if is_funf_database(file_name):
-        print "Already decrypted: '%s'" % file_name
+        #print "Already decrypted: '%s'" % file_name
         return True
     else:
-        print ("Attempting to decrypt: '%s'..." % file_name),
+        #print ("Attempting to decrypt: '%s'..." % file_name),
         decrypt.decrypt([file_name], key, extension)
         if is_funf_database(file_name):
-            print "Success!"
+            #print "Success!"
             return True
         else:
             print "FAILED!!!!"
