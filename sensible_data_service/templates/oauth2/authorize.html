@@ -13,17 +13,21 @@
 
 {% block content %}
 
+<style>
+	        table { border:none }
+			        </style>
+
 	<div class="row">
 	<div class="well span8">
 	<h2>Authorize <i>{{ client.name }}</i> to ...</h2>
 	<div class="form-actions">
 		{% if scopes %}
-		<table class="table">
+		<table class="table table-condensed table-striped">
 			{% for scope in scopes %}
 			<tr>
-				<td>
-				<h4>... {{ scope.description }}</h4>
-				<span class="label">{{ scope.scope }}</span>
+				<td style="border-top: none; vertical-align:middle;">
+				<h4><span class="" style="background-color:#46a546;padding: 1px 10px 2px; font-weight: bold; white-space: nowrap; -webkit-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px; color: #ffffff;"> {{ scope.description }} </span></h4>
+				{{ scope.description_extra | safe }}
 				</td>
 			</tr>
 			{% endfor %}
