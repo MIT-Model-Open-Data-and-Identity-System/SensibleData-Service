@@ -46,7 +46,7 @@ def decrypt_directory(directory_to_decrypt=mConnector.upload_path):
 		decryption_success = False;
 		try:
 			# check if still exists, might have been moved in another thread
-			if os.path.exists(upload_filename):
+			if os.path.exists(upload_filename) and not os.path.exists(proc_filename):
 				# move it to processing
 				shutil.move(upload_filename, proc_dir)
 				curr_filename = proc_filename
@@ -73,7 +73,12 @@ def decrypt_directory(directory_to_decrypt=mConnector.upload_path):
 			elif curr_filename == decrypted_filename:
 				action = 'removing the .orig file of'
 			try:
-				fail.fail(curr_filename, decryption_failed_path, 'Exception thrown: ' + str(e) + '. While ' + action + ' file: ' + f)
+				if not str(e).contains('already exists'):
+					fail.fail(curr_filename, decryption_failed_path, 'Exception thrown: ' + str(e) + '. While ' + action + ' file: ' + f)
+					log.log('error', 'README ^^^^^^^^^^^^^')
+				else:
+					log.log('error','Exception thrown: ' + str(e) + '. While ' + action + ' file: ' + f);
+				
 			except Exception as e1:
 				pass
 			failed_filenames.append(os.path.basename(f))
