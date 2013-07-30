@@ -19,73 +19,73 @@ def decrypt():
 	decrypt_directory()
 
 def decrypt_directory(directory_to_decrypt=mConnector.upload_path):
-	decrypted_directory_path = mConnector.decrypted_path
-	decryption_failed_path = mConnector.decryption_failed_path;
-	backup_path = mConnector.backup_path;
+
 	
 	''' 
 	NEW VERSION: moves a file, decrypts it, moves on to the next file
 	'''
 	raw_filenames = [filename for filename in os.listdir(directory_to_decrypt) if fnmatch.fnmatch(filename, '*.db')]
-	found_files = len(raw_filenames);
-	print 'Found ' + str(len(raw_filenames)) + ' files in the folder'
-	#filenames = [os.path.join(directory_to_decrypt, filename) for filename in raw_filenames]
-	proc_dir = os.path.join(directory_to_decrypt, 'processing')
-	if not os.path.exists(proc_dir):
-		os.mkdir(proc_dir)
+	
 	failed_filenames = []
 	
 	already_moved_counter = 0;
 	success_counter = 0;
 	
 	for f in raw_filenames:
-		upload_filename = os.path.join(directory_to_decrypt, f)
-		proc_filename = os.path.join(proc_dir, f)
-		decrypted_filename = os.path.join(decrypted_directory_path, f)
-		curr_filename = upload_filename #for keeping track of the file's current location
-		decryption_success = False;
+		if not decrypt_file(directory_to_decrypt, f):
+			failed_filenames.append(os.path.basename(f))	
+			
+def decrypt_file_from_upload(f):
+	return decrypt_file(mConnector.upload_path, f)
+
+def decrypt_file(directory_to_decrypt, f):
+	proc_dir = os.path.join(directory_to_decrypt, 'processing')
+	if not os.path.exists(proc_dir):
+		os.mkdir(proc_dir)
+	upload_filename = os.path.join(directory_to_decrypt, f)
+	proc_filename = os.path.join(proc_dir, f)
+	decrypted_filename = os.path.join(mConnector.decrypted_path, f)
+	curr_filename = upload_filename #for keeping track of the file's current location
+	decryption_success = False;
+	try:
+		# check if still exists, might have been moved in another thread
+		if os.path.exists(upload_filename) and not os.path.exists(proc_filename):
+			# move it to processing
+			shutil.move(upload_filename, proc_dir)
+			curr_filename = proc_filename
+			# decrypt
+			if decrypt_if_not_db_file(proc_filename, key, extension=None):
+				decryption_success = True;
+				fail.safe_move(proc_filename, mConnector.decrypted_path)
+				curr_filename = decrypted_filename
+				orig_filename = proc_filename + '.orig'
+				if os.path.exists(orig_filename):
+					os.remove(orig_filename)
+			return True
+		else:
+			return False
+	except Exception as e:
+		#find out when it happened
+		action = '';
+		if curr_filename == upload_filename:
+			action = 'moving to /processing'
+		elif curr_filename == proc_filename and decryption_success == False:
+			action = 'decrypting'
+		elif curr_filename == proc_filename and decryption_success == True:
+			action = 'moving to /decrypted'
+		elif curr_filename == decrypted_filename:
+			action = 'removing the .orig file of'
 		try:
-			# check if still exists, might have been moved in another thread
-			if os.path.exists(upload_filename) and not os.path.exists(proc_filename):
-				# move it to processing
-				shutil.move(upload_filename, proc_dir)
-				curr_filename = proc_filename
-				# decrypt
-				if decrypt_if_not_db_file(proc_filename, key, extension=None):
-					decryption_success = True;
-					fail.safe_move(proc_filename, decrypted_directory_path)
-					curr_filename = decrypted_filename
-					orig_filename = proc_filename + '.orig'
-					if os.path.exists(orig_filename):
-						os.remove(orig_filename)
-					success_counter +=1;
+			if not str(e).contains('already exists'):
+				fail.fail(curr_filename, mConnector.decryption_failed_path, 'Exception thrown: ' + str(e) + '. While ' + action + ' file: ' + f)
+				log.log('error', 'README ^^^^^^^^^^^^^')
 			else:
-				already_moved_counter +=1;
-		except Exception as e:
-			#find out when it happened
-			action = '';
-			if curr_filename == upload_filename:
-				action = 'moving to /processing'
-			elif curr_filename == proc_filename and decryption_success == False:
-				action = 'decrypting'
-			elif curr_filename == proc_filename and decryption_success == True:
-				action = 'moving to /decrypted'
-			elif curr_filename == decrypted_filename:
-				action = 'removing the .orig file of'
-			try:
-				if not str(e).contains('already exists'):
-					fail.fail(curr_filename, decryption_failed_path, 'Exception thrown: ' + str(e) + '. While ' + action + ' file: ' + f)
-					log.log('error', 'README ^^^^^^^^^^^^^')
-				else:
-					log.log('error','Exception thrown: ' + str(e) + '. While ' + action + ' file: ' + f);
-				
-			except Exception as e1:
-				pass
-			failed_filenames.append(os.path.basename(f))
-	
-	print str(already_moved_counter) + ' of them were already moved when I tried to decrypt them'
-	print 'I encrypted ' + str(success_counter) + ' files, which means the Devil took ' + str(found_files - already_moved_counter - success_counter) + ' of all files'
-	
+				log.log('error','Exception thrown: ' + str(e) + '. While ' + action + ' file: ' + f);
+		
+		except Exception as e1:
+			pass
+		
+		return False;
 	'''
 	#OLD VERSION: first moves all files to upload/processing, then decrypts the whole processing dir
 	#TODO
@@ -134,7 +134,7 @@ def decrypt_directory(directory_to_decrypt=mConnector.upload_path):
 
 if __name__ == '__main__':
 	if len(sys.argv) == 2:
-		directory = sys.argv[1]
-		decrypt_directory(directory_to_decrypt=directory)
+		f = sys.argv[1]
+		decrypt_file_from_upload(f)
 	else:
 		decrypt_directory()
