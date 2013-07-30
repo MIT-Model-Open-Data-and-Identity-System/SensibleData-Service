@@ -3,6 +3,7 @@
 </style>
 
 IN DANISH.... æ ø æ ø æ å
+</br>
 <span class="legal legal-introduction">
 As a participant of the project SensibleDTU (the Project) led by Associate Professor Sune Lehmann Jørgensen, at DTU Compute,  I agree to the following:
 </span>
