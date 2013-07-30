@@ -1,5 +1,5 @@
 from .models import *
-from application_manager.models import Application
+from application_manager.models import Application, Device
 import hashlib
 import uuid
 import time
@@ -10,19 +10,21 @@ from django.conf import settings
 from documents.models import TosAcceptance
 from django.db import transaction
 
-from connectors import connector_funf
-from connectors import connector_questionnaire
+import connectors.connector_funf.auth as funf_auth
+import connectors.connector_questionnaire.auth as questionnaire_auth
 
 def buildAuthUrl(connector):
 	if connector.connector_type == 'connector_funf':
-		return connector_funf.auth.buildAuthUrl()
-	return {'error':'no valid connector provided'}
+		return funf_auth.buildAuthUrl()
+	if connector.connector_type == 'connector_questionnaire':
+		return questionnaire_auth.buildAuthUrl()
+	return {'error':'no valid connector provided', 'url':'error', 'message': 'no valid connector provided'}
 
 def getAuthorization(user, scope, application):
 	authorizations = Authorization.objects.filter(active=True, user=user, scope=scope, application=application)
 	return authorizations
 
-def createAuthorization(response):
+def createAuthorization(response, device_id = None):
 	access_token_to_query = response['access_token']
 	access_token = AccessToken.objects.get(token=str(access_token_to_query))
 	
@@ -31,11 +33,15 @@ def createAuthorization(response):
 
 	server_nonce = hashlib.sha256(str(uuid.uuid4())).hexdigest()
 	for scope in access_token.scope.all():
-		authorization = Authorization.objects.create(user=access_token.user, scope=scope, application=Application.objects.get(client=access_token.client), access_token=access_token, nonce=server_nonce, active=True, activated_at=time.time())
+		if device_id == None:
+			authorization = Authorization.objects.create(user=access_token.user, scope=scope, application=Application.objects.get(client=access_token.client), access_token=access_token, nonce=server_nonce, active=True, activated_at=time.time())
+		else:
+			try:
+				authorization = Authorization.objects.create(user=access_token.user, scope=scope, application=Application.objects.get(client=access_token.client), access_token=access_token, nonce=server_nonce, active=True, activated_at=time.time(), device=Device.objects.get(user=access_token.user, device_id = device_id))
+			except Device.DoesNotExist:
+				authorization = Authorization.objects.create(user=access_token.user, scope=scope, application=Application.objects.get(client=access_token.client), access_token=access_token, nonce=server_nonce, active=True, activated_at=time.time())
 
-
-
-def token(code, client_id, client_secret, redirect_uri):
+def token(code, client_id, client_secret, redirect_uri, device_id = None):
 	values = {}
 	values['code'] = code
 	values['grant_type'] = 'authorization_code'
@@ -53,10 +59,10 @@ def token(code, client_id, client_secret, redirect_uri):
 		return response
 
 	transaction.commit()
-	createAuthorization(json.loads(response))
+	createAuthorization(json.loads(response), device_id)
 	return response
 
-def refresh_token(refresh_token, client_id, client_secret, redirect_uri, scope):
+def refresh_token(refresh_token, client_id, client_secret, redirect_uri, scope, device_id = None):
 	values = {}
 	values['refresh_token'] = refresh_token
 	values['grant_type'] = 'refresh_token'
@@ -74,7 +80,7 @@ def refresh_token(refresh_token, client_id, client_secret, redirect_uri, scope):
 		return response
 
 	transaction.commit()
-	createAuthorization(json.loads(response))
+	createAuthorization(json.loads(response), device_id)
 	return response
 
 def authenticate_token(request, scope=None, client_id=None):

@@ -1,4 +1,4 @@
-from authorization_manager import authorization_manager
+import authorization_manager
 from application_manager import gcm_server
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
@@ -105,10 +105,11 @@ def token(request):
 	code = request.POST.get('code')
 	client_id = request.POST.get('client_id')
 	client_secret = request.POST.get('client_secret')
+	device_id = request.POST.get('device_id')
 	
 	redirect_uri = Client.objects.get(key=client_id).redirect_uri
 
-	response = authorization_manager.token(code, client_id, client_secret, redirect_uri)
+	response = authorization_manager.authorization_manager.token(code, client_id, client_secret, redirect_uri, device_id=device_id)
 		
 	if not 'error' in response:
 		token = AccessToken.objects.get(token = json.loads(response)['access_token'])
@@ -129,11 +130,14 @@ def refresh_token(request):
 	refresh_token = request.POST.get('refresh_token')
 	client_id = request.POST.get('client_id')
 	client_secret = request.POST.get('client_secret')
+	device_id = request.POST.get('device_id')
+	
 	redirect_uri = Client.objects.get(key=client_id).redirect_uri
+	
 	scope = ','.join([x.scope for x in AccessToken.objects.get(refresh_token=refresh_token).scope.all()])
 
 	
-	response = authorization_manager.refresh_token(refresh_token, client_id, client_secret, redirect_uri, scope)
+	response = authorization_manager.authorization_manager.refresh_token(refresh_token, client_id, client_secret, redirect_uri, scope, device_id=device_id)
 	transaction.commit()
 	if not 'error' in response:
 		token = AccessToken.objects.get(token = json.loads(response)['access_token'])
@@ -164,7 +168,8 @@ def confirm(request):
 
 
 def gcm(request):
-	return HttpResponse(json.dumps(authorization_manager.registerGcm(request, scope = 'connector_funf.submit_data')))
+	return HttpResponse(json.dumps(authorization_manager.authorization_manager.registerGcm(request, scope = 'connector_funf.submit_data')))
 
 def buildAuthUrl():
-	return {'url':'http://dupa.com'}
+	#TODO  provide auth link when device is already registered, provide deauth option
+	return {'url':'', 'message':'Please start registration from your phone'}
