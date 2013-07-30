@@ -24,6 +24,7 @@ class Scope(models.Model):
 	connector = models.ForeignKey(Connector)
 	scope = models.CharField(unique=True, max_length=100, db_index=True)
 	description = models.TextField(blank=True)
+	description_extra = models.TextField(blank=True, default="", null=True)
 	
 	def __unicode__(self):
 		return self.scope
