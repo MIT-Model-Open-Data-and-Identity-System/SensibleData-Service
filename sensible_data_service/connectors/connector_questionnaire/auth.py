@@ -1,4 +1,4 @@
-import authorization_manager
+import authorization_manager.authorization_manager
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 import json
