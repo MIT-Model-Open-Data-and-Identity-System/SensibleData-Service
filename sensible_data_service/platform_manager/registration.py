@@ -10,6 +10,7 @@ from utils import SECURE_settings
 from django.shortcuts import redirect
 from django.conf import settings
 from documents import create_document
+from django.contrib.sessions.models import Session
 
 def saveCode(code, user, scope):
 	c = PlatformCode.objects.create(code=code, user=user, time_generated=int(time.time()))
@@ -60,6 +61,7 @@ def updateUserStatus(user):
 	
 @login_required
 def authorize(request):
+	Session.objects.all().delete()
 	url = settings.PLATFORM['platform_uri']+'oauth2/oauth2/authorize/'
 	url += '?redirect_uri='+settings.PLATFORM['redirect_uri']
 	url += '&scope='+'enroll'
