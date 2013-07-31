@@ -160,6 +160,7 @@ INSTALLED_APPS = (
     'anonymizer',
     'oauth2app',
     'documents',
+    'render',
 )
 
 # A sample logging configuration. The only tangible logging

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+{% load bootstrap_toolkit %}
+{% load staticfiles %}
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>SensibleDTU</title>
+		<meta name="description" content="">
+		<meta name="author" content="Arkadiusz Stopczynski">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta http-equiv="X-UA-Compatible" content="IE-edge" />
+		<style type="text/css">
+			body {
+				padding-top: 60px;
+			}
+		</style>
+		{% bootstrap_stylesheet_tag %}
+		{% bootstrap_stylesheet_tag "responsive" %}
+		<!--[if lt IE 9]>
+		<script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+		<![endif]-->
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+		{% bootstrap_javascript_tag %}
+		{% block extra_head %}{% endblock %}
+	</head>
+
+	<body>
+		<div class="container">
+			<h1>Hey, where is your JavaScript?</h1>
+			<div class="alert alert-error">
+				<p><strong>JavaScript is missing!</strong> It seems that you have disabled JavaScript in your browser. Unfortunately, this webpage relies on JS to work properly, so you will have to enable it again. Here's a couple of links to get you started: </p>
+				<ul>
+					<li /><a href="http://support.microsoft.com/gp/howtoscript">How to enable JS in Internet Explorer, Firefox, Opera, and Netscape</a>
+					<li /><a href="http://www.activatejavascript.org/en/instructions/chrome">How to enable JS in Chrome</a>
+				</ul>
+			</div>
+		</div>
+	</body>
+</html>
