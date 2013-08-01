@@ -3,12 +3,24 @@
 {% load staticfiles %}
 <html lang="en">
 <head>
+<noscript>
+	<meta http-equiv="refresh" content="0; url={% url "noscript" %}" />
+</noscript>
     <meta charset="utf-8">
     <title>SensibleDTU</title>
     <meta name="description" content="">
     <meta name="author" content="Arkadiusz Stopczynski">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style type="text/css">
+	<meta http-equiv="X-UA-Compatible" content="IE-edge" />
+	<script>
+		try {
+			NodeList;
+			HTMLCollection;
+			} catch (err) {
+			window.location = "{% url "changebrowser" %}";
+		}
+	</script>
+	<style type="text/css">
         body {
             padding-top: 60px;
         }
@@ -69,7 +81,7 @@
 <div class="span6">
 	<p>This is <a href="https://github.com/organizations/MIT-Model-Open-Data-and-Identity-System">SensibleDTU</a>, an <a href="http://openpds.media.mit.edu/">openPDS system</a>
 
-	<span class="label label-info">0.0.4</span></p>
+	<span class="label label-important">0.0.5</span></p>
 </div>
 
 <div class="span6" style="text-align:right">

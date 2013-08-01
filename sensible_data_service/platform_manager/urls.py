@@ -7,4 +7,5 @@ urlpatterns = patterns('',
 	url(r'^discover/?$', 'platform_manager.discover.init'),
 	url(r'^userStatus/?$', 'platform_manager.user_status.userStatus'),
 	url(r'^serviceAuthorizations/?$', 'platform_manager.service_authorizations.serviceAuthorizations'),
+	url(r'^logout/', 'platform_manager.logout.logout'),
 )

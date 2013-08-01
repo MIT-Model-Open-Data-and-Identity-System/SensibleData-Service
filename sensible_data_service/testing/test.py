@@ -7,6 +7,9 @@ from django.contrib.admin.views.decorators import staff_member_required
 from authorization_manager.authorization_manager import *
 import bson.json_util as json
 from django.conf import settings
+from django.contrib.sessions.models import Session
+from django.contrib.auth.models import User
+from datetime import datetime
 
 @staff_member_required
 def testing(request):
@@ -18,6 +21,8 @@ def testing(request):
 	values['config']['ROOT_URL'] = settings.ROOT_URL
 
 
-
 	return render_to_response("test.html", values, context_instance=RequestContext(request))
 
+@login_required
+def testing2(request):
+	return HttpResponse(json.dumps(request.user.username))

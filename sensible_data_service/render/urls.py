@@ -12,9 +12,6 @@ urlpatterns = patterns('',
 	url(r'^admin/', include(admin.site.urls)),
 	url(r'^quit/', 'application_manager.quit.quit'),
 	url(r'^logout/', 'application_manager.logout.logout', name='logout'),
-
-	url(r'^changebrowser', 'render.views.changebrowser', name='changebrowser'),
-	url(r'^noscript', 'render.views.noscript', name='noscript'),
 	 
 	url(r'^test/', include('testing.urls')),
 )

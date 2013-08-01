@@ -3,7 +3,7 @@ import json
 from .models import *
 import platform_manager
 from application_manager import application_manager
-from authorization_manager import authorization_manager
+import authorization_manager.authorization_manager
 from documents.models import TosAcceptance
 
 def userStatus(request):
@@ -27,12 +27,12 @@ def userStatus(request):
 		application_scopes = application_manager.getApplicationScopes(application)
 		response['applications'][application.name]['scopes'] = {}
 		for scope in application_scopes:
-			auth = authorization_manager.getAuthorization(user, scope, application)
+			auth = authorization_manager.authorization_manager.getAuthorization(user, scope, application)
 			response['applications'][application.name]['scopes'][scope.scope] = {}
 			response['applications'][application.name]['scopes'][scope.scope]['authorized'] = 1 if len(auth)>0 else 0 
 			response['applications'][application.name]['scopes'][scope.scope]['description'] = scope.description
 			response['applications'][application.name]['scopes'][scope.scope]['description_extra'] = scope.description_extra
-			response['applications'][application.name]['scopes'][scope.scope]['auth_url'] = authorization_manager.buildAuthUrl(scope.connector)
+			response['applications'][application.name]['scopes'][scope.scope]['auth_url'] = authorization_manager.authorization_manager.buildAuthUrl(scope.connector)
 		
 
 	return HttpResponse(json.dumps(response))
