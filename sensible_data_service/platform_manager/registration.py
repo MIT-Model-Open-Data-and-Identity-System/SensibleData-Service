@@ -88,7 +88,7 @@ def callback(request):
 		return redirect(settings.PLATFORM['platform_uri']+'?status=save_token_error')
 	
 	if 'enroll' in scope:
-		create_document.createTosAcceptance(user, 'da')
+		create_document.createInformedConsent(user, 'da')
 	
 	#return HttpResponse(json.dumps(scope))
 	return redirect(settings.PLATFORM['platform_uri']+'?status=success')

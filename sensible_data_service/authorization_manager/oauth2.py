@@ -11,7 +11,7 @@ from oauth2app.models import *
 from oauth2app.consts import CODE, TOKEN, CODE_AND_TOKEN
 from .forms import AuthorizeForm
 from django.core.urlresolvers import reverse
-from documents.models import TosAcceptance
+from documents.models import InformedConsent
 from django.conf import settings
 from django.contrib.sessions.models import Session
 from django.contrib.auth.models import User
@@ -54,7 +54,7 @@ def authorize_refreshed(request):
 	if request.method == 'GET':
         # Make sure the authorizer has validated before requesting the client
         # or access_ranges as otherwise they will be None.
-		if len(TosAcceptance.objects.filter(user=authorizer.user).all()) == 0:
+		if len(InformedConsent.objects.filter(user=authorizer.user).all()) == 0:
 			return render_to_response('not_enrolled.html', {'platform_url':settings.PLATFORM['platform_uri']}, RequestContext(request))
 
 		template = {
