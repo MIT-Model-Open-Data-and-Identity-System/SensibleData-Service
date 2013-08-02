@@ -19,15 +19,17 @@
 
 	<div class="row">
 	<div class="well span8">
-	<h2>Authorize <i>{{ client.name }}</i> to ...</h2>
+	<h2>Allow <i>{{ client.name }}</i> to</h2>
 	<div class="form-actions">
 		{% if scopes %}
-		<table class="table table-condensed table-striped">
+		<table class="table table-condensed">
 			{% for scope in scopes %}
 			<tr>
 				<td style="border-top: none; vertical-align:middle;">
-				<h4><span class="" style="background-color:#46a546;padding: 1px 10px 2px; font-weight: bold; white-space: nowrap; -webkit-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px; color: #ffffff;"> {{ scope.description }} </span></h4>
-				{{ scope.description_extra | safe }}
+					<div class="span" style="border-color: #46a546; padding: 2px 3px 0px; -webkit-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px 3px 3px 3px; border-width:1px; border-style:solid; border-top-style:solid; margin: 20px 10px 20px">
+						<h4><div class="" style="margin:-13px 0px 0px; background-color:#46a546; text-align:center; padding: 4px 20px 4px; font-weight: bold; white-space: pre-wrap; -webkit-border-radius: 3px; -moz-border-radius: 3px 3px 3px 3px; border-radius: 0px 0px 3px 3px; color: #ffffff;"> {{ scope.description | safe }}</div></h4>
+			{{ scope.description_extra | safe }}
+				</div>
 				</td>
 			</tr>
 			{% endfor %}
