@@ -1,11 +1,9 @@
 from gcm import GCM
 import gcm
-#from utils import SECURE_settings
+from utils import SECURE_settings
 import sys
 
-#API_KEY = SECURE_settings.GCM_API_KEY
-API_KEY = 'AIzaSyCV5wV98Fhl7Rhw-GRae7aEB_BTCvVh7rY'
-
+API_KEY = SECURE_settings.GCM_API_KEY
 
 def sendNotification(gcm_id, data, type):
 	gcm_obj = GCM(API_KEY)
