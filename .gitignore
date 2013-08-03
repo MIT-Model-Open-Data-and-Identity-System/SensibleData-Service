@@ -7,14 +7,5 @@ SECURE_*
 TEMP_*
 LOCAL_*
 .DS_Store
-
 *.orig
-
-sensible_data_service/connectors/connector_funf/upload/ef1ba605-7a6d-48f0-a0f3-67df81ce8be4_abc_1375118017.db
-
-sensible_data_service/connectors/connector_funf/tester.py
-
-log/*.txt
-sensible_data_service/connectors/connector_funf/temp/*
-
-sensible_data_service/connectors/connector_funf/ef1ba605-7a6d-48f0-a0f3-67df81ce8be4_1374932793219_mainPipeline.db
+*.db

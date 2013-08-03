@@ -16,6 +16,14 @@ import bson.json_util as json
 
 from connectors.connector_funf.models import ConnectorFunf
 
+from subprocess import Popen, PIPE
+
+import threading
+threading._DummyThread._Thread__stop = lambda x: 42
+
+import re
+
+
 @csrf_exempt
 def upload(request):
 	log.log('Debug', 'Received POST')
@@ -29,7 +37,7 @@ def upload(request):
 		try:
 			uploaded_file = request.FILES['uploadedfile']
 			if uploaded_file:
-				try:
+				#try:
 					
 					#authorization = self.pipe.getAuthorization(access_token, scope=scope)
 					authorization = ''
@@ -52,18 +60,21 @@ def upload(request):
 						parts = filename.split('.db');
 						counted_parts = re.split('__',parts[0]);
 						counter = -1;
-						if len(counted_parts) > 0:
+						if len(counted_parts) > 1:
 							counter = int(counted_parts[1]);
 						filename = counted_parts[0] + '__' + str(counter + 1) + '.db'
 						filepath = os.path.join(upload_path, filename)
 
 					write_file(filepath, uploaded_file)
 					shutil.copy(filepath, os.path.join(backup_path, filename))
+					
+					# run decryption in the background
+					p = Popen([settings.ROOT_DIR + './manage.py','funf_single_decrypt',filename], stdout=PIPE, stderr=PIPE)
 
-				except Exception as e:
-					log.log('Error', 'Could not write: ' + str(e))
-					return HttpResponse(status='500')
-				else:
+				#except Exception as e:
+				#	log.log('Error', 'Could not write: ' + str(e))
+				#	return HttpResponse(status='500')
+				#else:
 					return HttpResponse(json.dumps({'ok':'success'}))
 			else:
 				log.log('Error', 'failed to read')
