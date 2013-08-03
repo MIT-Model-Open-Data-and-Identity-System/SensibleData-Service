@@ -21,6 +21,15 @@ def buildAuthUrl(connector):
 def getAuthorization(user, scope, application):
 	authorizations = Authorization.objects.filter(active=True, user=user, scope=scope, application=application)
 	return authorizations
+	
+def getAuthorizationForToken(scope, token):
+	auth = Authorization.objects.filter(scope=Scope.objects.get(scope = scope),\
+		access_token=AccessToken.objects.get(access_token=token),\
+		active = True)
+	if len(auth) > 0:
+		return auth[0]
+	else:
+		return None
 
 def createAuthorization(response):
 	access_token_to_query = response['access_token']
