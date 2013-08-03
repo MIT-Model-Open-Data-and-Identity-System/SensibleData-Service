@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+{% load bootstrap_toolkit %}
+{% load staticfiles %}
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>SensibleDTU</title>
+		<meta name="description" content="">
+		<meta name="author" content="Arkadiusz Stopczynski">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta http-equiv="X-UA-Compatible" content="IE-edge" />
+		<style type="text/css">
+			body {
+				padding-top: 60px;
+			}
+		</style>
+		{% bootstrap_stylesheet_tag %}
+		{% bootstrap_stylesheet_tag "responsive" %}
+		<!--[if lt IE 9]>
+		<script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+		<![endif]-->
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+		{% bootstrap_javascript_tag %}
+		{% block extra_head %}{% endblock %}
+	</head>
+
+	<body>
+		<div class="container">
+			<h1>Hey, have you tried using a modern browser?</h1>
+			<div class="alert alert-error">
+				<p><strong>Internet Explorer starts with version 9!</strong> It seems that you have a very old browser. Unfortunately, this page does not support it, so you will need to get one of the newer ones. Here's what we support: </p>
+				<ul>
+					<li><a href="https://www.google.com/intl/en/chrome/browser/">Google Chrome</a>
+					<li><a href="http://www.mozilla.org/en-US/firefox/new/">Mozilla Firefox</a>
+					<li><a href="http://www.microsoft.com/en-us/download/internet-explorer-10-details.aspx">Internet Explorer 10</a>
+				</ul>
+
+				<p><strong>Wait, are using Internet Explorer 9 or higher?</strong> Then you probably are in the compatibility mode. Then, go and <a href="http://answers.microsoft.com/en-us/ie/forum/ie10-windows_8/permanently-disable-compatibility-view-in-ie10/c714c273-6a12-4c61-a70d-67e962eeb37d"> check this out</a>. And please come back!
+			</div>
+		</div>
+	</body>
+</html>

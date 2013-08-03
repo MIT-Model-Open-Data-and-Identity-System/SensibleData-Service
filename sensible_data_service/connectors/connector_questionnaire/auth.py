@@ -1,4 +1,4 @@
-import authorization_manager
+import authorization_manager.authorization_manager
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 import json
@@ -6,11 +6,11 @@ from django.shortcuts import redirect
 from oauth2app.models import Client, AccessToken, Code
 import urllib, urllib2
 from django.views.decorators.csrf import csrf_exempt
-from authorization_manager import authorization_manager
 import json
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.db import transaction
+from .models import ConnectorQuestionnaire
 
 @login_required
 def grant(request):
@@ -39,7 +39,7 @@ def token(request):
 	client_secret = request.POST.get('client_secret')
 	redirect_uri = request.POST.get('redirect_uri')
 
-	response = authorization_manager.token(code, client_id, client_secret, redirect_uri)
+	response = authorization_manager.authorization_manager.token(code, client_id, client_secret, redirect_uri)
 	transaction.commit()
    	return HttpResponse(response)
 
@@ -52,6 +52,9 @@ def refresh_token(request):
 	redirect_uri = request.POST.get('redirect_uri')
 	scope = request.POST.get('scope')
 	
-	response = authorization_manager.refresh_token(refresh_token, client_id, client_secret, redirect_uri, scope)
+	response = authorization_manager.authorization_manager.refresh_token(refresh_token, client_id, client_secret, redirect_uri, scope)
 	transaction.commit()
 	return HttpResponse(response)
+
+def buildAuthUrl():
+	return {'url': ConnectorQuestionnaire.objects.filter(connector_type='connector_questionnaire').all()[0].grant_url, 'message':'Authorized url'}

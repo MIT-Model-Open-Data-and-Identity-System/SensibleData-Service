@@ -11,3 +11,9 @@ def authenticate(request):
         except PlatformAccessToken.DoesNotExist: return {'error': 'user not found', 'response': json.dumps({'error': 'user not found'})}
 
 	return {'ok':'authenticated', 'user': user}
+
+
+def authenticatePlatform(request):
+	host = request.META['REMOTE_ADDR']
+	if not host in settings.PLATFORM['ip_addr']: return {'error': 'ip address not authorized', 'response': json.dumps({'error': 'ip address not authorized '+host})}
+	return {'ok':'platform calling'}
