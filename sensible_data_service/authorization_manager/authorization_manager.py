@@ -7,7 +7,7 @@ import urllib, urllib2
 import json
 from oauth2app.authenticate import Authenticator, AuthenticationException
 from django.conf import settings
-from documents.models import TosAcceptance
+from documents.models import InformedConsent
 from django.db import transaction
 
 import connectors.connector_questionnaire.auth
@@ -23,12 +23,21 @@ def buildAuthUrl(connector):
 def getAuthorization(user, scope, application):
 	authorizations = Authorization.objects.filter(active=True, user=user, scope=scope, application=application)
 	return authorizations
+	
+def getAuthorizationForToken(scope, token):
+	auth = Authorization.objects.filter(scope=Scope.objects.get(scope = scope),\
+		access_token=AccessToken.objects.get(access_token=token),\
+		active = True)
+	if len(auth) > 0:
+		return auth[0]
+	else:
+		return None
 
 def createAuthorization(response, device_id = None):
 	access_token_to_query = response['access_token']
 	access_token = AccessToken.objects.get(token=str(access_token_to_query))
 	
-	if len(TosAcceptance.objects.filter(user=access_token.user).all()) == 0:        
+	if len(InformedConsent.objects.filter(user=access_token.user).all()) == 0:        
 		return {'error':'user is not enrolled in the study'}
 
 	server_nonce = hashlib.sha256(str(uuid.uuid4())).hexdigest()

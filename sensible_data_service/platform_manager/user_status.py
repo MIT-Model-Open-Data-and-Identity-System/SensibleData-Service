@@ -4,7 +4,7 @@ from .models import *
 import platform_manager
 from application_manager import application_manager
 import authorization_manager.authorization_manager
-from documents.models import TosAcceptance
+from documents.models import InformedConsent
 
 def userStatus(request):
 	authentication = platform_manager.authenticate(request)
@@ -17,7 +17,7 @@ def userStatus(request):
 	response = {}
 	response['applications'] = {}
 	applications = application_manager.getApplications()
-	if len(TosAcceptance.objects.filter(user=user).all()) == 0:
+	if len(InformedConsent.objects.filter(user=user).all()) == 0:
 		return HttpResponse(json.dumps({'error':'not enrolled'}))
 	
 	for application in applications:

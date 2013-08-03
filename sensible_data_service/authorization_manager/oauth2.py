@@ -11,8 +11,14 @@ from oauth2app.models import *
 from oauth2app.consts import CODE, TOKEN, CODE_AND_TOKEN
 from .forms import AuthorizeForm
 from django.core.urlresolvers import reverse
-from documents.models import TosAcceptance
+from documents.models import InformedConsent
 from django.conf import settings
+from django.contrib.sessions.models import Session
+from django.contrib.auth.models import User
+import json
+from datetime import datetime
+from django.shortcuts import redirect
+from urlparse import urlparse, parse_qs
 
 @login_required
 def missing_redirect_uri(request):
@@ -22,13 +28,25 @@ def missing_redirect_uri(request):
         RequestContext(request))
 
 
-@login_required
 def authorize(request):
+	try:
+		sessions = Session.objects.filter(expire_date__gte=datetime.now())
+		for session in sessions:
+			data = session.get_decoded()
+			try: user = User.objects.filter(id=data.get('_auth_user_id', None))[0]
+			except: continue
+			if request.user == user:
+				session.delete()
+	except: pass
+	return redirect(settings.ROOT_URL+'authorization_manager/oauth2/authorize_refreshed/?'+request.GET.urlencode())
+
+@login_required
+def authorize_refreshed(request):
 	authorizer = Authorizer(response_type=CODE_AND_TOKEN)
 	try:
 		authorizer.validate(request)
 	except MissingRedirectURI, e:
-		return HttpResponseRedirect("/authorization_manager/oauth2/missing_redirect_uri")
+		return HttpResponseRedirect(settings.ROOT_URL+"authorization_manager/oauth2/missing_redirect_uri")
 	except AuthorizationException, e:
 		# The request is malformed or invalid. Automatically
 		# redirects to the provided redirect URL.
@@ -36,7 +54,7 @@ def authorize(request):
 	if request.method == 'GET':
         # Make sure the authorizer has validated before requesting the client
         # or access_ranges as otherwise they will be None.
-		if len(TosAcceptance.objects.filter(user=authorizer.user).all()) == 0:
+		if len(InformedConsent.objects.filter(user=authorizer.user).all()) == 0:
 			return render_to_response('not_enrolled.html', {'platform_url':settings.PLATFORM['platform_uri']}, RequestContext(request))
 
 		template = {
@@ -46,10 +64,9 @@ def authorize(request):
 		helper = FormHelper()
 		no_submit = Submit('connect','No', css_class='btn btn-large')
 		helper.add_input(no_submit)
-		yes_submit = Submit('connect', 'Yes', css_class='btn btn-large btn-primary')
+		yes_submit = Submit('connect', 'Yes', css_class='btn btn-large btn-success')
 		helper.add_input(yes_submit)
-		#helper.form_action = '/authorization_manager/oauth2/authorize?%s' % authorizer.query_string
-		helper.form_action = reverse('oauth2_authorize') + '?%s' % authorizer.query_string
+		helper.form_action = reverse('oauth2_authorize_refreshed') + '?%s' % authorizer.query_string
 		helper.form_method = 'POST'
 		template["helper"] = helper
 		return render_to_response(
@@ -63,4 +80,4 @@ def authorize(request):
 				return authorizer.grant_redirect()
 			else:
 				return authorizer.error_redirect()
-	return HttpResponseRedirect("/")
+	return HttpResponseRedirect(settings.ROOT_URL)
