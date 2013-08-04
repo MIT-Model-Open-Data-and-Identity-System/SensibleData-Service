@@ -42,7 +42,7 @@ def decrypt_file_from_upload(f):
 def decrypt_file(directory_to_decrypt, f):
 	proc_dir = os.path.join(directory_to_decrypt, 'processing')
 	if not os.path.exists(proc_dir):
-		os.mkdir(proc_dir)
+		os.makedirs(proc_dir)
 	upload_filename = os.path.join(directory_to_decrypt, f)
 	proc_filename = os.path.join(proc_dir, f)
 	decrypted_filename = os.path.join(mConnector.decrypted_path, f)
