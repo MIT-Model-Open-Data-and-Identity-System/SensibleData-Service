@@ -8,4 +8,16 @@ TEMP_*
 LOCAL_*
 .DS_Store
 *.orig
+
+
+sensible_data_service/connectors/connector_funf/tester.py
+
+log/*.txt
+sensible_data_service/connectors/connector_funf/temp/*
+
+
+sensible_data_service/connectors/resp.html
+
+sensible_data_service/connectors/connector_funf/resp.html
+
 *.db
