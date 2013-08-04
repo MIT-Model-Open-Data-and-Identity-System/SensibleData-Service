@@ -8,8 +8,9 @@ from utils import SECURE_settings
 from utils import log, fail
 from django.conf import settings
 from connectors.connector_funf.models import ConnectorFunf 
+import connectors.connector_funf.database_single_population as database_single_population
 
-#import pdb
+import pdb
 
 mConnector = ConnectorFunf.objects.all()[0];
 
@@ -39,9 +40,10 @@ def decrypt_file_from_upload(f):
 	return decrypt_file(mConnector.upload_path, f)
 
 def decrypt_file(directory_to_decrypt, f):
+	#pdb.set_trace()
 	proc_dir = os.path.join(directory_to_decrypt, 'processing')
 	if not os.path.exists(proc_dir):
-		os.mkdir(proc_dir)
+		os.makedirs(proc_dir)
 	upload_filename = os.path.join(directory_to_decrypt, f)
 	proc_filename = os.path.join(proc_dir, f)
 	decrypted_filename = os.path.join(mConnector.decrypted_path, f)
@@ -57,10 +59,13 @@ def decrypt_file(directory_to_decrypt, f):
 			if decrypt_if_not_db_file(proc_filename, key, extension=None):
 				decryption_success = True;
 				fail.safe_move(proc_filename, mConnector.decrypted_path)
+				log.log('Debug','Still here #1')
 				curr_filename = decrypted_filename
 				orig_filename = proc_filename + '.orig'
 				if os.path.exists(orig_filename):
 					os.remove(orig_filename)
+				#log.log('Debug','Still here #2')	
+				database_single_population.load_file(f)
 			return True
 		else:
 			return False

@@ -1,4 +1,4 @@
-import authorization_manager
+import authorization_manager.authorization_manager
 from application_manager import gcm_server
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
@@ -107,10 +107,9 @@ def token(request):
 	client_secret = request.POST.get('client_secret')
 	device_id = request.POST.get('device_id')
 	
-	redirect_uri = Client.objects.get(key=client_id).redirect_uri
+	redirect_uri = Client.objects.get(key=client_id).redirect_uri #get causes transaction!
 
-	response = authorization_manager.authorization_manager.token(code, client_id, client_secret, redirect_uri, device_id=device_id)
-		
+	response = authorization_manager.authorization_manager.token(code, client_id, client_secret, redirect_uri, device_id=device_id)	
 	if not 'error' in response:
 		token = AccessToken.objects.get(token = json.loads(response)['access_token'])
 		#we generate long-lived (10 years) tokens, still supporting endpoint for refresh that should be performed every N days
@@ -120,6 +119,7 @@ def token(request):
 
 	transaction.commit()
 	return HttpResponse(response)
+	transaction.rollback()
 	
 
 

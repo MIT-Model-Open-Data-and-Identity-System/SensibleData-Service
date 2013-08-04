@@ -15,4 +15,4 @@ class Command(BaseCommand):
     	try:
     		decrypt_file_from_upload(args[0]);
     	except Exception as e:
-    		log('Error','Exception while single decrypting file ' + args[0] + ': ' + str(e))
+    		log.log('Error','Exception while single decrypting file ' + args[0] + ': ' + str(e))

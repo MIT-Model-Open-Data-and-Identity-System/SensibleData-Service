@@ -15,11 +15,15 @@ from connectors.connector import connector
 import bson.json_util as json
 
 from connectors.connector_funf.models import ConnectorFunf
+import authorization_manager
 
 from subprocess import Popen, PIPE
 
+# bug fix
+# see http://stackoverflow.com/questions/13193278/understand-python-threading-bug
 import threading
 threading._DummyThread._Thread__stop = lambda x: 42
+# end of bug fix
 
 import re
 
@@ -33,20 +37,18 @@ def upload(request):
 
 
 	if request.META['CONTENT_TYPE'].split(';')[0]=='multipart/form-data':
-#	if not request.META['CONTENT_TYPE']=='multipart/form-data;boundary=*****':
 		try:
 			uploaded_file = request.FILES['uploadedfile']
 			if uploaded_file:
 				#try:
 					
-					#authorization = self.pipe.getAuthorization(access_token, scope=scope)
-					authorization = ''
+					#authorization = authorization_manager.getAuthorizationForToken(scope, access_token)
 					mConnector = ConnectorFunf.objects.all()[0];
-					if 'error' in authorization:
-						upload_path = mConnector.upload_not_authorized_path;
-					else:
-						upload_path = mConnector.upload_path
-						
+					#if ('error' in authorization) or (authorization == None):
+					#	upload_path = mConnector.upload_not_authorized_path;
+					#else:
+					#	upload_path = mConnector.upload_path
+					upload_path = mConnector.upload_path	
 					backup_path = mConnector.backup_path
 
 					if not os.path.exists(upload_path):
@@ -69,6 +71,7 @@ def upload(request):
 					shutil.copy(filepath, os.path.join(backup_path, filename))
 					
 					# run decryption in the background
+					log.log('Debug', settings.ROOT_DIR + './manage.py ' + filename)
 					p = Popen([settings.ROOT_DIR + './manage.py','funf_single_decrypt',filename], stdout=PIPE, stderr=PIPE)
 
 				#except Exception as e:

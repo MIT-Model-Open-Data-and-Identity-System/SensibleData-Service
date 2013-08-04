@@ -38,6 +38,16 @@ AUTHENTICATION_BACKENDS = (
 OPENID_CREATE_USERS = True
 OPENID_UPDATE_DETAILS_FROM_SREG = False
 
+def failure_handler_function(request, message, status=None, template_name=None, exception=None):
+	from django.shortcuts import redirect
+	from django.http import HttpResponse
+	registration = request.REQUEST.get('registration', False)
+	next = request.REQUEST.get('next', '')
+	if registration: return redirect(next)
+	return redirect('openid_failed')
+
+OPENID_RENDER_FAILURE = failure_handler_function
+
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
 ALLOWED_HOSTS = [".sensible.dtu.dk"]

@@ -50,6 +50,8 @@ def start(pid):
 def cleanFailedFilenames(failed_filenames):
 	for filename in failed_filenames:
 		log.log('Debug', 'File: ' + str(filename) + ' already exists.')
+		
+	
 
 def run(db):
 	print 'running'
