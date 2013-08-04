@@ -10,7 +10,7 @@ from django.conf import settings
 from connectors.connector_funf.models import ConnectorFunf 
 import connectors.connector_funf.database_single_population as database_single_population
 
-#import pdb
+import pdb
 
 mConnector = ConnectorFunf.objects.all()[0];
 
@@ -40,6 +40,7 @@ def decrypt_file_from_upload(f):
 	return decrypt_file(mConnector.upload_path, f)
 
 def decrypt_file(directory_to_decrypt, f):
+	pdb.set_trace()
 	proc_dir = os.path.join(directory_to_decrypt, 'processing')
 	if not os.path.exists(proc_dir):
 		os.makedirs(proc_dir)
@@ -64,7 +65,7 @@ def decrypt_file(directory_to_decrypt, f):
 				if os.path.exists(orig_filename):
 					os.remove(orig_filename)
 				#log.log('Debug','Still here #2')	
-				#database_single_population.load_file(f)
+				database_single_population.load_file(f)
 			return True
 		else:
 			return False
