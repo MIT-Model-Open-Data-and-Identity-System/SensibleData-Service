@@ -91,4 +91,4 @@ def callback(request):
 		create_document.createInformedConsent(user, 'da')
 	
 	#return HttpResponse(json.dumps(scope))
-	return redirect(settings.PLATFORM['platform_uri']+'?status=success')
+	return redirect(settings.PLATFORM['platform_uri']+'?status=success&message=You are now enrolled!')
