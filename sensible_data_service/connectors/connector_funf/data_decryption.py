@@ -40,7 +40,7 @@ def decrypt_file_from_upload(f):
 	return decrypt_file(mConnector.upload_path, f)
 
 def decrypt_file(directory_to_decrypt, f):
-	pdb.set_trace()
+	#pdb.set_trace()
 	proc_dir = os.path.join(directory_to_decrypt, 'processing')
 	if not os.path.exists(proc_dir):
 		os.makedirs(proc_dir)
