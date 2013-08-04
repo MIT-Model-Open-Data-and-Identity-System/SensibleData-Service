@@ -394,16 +394,21 @@ class TokenGenerator(object):
         return access_token
 
     def _get_refresh_token(self):
-        """Generate an access token after refresh authorization."""
-        self.access_token.refresh_token = KeyGenerator(REFRESH_TOKEN_LENGTH)()
-	self.access_token.token = KeyGenerator(ACCESS_TOKEN_LENGTH)()
-        self.access_token.expire = TimestampGenerator(ACCESS_TOKEN_EXPIRATION)()
-        if self.scope:
-            self.access_token.scope = Scope.objects.filter(scope__in=self.scope)
-        elif not self.access_token.scope.exists():
-            self.access_token.scope = []
-        self.access_token.save()
-        return self.access_token
+		"""Generate an access token after refresh authorization."""
+		#self.access_token.refresh_token = KeyGenerator(REFRESH_TOKEN_LENGTH)()
+		#self.access_token.token = KeyGenerator(ACCESS_TOKEN_LENGTH)()
+		#self.access_token.expire = TimestampGenerator(ACCESS_TOKEN_EXPIRATION)()
+		access_token_new = AccessToken.objects.create(user=self.access_token.user, client=self.access_token.client)
+		access_token_new.refresh_token = KeyGenerator(REFRESH_TOKEN_LENGTH)()
+		access_token_new.token = KeyGenerator(ACCESS_TOKEN_LENGTH)()
+		access_token_new.refreshable = self.access_token.refreshable
+		access_token_new.expire = TimestampGenerator(ACCESS_TOKEN_EXPIRATION)()
+		if self.scope:
+			access_token_new.scope = Scope.objects.filter(scope__in=self.scope)
+		elif not self.access_token.scope.exists():
+			access_token_new.scope = []
+		access_token_new.save()
+		return access_token_new
 
     def _get_client_credentials_token(self):
         """Generate an access token after client_credentials authorization."""
