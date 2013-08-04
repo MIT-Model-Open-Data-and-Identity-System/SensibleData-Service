@@ -8,6 +8,7 @@ from utils import SECURE_settings
 from utils import log, fail
 from django.conf import settings
 from connectors.connector_funf.models import ConnectorFunf 
+import connectors.connector_funf.database_single_population as database_single_population
 
 #import pdb
 
@@ -57,10 +58,13 @@ def decrypt_file(directory_to_decrypt, f):
 			if decrypt_if_not_db_file(proc_filename, key, extension=None):
 				decryption_success = True;
 				fail.safe_move(proc_filename, mConnector.decrypted_path)
+				log.log('Debug','Still here #1')
 				curr_filename = decrypted_filename
 				orig_filename = proc_filename + '.orig'
 				if os.path.exists(orig_filename):
 					os.remove(orig_filename)
+				#log.log('Debug','Still here #2')	
+				#database_single_population.load_file(f)
 			return True
 		else:
 			return False
