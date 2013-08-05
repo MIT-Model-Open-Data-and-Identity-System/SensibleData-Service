@@ -58,7 +58,7 @@ def refresh_token(request):
 def buildAuthUrl(application=None):
 	grant_url = ''
 	if not application == None:
-		try: grant_url = application.client.grant_url
+		try: grant_url = application.grant_url
 		except: return {'url': grant_url, 'message': 'The application is not available at the moment'}
 
 	#return {'url': ConnectorQuestionnaire.objects.filter(connector_type='connector_questionnaire').all()[0].grant_url, 'message':'Authorized url'}
