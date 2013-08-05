@@ -1,9 +1,12 @@
 from django.http import HttpRequest
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
+from django.db import transaction
 
 @login_required
 def grantInbound(request):
 	#TODO redirect user to facebook app
+	pass
 
 
 def grantedInbound(request):
@@ -11,6 +14,12 @@ def grantedInbound(request):
 	#exchange code for token
 	#save token as authorization with scopes
 	#now we should use the token to grab data -> cron or cellery
+	pass
+
+def buildInboundAuthUrl():
+	grant_url = ''
+	#TODO get this grant url from fb and add own client id and requested scopes etc.
+	return {'url': grant_url, 'message':'Authorized url'}
 
 
 @login_required
@@ -57,6 +66,9 @@ def refresh_token(request):
 	transaction.commit()
 	return HttpResponse(response)
 
-def obuildAuthUrl():
-	#TODO merge with new url scheme
-	return {'url': ConnectorQuestionnaire.objects.filter(connector_type='connector_questionnaire').all()[0].grant_url, 'message':'Authorized url'}
+def buildAuthUrl(application=None):
+	grant_url = ''
+	if not application == None:
+		try: grant_url = application.grant_url
+		except: return {'url': grant_url, 'message': 'The application is not available at the moment'}
+	return {'url': grant_url, 'message':'Authorized url'}
