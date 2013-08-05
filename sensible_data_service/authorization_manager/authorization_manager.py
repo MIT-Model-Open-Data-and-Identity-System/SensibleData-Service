@@ -12,13 +12,18 @@ from django.db import transaction
 
 import connectors.connector_questionnaire.auth
 import connectors.connector_funf.auth
+import connectors.connector_facebook.auth
 
 def buildAuthUrl(connector, application=None):
 	if connector.connector_type == 'connector_funf':
 		return connectors.connector_funf.auth.buildAuthUrl()
 	if connector.connector_type == 'connector_questionnaire':
 		return connectors.connector_questionnaire.auth.buildAuthUrl(application)
-	return {'error':'no valid connector provided', 'url':'error', 'message': 'no valid connector provided'}
+	if connector.connector_type == 'connector_facebook_in':
+		return connectors.connector_facebook.auth.buildInboundAuthUrl()
+	if connector.connector_type == 'connector_facebook_out':
+		return connectors.connector_facebook.auth.buildAuthUrl(application)
+	return {'error':'no valid connector provided', 'url':'', 'message': 'error: no valid connector provided'}
 
 def getAuthorization(user, scope, application):
 	authorizations = Authorization.objects.filter(active=True, user=user, scope=scope, application=application)

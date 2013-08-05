@@ -1,14 +1,21 @@
-from django.http import HttpRequest
+from django.http import HttpRequest, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.db import transaction
+from django.shortcuts import redirect
+from application_manager.models import Application
 
 @login_required
 def grantInbound(request):
 	#TODO redirect user to facebook app
-	pass
+	#client_id
+	#scopes
+	#redirect uri
+	#return redirect
+	return HttpResponse('here we go to facebook')
 
 
+@login_required
 def grantedInbound(request):
 	#redirect from facebook, we get code
 	#exchange code for token
@@ -18,7 +25,8 @@ def grantedInbound(request):
 
 def buildInboundAuthUrl():
 	grant_url = ''
-	#TODO get this grant url from fb and add own client id and requested scopes etc.
+	try: grant_url = Application.objects.get(connector_type='facebook_in').grant_url 
+	except Application.DoesNotExist: pass
 	return {'url': grant_url, 'message':'Authorized url'}
 
 
