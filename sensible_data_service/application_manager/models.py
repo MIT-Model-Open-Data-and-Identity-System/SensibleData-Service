@@ -36,6 +36,7 @@ class Application(models.Model):
 	connector_type = models.CharField(max_length=100)
 	client = models.ForeignKey(Client, null=True, blank=True)
 	url = models.URLField(null=True, blank=True)
+	grant_url = models.URLField(null=True, blank=True)
 	
 	def __unicode__(self):
 		return self.name+':'+self._id

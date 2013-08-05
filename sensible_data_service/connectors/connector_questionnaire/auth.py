@@ -21,7 +21,6 @@ def grant(request):
 	state = request.REQUEST.get('state', '')
 	response_type = request.REQUEST.get('response_type', '')
 
-	#TODO: fix this to dynamic reverse
 	redirect_uri = settings.BASE_URL + 'authorization_manager/oauth2/authorize/?'
 	redirect_uri += '&client_id='+client_id
 	redirect_uri += '&response_type='+response_type
@@ -56,5 +55,11 @@ def refresh_token(request):
 	transaction.commit()
 	return HttpResponse(response)
 
-def buildAuthUrl():
-	return {'url': ConnectorQuestionnaire.objects.filter(connector_type='connector_questionnaire').all()[0].grant_url, 'message':'Authorized url'}
+def buildAuthUrl(application=None):
+	grant_url = ''
+	if not application == None:
+		try: grant_url = application.grant_url
+		except: return {'url': grant_url, 'message': 'The application is not available at the moment'}
+
+	#return {'url': ConnectorQuestionnaire.objects.filter(connector_type='connector_questionnaire').all()[0].grant_url, 'message':'Authorized url'}
+	return {'url': grant_url, 'message':'Authorized url'}

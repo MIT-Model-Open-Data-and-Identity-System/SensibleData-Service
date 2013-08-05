@@ -73,7 +73,6 @@ class Client(models.Model):
     """
     name = models.CharField(max_length=256)
     user = models.ForeignKey(User)
-    #description = models.TextField(null=True, blank=True)
     key = models.CharField(
         unique=True,
         max_length=CLIENT_KEY_LENGTH,
