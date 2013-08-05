@@ -1,106 +1,52 @@
-<style>
-.legal-trustmark-approver {color: #880000;}
-</style>
-
-IN DANISH.... æ ø æ ø æ å
-</br>
-<span class="legal legal-introduction">
-As a participant of the project SensibleDTU (the Project) led by Associate Professor Sune Lehmann Jørgensen, at DTU Compute,  I agree to the following:
-</span>
+Med henblik på at deltage i projekt med titlen SensibleDTU (Projektet) ledet af Lektor Sune Lehmann  Jørgensen på DTU Compute, erklærer undertegnede studerende sig oplyst om følgende:
 </br>
 </br>
-
-<span class="legal legal-purpose-study">
-that the Project is designed to measure and analyze social networks and dynamic (social) processes unfolding on such networks.   
-</span>
+at forskningsprojektet, som Projektet er en del af, har til formål er at få viden om livsstil og dit helbred, adfærd og trivsel, samt sociale netværk og bevægelsesmønstre blandt studerende på DTU.
 </br>
 </br>
-
-<span class="legal legal-trustmark">
-that DTU has obtained permission to collect and record my data for the Project with the <span class="legal-trustmark-approver">Danish Data Protection Agency</span>. 
-</span>
+at DTU har indhentet tilladelse til at indhente registrere og lagre mine data til brug for forskningsprojektet 
 </br>
 </br>
-
-<span class="legal legal-purpose-data" id="legal-purpose-data_1">
-that my personal data will be used primarily for research - and will not be shared with others, neither private companies nor the DTU administration.   
-</span>
+at mine personoplysninger kun vil blive brugt til forskning og vil ikke blive delt med andre, hverken private firmaer eller studieadministrationen på DTU. 
 </br>
 </br>
-
-<span class="legal legal-study-withdraw">
-that it is permitted to withdraw from the Project at any time. To do so, I must return the mobile phone and contact support@sensible.dtu.dk for further instructions.   
-</span>
+at jeg skal henvende mig til support@sensible.dtu hvis jeg har spørgsmål til Projektet eller ønsker at udtræde af Projektet.
 </br>
 </br>
-
-<span class="legal legal-study-contact">
-that I should contact support@sensible.dtu.dk with any questions regarding the Project.
-</span>
+at jeg til enhver tid kan udtræde af Projektet og levere mobiltelefonen tilbage. 
 </br>
 </br>
-
-<span class="legal legal-study-participant-obligations">
-Further, I agree that my participation in the project and access to a smartphone for personal use during the project is contingent upon:  
+Yderligere er undertegnede indforstået med, at det er en betingelse for min deltagelse i Projektet og for udlevering af telefon til brug under Projektet:
 </br>
 </br>
-
-that I commit to inserting my SIM card into the phone and that I will use it as my primary mobile phone.
+at jeg ved udlevering af telefon af mærket LG Nexus 4 til min brug under min deltagelse i Projektet, betaler et depositum på kr. 300,00. Dette depositum kan DTU bruge som sikkerhed for, at jeg afleverer telefonen tilbage i god stand ved min afslutning af deltagelse i Projektet eller når DTU beder mig om at tilbagelevere 
 </br>
 </br>
-
-that in order to receive a phone (LG Nexus 4) for use during my participation in the Project, I must pay a deposit of DKK 300.00. This deposit may be used by DTU as collateral to ensure the return of the phone in good general condition at the end of my participation - or when DTU asks me to return the phone.   
+at jeg får mit depositum retur når jeg returnerer telefonen og denne er i en almindelig god stand.
 </br>
 </br>
-
-that my deposit will be refunded upon the return of the phone.   
+at jeg indsætter et SIM kort i telefonen og benytter den som min primære (mobil) telefon.
 </br>
 </br>
-
-</span>
-
-<span class="legal legal-study-scopes">
-that I agree the DTU (for the Project) may record and collect data regarding Bluetooth, GSM towers (mobile cell towers), WiFi networks, GPS, named (but hashed/anonymized) phone numbers and call times (no content), sent/reveived SMS and time (no content; numbers hashed), contacts in the phone directory (also hashed). In addition, information regarding activity on online social networks (eg. Facebook) may be collected, when I explicitly authorize the Project to do so.
-</span>
+at jeg er indforstået med, at DTU til brug for Projektet, registrerer og indsamler data angående Bluetooth, mobil-master, WiFi netværk, opkaldte (men hashede/anonymiserede) telefonnumre og opkaldstid (intet indhold), afsendte SMS og tidspunkt (intet indhold; numre hashet som ovenfor), kontakter i telefonens telefonbog (ligeledes hashede informationer). Derudover indsamles oplysninger om forbindelser på online sociale networks (fx Facebook).  
 </br>
 </br>
-
-<span class="legal legal-purpose-data" id="legal-purpose-data_2">
-that I agree that the collected data will used only for the Project. The purpose of the Project is to publish research findings.   
-</span>
+at jeg vil blive anmodet om at deltage i et spørgeskemaundersøgelse. Hvis jeg vælger at deltage i disse, er jeg indforstået med, at resultaterne fra disse anvendes i anonymiseret form i forskningsprojektet på lige fod med den data indsamlet via min telefonbrug under Projektet.
 </br>
 </br>
-
-<span class="legal legal-purpose-solicitation">
-that I will be asked to participate in surveys and personality tests. It is agreed that results from those may be used - in de-identified form - in the research project on an equal footing with the data collected through my phone use during the project.   
-</span>
+at jeg er indforstået med, at den indhentede og registrerede data anvendes i det forskningsprojekt som Projektet er en del af med henblik på publicering af forskningsprojektets konklusioner.
 </br>
 </br>
-
-<span class="legal legal-prohibited">
-that DTU is not responsible for my use of the phone during the project. This means that if I, for example, willingly upload, download, or transmit copyrighted material, illegally, upload, download, or transmit otherwise illegal material, or spread viruses via mobile phone, I cannot hold DTU responsible for these acts.   
-</span>
+at DTU ikke er ansvarlig for min brug af mobiltelefonen under Projektet. Det betyder, at hvis jeg eksempelvis via mobiltelefonen uploader, downloader eller videreformidler ophavsretligt beskyttet materiale på ulovlig vis, uploader, downloader eller videreformidler andet ulovlig materiale eller får eller spreder vira via mobiltelefonen, kan jeg ikke holde DTU ansvarlig for disse handlinger. 
 </br>
 </br>
-
-<span class="legal legal-notice">
-that the smartphone is on loan and DTU will require the phone returned. DTU will guarantee use for at least 12 months, and beyond that provide me with reasonable notice of the return of the phone (at least 3 months), unless DTU's restitution claims are justified based on my use of - or treatment of - the phone. 
-</span>
+at mobiltelefonen jeg har fået udleveret til brug for Projektet er til låns og DTU vil kræve telefonen retur når forskningsprojektet afsluttes. DTU vil dog give mig et rimeligt varsel om tilbagelevering af telefonen på mindst 2 måneder, medmindre DTU’s krav om tilbagelevering er begrundet i mit brug af eller behandling af telefonen.
 </br>
 </br>
-
-<span class="legal legal-liability-damages">
-that DTU may claim damages against me if I intentionally, or through gross negligence, destroy or damage the smartphone. 
-</span>
+at DTU kan rejse krav om erstatning overfor mig, hvis jeg med vilje eller ved grov uagtsomhed ødelægger eller beskadiger mobiltelefonen eller eksempelvis anvender mobiltelefonen til ulovlige aktiviteter eller andet, som påfører DTU et tab.
 </br>
 </br>
-
-<span class="legal legal-liability-taxes">
-that DTU may not be held responsible for any tax consequences in connection with my loan and use of the mobile phone during the Project.   
-</span>
+at DTU ikke kan holdes ansvarlig for eventuelle skattemæssige konsekvenser i forbindelse med mit lån og brug af mobiltelefonen under Forsøget.
 </br>
 </br>
-
-<span class="legal legal-signature-statement">
-By approving below, I enter into this accession agreement.
-</span>
+Ved min godkende nedenfor tiltræder jeg hermed denne Tiltrædelseserklæring. 

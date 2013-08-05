@@ -13,11 +13,11 @@ from django.db import transaction
 import connectors.connector_questionnaire.auth
 import connectors.connector_funf.auth
 
-def buildAuthUrl(connector):
+def buildAuthUrl(connector, application=None):
 	if connector.connector_type == 'connector_funf':
 		return connectors.connector_funf.auth.buildAuthUrl()
 	if connector.connector_type == 'connector_questionnaire':
-		return connectors.connector_questionnaire.auth.buildAuthUrl()
+		return connectors.connector_questionnaire.auth.buildAuthUrl(application)
 	return {'error':'no valid connector provided', 'url':'error', 'message': 'no valid connector provided'}
 
 def getAuthorization(user, scope, application):
