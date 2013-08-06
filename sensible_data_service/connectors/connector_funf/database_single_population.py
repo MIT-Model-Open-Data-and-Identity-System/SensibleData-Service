@@ -17,23 +17,26 @@ import sys, traceback
 import authorization_manager.authorization_manager as authorization_manager
 from django.conf import settings
 
+import connectors.connectors_config
+
 import traceback
 import pdb
+
+myConnector = connectors.connectors_config.CONNECTORS['ConnectorFunf']['config']
 
 def load_file(filename):
 	#pdb.set_trace()
 	log.log('Debug', 'Trying to populate db with ' + filename);
-	mConnector = ConnectorFunf.objects.all()[0]
 	db = database.Database()
 	anonymizerObject = Anonymizer()
 	
 	documents_to_insert = defaultdict(list)
 	
-	proc_dir = os.path.join(mConnector.decrypted_path, 'processing')
+	proc_dir = os.path.join(myConnector['decrypted_path'], 'processing')
 	if not os.path.exists(proc_dir):
 		os.makedirs(proc_dir)
 		
-	decrypted_filepath = os.path.join(mConnector.decrypted_path, filename)
+	decrypted_filepath = os.path.join(myConnector['decrypted_path'], filename)
 	processing_filepath = os.path.join(proc_dir,filename)
 	current_filepath = decrypted_filepath
 	if os.path.exists(decrypted_filepath) and not os.path.exists(processing_filepath):

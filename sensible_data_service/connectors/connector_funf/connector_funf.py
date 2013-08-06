@@ -14,7 +14,8 @@ from django.conf import settings
 from connectors.connector import connector
 import bson.json_util as json
 
-from connectors.connector_funf.models import ConnectorFunf
+#from connectors.connector_funf.models import ConnectorFunf
+import connectors.connectors_config;
 import authorization_manager
 
 from subprocess import Popen, PIPE
@@ -27,6 +28,7 @@ threading._DummyThread._Thread__stop = lambda x: 42
 
 import re
 
+myConnector = connectors.connectors_config.CONNECTORS['ConnectorFunf']['config']
 
 @csrf_exempt
 def upload(request):
@@ -43,13 +45,13 @@ def upload(request):
 				#try:
 					
 					#authorization = authorization_manager.getAuthorizationForToken(scope, access_token)
-					mConnector = ConnectorFunf.objects.all()[0];
+					#mConnector = ConnectorFunf.objects.all()[0];
 					#if ('error' in authorization) or (authorization == None):
 					#	upload_path = mConnector.upload_not_authorized_path;
 					#else:
 					#	upload_path = mConnector.upload_path
-					upload_path = mConnector.upload_path	
-					backup_path = mConnector.backup_path
+					upload_path = myConnector['upload_path']	
+					backup_path = myConnector['backup_path']
 
 					if not os.path.exists(upload_path):
 						os.makedirs(upload_path)
@@ -71,8 +73,8 @@ def upload(request):
 					shutil.copy(filepath, os.path.join(backup_path, filename))
 					
 					# run decryption in the background
-					log.log('Debug', settings.ROOT_DIR + './manage.py ' + filename)
-					p = Popen([settings.ROOT_DIR + './manage.py','funf_single_decrypt',filename], stdout=PIPE, stderr=PIPE)
+					#log.log('Debug', settings.ROOT_DIR + './manage.py funf_single_decrypt' + filename)
+					#p = Popen([settings.ROOT_DIR + './manage.py','funf_single_decrypt',filename], stdout=PIPE, stderr=PIPE)
 
 				#except Exception as e:
 				#	log.log('Error', 'Could not write: ' + str(e))
@@ -111,11 +113,8 @@ def config(request):
 def readConfig(user):
 	config = None
 	try:
-		mConnector = ConnectorFunf.objects.all()[0];
 		pdb.set_trace();
-		with open(mConnector.config_path) as config_file:
-			
-			print mConnector.config_path
+		with open(myConnector['config_path']) as config_file:
 			config = config_file.read()
 	except IOError: pass
 	return config

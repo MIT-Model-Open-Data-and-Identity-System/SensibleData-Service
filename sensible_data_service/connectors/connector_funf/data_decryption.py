@@ -9,17 +9,18 @@ from utils import log, fail
 from django.conf import settings
 from connectors.connector_funf.models import ConnectorFunf 
 import connectors.connector_funf.database_single_population as database_single_population
+import connectors.connectors_config
 
 import pdb
 
-mConnector = ConnectorFunf.objects.all()[0];
+myConnector = connectors.connectors_config.CONNECTORS['ConnectorFunf']['config']
 
 key = key_from_password(SECURE_settings.CONNECTORS['connector_funf']['db_pass']);
 
 def decrypt():
 	decrypt_directory()
 
-def decrypt_directory(directory_to_decrypt=mConnector.upload_path):
+def decrypt_directory(directory_to_decrypt=myConnector['upload_path']):
 
 	
 	''' 
@@ -37,7 +38,7 @@ def decrypt_directory(directory_to_decrypt=mConnector.upload_path):
 			failed_filenames.append(os.path.basename(f))	
 			
 def decrypt_file_from_upload(f):
-	return decrypt_file(mConnector.upload_path, f)
+	return decrypt_file(myConnector['upload_path'], f)
 
 def decrypt_file(directory_to_decrypt, f):
 	#pdb.set_trace()
@@ -46,7 +47,7 @@ def decrypt_file(directory_to_decrypt, f):
 		os.makedirs(proc_dir)
 	upload_filename = os.path.join(directory_to_decrypt, f)
 	proc_filename = os.path.join(proc_dir, f)
-	decrypted_filename = os.path.join(mConnector.decrypted_path, f)
+	decrypted_filename = os.path.join(myConnector['decrypted_path'], f)
 	curr_filename = upload_filename #for keeping track of the file's current location
 	decryption_success = False;
 	try:
@@ -58,7 +59,7 @@ def decrypt_file(directory_to_decrypt, f):
 			# decrypt
 			if decrypt_if_not_db_file(proc_filename, key, extension=None):
 				decryption_success = True;
-				fail.safe_move(proc_filename, mConnector.decrypted_path)
+				fail.safe_move(proc_filename, myConnector['decrypted_path'])
 				log.log('Debug','Still here #1')
 				curr_filename = decrypted_filename
 				orig_filename = proc_filename + '.orig'
@@ -82,7 +83,7 @@ def decrypt_file(directory_to_decrypt, f):
 			action = 'removing the .orig file of'
 		try:
 			if not str(e).contains('already exists'):
-				fail.fail(curr_filename, mConnector.decryption_failed_path, 'Exception thrown: ' + str(e) + '. While ' + action + ' file: ' + f)
+				fail.fail(curr_filename, myConnector['decryption_failed_path'], 'Exception thrown: ' + str(e) + '. While ' + action + ' file: ' + f)
 				log.log('error', 'README ^^^^^^^^^^^^^')
 			else:
 				log.log('error','Exception thrown: ' + str(e) + '. While ' + action + ' file: ' + f);
