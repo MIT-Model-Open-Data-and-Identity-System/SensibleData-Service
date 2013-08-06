@@ -34,7 +34,7 @@ myConnector = connectors.connectors_config.CONNECTORS['ConnectorFunf']['config']
 
 @csrf_exempt
 def upload(request):
-	random.seed(time.time()):
+	random.seed(time.time())
 	log.log('Debug', 'Received POST')
 	scope = 'all_probes'
 
