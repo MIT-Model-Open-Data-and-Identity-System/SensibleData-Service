@@ -11,6 +11,8 @@ from connectors.connector_funf.models import ConnectorFunf
 import connectors.connector_funf.database_single_population as database_single_population
 import connectors.connectors_config
 
+import time
+
 import pdb
 
 myConnector = connectors.connectors_config.CONNECTORS['ConnectorFunf']['config']
@@ -56,17 +58,22 @@ def decrypt_file(directory_to_decrypt, f):
 			# move it to processing
 			shutil.move(upload_filename, proc_dir)
 			curr_filename = proc_filename
+			
 			# decrypt
+			decryption_start = time.time();
 			if decrypt_if_not_db_file(proc_filename, key, extension=None):
+				log.log('Debug','Decryption time: ' + str(time.time()-decryption_start) + ' ms')
 				decryption_success = True;
 				fail.safe_move(proc_filename, myConnector['decrypted_path'])
-				log.log('Debug','Still here #1')
+				#log.log('Debug','Still here #1')
 				curr_filename = decrypted_filename
 				orig_filename = proc_filename + '.orig'
 				if os.path.exists(orig_filename):
 					os.remove(orig_filename)
-				#log.log('Debug','Still here #2')	
-				database_single_population.load_file(f)
+				#log.log('Debug','Still here #2')
+				#population_start = time.time()	
+				#database_single_population.load_file(f)
+				#log.log('Debug','Population time: ' + str(time.time()-population_start) + ' ms')
 			return True
 		else:
 			return False

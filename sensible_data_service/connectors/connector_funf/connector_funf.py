@@ -26,12 +26,15 @@ import threading
 threading._DummyThread._Thread__stop = lambda x: 42
 # end of bug fix
 
+
+import random
 import re
 
 myConnector = connectors.connectors_config.CONNECTORS['ConnectorFunf']['config']
 
 @csrf_exempt
 def upload(request):
+	random.seed(time.time()):
 	log.log('Debug', 'Received POST')
 	scope = 'all_probes'
 
@@ -63,10 +66,8 @@ def upload(request):
 					while os.path.exists(filepath):
 						parts = filename.split('.db');
 						counted_parts = re.split('__',parts[0]);
-						counter = -1;
-						if len(counted_parts) > 1:
-							counter = int(counted_parts[1]);
-						filename = counted_parts[0] + '__' + str(counter + 1) + '.db'
+						appendix = str(random.random())
+						filename = counted_parts[0] + '__' + appendix + '.db'
 						filepath = os.path.join(upload_path, filename)
 
 					write_file(filepath, uploaded_file)
