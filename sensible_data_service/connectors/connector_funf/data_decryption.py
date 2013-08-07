@@ -89,7 +89,7 @@ def decrypt_file(directory_to_decrypt, f):
 		elif curr_filename == decrypted_filename:
 			action = 'removing the .orig file of'
 		try:
-			if not str(e).contains('already exists'):
+			if 'already exists' not in str(e):
 				fail.fail(curr_filename, myConnector['decryption_failed_path'], 'Exception thrown: ' + str(e) + '. While ' + action + ' file: ' + f)
 				log.log('error', 'README ^^^^^^^^^^^^^')
 			else:
