@@ -4,15 +4,26 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db import transaction
 from django.shortcuts import redirect
 from application_manager.models import Application
+import json
+from .models import ConnectorFacebook
+
+def decodeParams(s):
+	s = s.strip()
+	s = s.replace('\r','')
+	s = s.replace('\n','')
+	return json.loads(s)
 
 @login_required
 def grantInbound(request):
-	#TODO redirect user to facebook app
-	#client_id
+	url = 'https://www.facebook.com/dialog/oauth?'
+	params = decodeParams(Application.objects.get(connector_type='facebook_in').extra_params)
+	url += 'client_id=%s'%params['client_id']
+	url += '&redirect_uri=%s'%ConnectorFacebook.objects.get(connector_type='connector_facebook_in').grant_url
+	url += '&response_type=code'
+	url += '&scope=%s'%(','.join(['email', 'read_stream']))
 	#scopes
-	#redirect uri
 	#return redirect
-	return HttpResponse('here we go to facebook')
+	return HttpResponse(url)
 
 
 @login_required
@@ -21,7 +32,8 @@ def grantedInbound(request):
 	#exchange code for token
 	#save token as authorization with scopes
 	#now we should use the token to grab data -> cron or cellery
-	pass
+	code = request.GET.get('code', '')
+	return HttpResponse(code)
 
 def buildInboundAuthUrl():
 	grant_url = ''
