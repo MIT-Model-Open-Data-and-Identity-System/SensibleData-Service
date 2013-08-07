@@ -33,6 +33,7 @@ class Application(models.Model):
 	scopes = models.ManyToManyField(Scope)
 	params = models.ManyToManyField(Parameter, null=True, blank=True)
 	description = models.TextField(null=True, blank=True)
+	extra_params = models.TextField(null=True, blank=True)
 	connector_type = models.CharField(max_length=100)
 	client = models.ForeignKey(Client, null=True, blank=True)
 	url = models.URLField(null=True, blank=True)
