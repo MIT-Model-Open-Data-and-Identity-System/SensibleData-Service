@@ -17,31 +17,53 @@ import sys, traceback
 import authorization_manager.authorization_manager as authorization_manager
 from django.conf import settings
 
+import connectors.connectors_config
+
 import traceback
 import pdb
 
+import time
+
+myConnector = connectors.connectors_config.CONNECTORS['ConnectorFunf']['config']
+
+db = database.Database()
+
+def load_files(directory_to_load=myConnector['decrypted_path']):
+	raw_filenames = [filename for filename in os.listdir(directory_to_load) if 	fnmatch.fnmatch(filename, '*.db')]
+	
+	failed_filenames = []
+	
+	for f in raw_filenames:
+		population_start = time.time()	
+		load_file(f)
+		log.log('Debug','Population time: ' + str(time.time()-population_start) + ' ms')
+		
+
 def load_file(filename):
 	#pdb.set_trace()
-	log.log('Debug', 'Trying to populate db with ' + filename);
-	mConnector = ConnectorFunf.objects.all()[0]
-	db = database.Database()
+	#log.log('Debug', 'Trying to populate db with ' + filename);
+	#connection_time = time.time()
+	#log.log('Debug', 'Connection to db: ' + str(time.time() - connection_time) + ' s');
 	anonymizerObject = Anonymizer()
 	
 	documents_to_insert = defaultdict(list)
 	
-	proc_dir = os.path.join(mConnector.decrypted_path, 'processing')
+	proc_dir = os.path.join(myConnector['decrypted_path'], 'processing')
 	if not os.path.exists(proc_dir):
 		os.makedirs(proc_dir)
 		
-	decrypted_filepath = os.path.join(mConnector.decrypted_path, filename)
+	decrypted_filepath = os.path.join(myConnector['decrypted_path'], filename)
 	processing_filepath = os.path.join(proc_dir,filename)
 	current_filepath = decrypted_filepath
 	if os.path.exists(decrypted_filepath) and not os.path.exists(processing_filepath):
 		try:
 			# move to processing
+			moving_start = time.time()
 			shutil.move(decrypted_filepath, proc_dir)
+			
 			current_filepath = processing_filepath
 			# open connection to db file
+			reading_start = time.time()
 			conn = sqlite3.connect(processing_filepath)
 			cursor = conn.cursor()
 			
@@ -64,9 +86,11 @@ def load_file(filename):
 			
 			cursor.close();
 			#pdb.set_trace()
+			#log.log('Debug','DB reading time: ' + str(time.time() - reading_start) + ' s')
+			upload_start = time.time()
 			for probe in documents_to_insert:
 				db.insert(documents_to_insert[probe], probe)
-				
+			#log.log('Debug','DB upload time: ' + str(time.time() - upload_start) + ' s')	
 			os.remove(current_filepath);
 			
 		except Exception as e:
