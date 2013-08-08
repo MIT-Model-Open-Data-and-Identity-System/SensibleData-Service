@@ -3,13 +3,13 @@
 import os
 import LOCAL_SETTINGS
 
-DEBUG = False
+DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 
 
 ADMINS = (
-     ('Arkadiusz Stopczynski', 'arks@dtu.dk'),
+     ('Dude', 'dude@rug.com'),
 )
 
 MANAGERS = ADMINS
