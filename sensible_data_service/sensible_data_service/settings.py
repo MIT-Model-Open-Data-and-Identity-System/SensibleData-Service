@@ -25,6 +25,9 @@ PLATFORM = LOCAL_SETTINGS.PLATFORM
 CONNECTORS = LOCAL_SETTINGS.CONNECTORS
 SERVICE_NAME = LOCAL_SETTINGS.SERVICE_NAME
 
+# Make this unique, and don't share it with anybody.
+SECRET_KEY = LOCAL_SETTINGS.SECRET_KEY
+
 
 LOGIN_URL = ROOT_URL+'openid/login/'
 LOGIN_REDIRECT_URL = ROOT_URL
@@ -110,8 +113,6 @@ STATICFILES_FINDERS = (
 #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
-# Make this unique, and don't share it with anybody.
-SECRET_KEY = 's!&mt69n%a8pcrt4a4-e6r&oa896^osz93fgbq1@h2s!gx2%(o'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
