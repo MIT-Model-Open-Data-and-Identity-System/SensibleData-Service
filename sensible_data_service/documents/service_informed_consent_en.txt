@@ -3,13 +3,13 @@
 </style>
 
 <span class="legal legal-introduction">
-As a participant of the project SensibleDTU (the Project) led by Associate Professor Sune Lehmann Jørgensen, at DTU Compute,  I agree to the following:
+As a participant of the project SensibleDTU (the Project) led by Associate Professor Sune Lehmann Jørgensen, at DTU Compute,  I provide my informed consent to the following:
 </span>
 </br>
 </br>
 
 <span class="legal legal-purpose-study">
-that the Project is designed to measure and analyze social networks and dynamic (social) processes unfolding on such networks.   
+that the Project is designed to measure and analyze social networks and dynamic (social) processes unfolding on such networks. 
 </span>
 </br>
 </br>
@@ -21,13 +21,29 @@ that DTU has obtained permission to collect and record my data for the Project w
 </br>
 
 <span class="legal legal-purpose-data" id="legal-purpose-data_1">
-that my personal data will be used primarily for research - and will not be shared with others, neither private companies nor the DTU administration.   
+that my personal data will be used solely for research conducted in accordance with the permission granted by the Danish Data Protection Agency for the Project - and will not be shared by the Project with others, neither private companies nor the DTU administration.   
+</span>
+</br>
+</br>
+
+
+<span class="legal "legal-sharing-partners">
+that the Project includes will share no personal data with external researchers collaborating with DTU as part of the Project, and will permit access only to de-identified data.  DTU's research partners for the Project are: 
+
+institutions Institut for Folkesundhedsvidenskab (Københavns Universitet), Øster Farimagsgade 5, postbox 2099, København K [public health]
+
+Institut for Psykologi (Københavns Universitet). Østerfarimagsgade 2A, 1353 København K. [psychology]
+
+Niels Bohr Institutet (Københavns Universitet). Blegdamsvej 17, 2100 København Ø  [physics]
+
+Økonomisk Institut (Københavns Universitet). Østerfarimagsgade 5, 1353 København K. [economy]
+
 </span>
 </br>
 </br>
 
 <span class="legal legal-study-withdraw">
-that it is permitted to withdraw from the Project at any time. To do so, I must return the mobile phone and contact support@sensible.dtu.dk for further instructions.   
+that my participation is purely voluntary and I am free to withdraw from the Project at any time. To do so, I must return the mobile phone and contact support@sensible.dtu.dk for further instructions.   
 </span>
 </br>
 </br>
@@ -58,19 +74,27 @@ that my deposit will be refunded upon the return of the phone.
 </span>
 
 <span class="legal legal-study-scopes">
-that I agree the DTU (for the Project) may record and collect data regarding Bluetooth, GSM towers (mobile cell towers), WiFi networks, GPS, named (but hashed/anonymized) phone numbers and call times (no content), sent/reveived SMS and time (no content; numbers hashed), contacts in the phone directory (also hashed). In addition, information regarding activity on online social networks (eg. Facebook) may be collected, when I explicitly authorize the Project to do so.
+that I agree the DTU (for the Project) may record and collect my phone number, email, student id, first and last name as well as data regarding Bluetooth, GSM towers (mobile cell towers), WiFi networks, GPS, named (but hashed/anonymized) phone numbers and call times (no content), sent/received SMS and time (no content; numbers hashed), contacts in the phone directory (also hashed). In addition, information regarding activity on online social networks (eg. Facebook) may be collected, when I explicitly authorize the Project to do so.
+
+
 </span>
 </br>
 </br>
 
-<span class="legal legal-purpose-data" id="legal-purpose-data_2">
+<span class="legal legal-purpose-data" id="legal-purpose-data_3">
 that I agree that the collected data will used only for the Project. The purpose of the Project is to publish research findings.   
 </span>
 </br>
 </br>
 
 <span class="legal legal-purpose-solicitation">
-that I will be asked to participate in surveys and personality tests. It is agreed that results from those may be used - in de-identified form - in the research project on an equal footing with the data collected through my phone use during the project.   
+that I will be asked to participate in surveys, questionnaires and personality tests. It is agreed that results from those may be used - in de-identified form - in the research project on an equal footing with the data collected through my phone use during the project.   
+</span>
+</br>
+</br>
+
+<span class="legal legal-purpose-data" id="legal-purpose-data_2">
+that through a questionnaire , I may opt in to be contacted by an anthropologist/sociologist at a later point in time and I may choose to reveal personal data to that person.
 </span>
 </br>
 </br>
@@ -100,5 +124,5 @@ that DTU may not be held responsible for any tax consequences in connection with
 </br>
 
 <span class="legal legal-signature-statement">
-By approving below, I enter into this accession agreement.
+By approving below, I provide my informed consent to participate in the Project consistent with the above terms.
 </span>

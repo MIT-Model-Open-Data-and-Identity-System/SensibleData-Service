@@ -31,7 +31,7 @@ at jeg indsætter et SIM kort i telefonen og benytter den som min primære (mobi
 at jeg er indforstået med, at DTU til brug for Projektet, registrerer og indsamler data angående Bluetooth, mobil-master, WiFi netværk, opkaldte (men hashede/anonymiserede) telefonnumre og opkaldstid (intet indhold), afsendte SMS og tidspunkt (intet indhold; numre hashet som ovenfor), kontakter i telefonens telefonbog (ligeledes hashede informationer). Derudover indsamles oplysninger om forbindelser på online sociale networks (fx Facebook).  
 </br>
 </br>
-at jeg vil blive anmodet om at deltage i et spørgeskemaundersøgelse. Hvis jeg vælger at deltage i disse, er jeg indforstået med, at resultaterne fra disse anvendes i anonymiseret form i forskningsprojektet på lige fod med den data indsamlet via min telefonbrug under Projektet.
+at jeg vil blive anmodet om at deltage i en række spørgeskemaundersøgelser. Hvis jeg vælger at deltage i disse, er jeg indforstået med, at resultaterne fra disse anvendes i anonymiseret form i forskningsprojektet på lige fod med den data indsamlet via min telefonbrug under Projektet.
 </br>
 </br>
 at jeg er indforstået med, at den indhentede og registrerede data anvendes i det forskningsprojekt som Projektet er en del af med henblik på publicering af forskningsprojektets konklusioner.
