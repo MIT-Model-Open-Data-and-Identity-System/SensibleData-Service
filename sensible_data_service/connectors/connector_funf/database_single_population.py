@@ -147,7 +147,9 @@ def is_token_authorized(token):
 	if token in valid_tokens:
 		return True
 	authorization = authorization_manager.getAuthorizationForToken('connector_funf.submit_data', token)
-	if ('error' in authorization) or (authorization == None):
+	if (authorization == None):
+		return False
+	elif ('error' in authorization):
 		return False
 	else:
 		valid_tokens.append(token)
