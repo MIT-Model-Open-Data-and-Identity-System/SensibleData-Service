@@ -55,6 +55,8 @@ def load_file(filename):
 	decrypted_filepath = os.path.join(myConnector['decrypted_path'], filename)
 	processing_filepath = os.path.join(proc_dir,filename)
 	current_filepath = decrypted_filepath
+	load_failed_path = myConnector['load_failed_path']
+
 	if os.path.exists(decrypted_filepath) and not os.path.exists(processing_filepath):
 		try:
 			# move to processing
@@ -105,24 +107,29 @@ def load_file(filename):
 			return False
 
 def row_to_doc(row, user, anonymizerObject):
+	#pdb.set_trace()
 	random.seed(time.time())
 	#TODO: separate this sanitization
 	data_raw = row[3].replace('android.bluetooth.device.extra.DEVICE','android_bluetooth_device_extra_DEVICE')\
 		.replace('android.bluetooth.device.extra.NAME', 'android_bluetooth_device_extra_NAME')\
 		.replace('android.bluetooth.device.extra.CLASS', 'android_bluetooth_device_extra_CLASS')\
 		.replace('android.bluetooth.device.extra.RSSI', 'android_bluetooth_device_extra_RSSI')
-	
-	data = json.loads(data_raw)
-	if data.has_key('PROBE'): #only get data from probes
-		doc = {}
-		doc['timestamp'] = float(row[2])
-		doc['_id'] = hashlib.sha1(json.dumps(data)).hexdigest()+'_'+user+'_'+str(int(doc['timestamp']))+'_'+str(random.random())+'_'+str(random.random())
-		doc['probe'] = data['PROBE'].replace('.','_')
-		doc['data'] = anonymizerObject.anonymizeDocument(data, doc['probe'])
-		doc['name'] = row[1]
-		doc['timestamp_added'] = time.time()
-		return doc
-	else:
+	data = []
+	try:
+		data = json.loads(data_raw)
+		if data.has_key('PROBE'): #only get data from probes
+			doc = {}
+			doc['timestamp'] = float(row[2])
+			doc['_id'] = hashlib.sha1(json.dumps(data)).hexdigest()+'_'+user+'_'+str(int(doc['timestamp']))+'_'+str(random.random())+'_'+str(random.random())
+			doc['probe'] = data['PROBE'].replace('.','_')
+			doc['data'] = anonymizerObject.anonymizeDocument(data, doc['probe'])
+			doc['name'] = row[1]
+			doc['timestamp_added'] = time.time()
+			return doc
+		else:
+			return None
+	except Exception as e:
+		log.log('ERROR',str(e) + ' in ' + json.dumps(data))
 		return None
 			
 			
