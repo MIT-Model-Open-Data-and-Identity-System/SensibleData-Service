@@ -146,7 +146,7 @@ def is_token_authorized(token):
 	pdb.set_trace()
 	if token in valid_tokens:
 		return True
-	authorization = authorization_manager.getAuthorizationForToken('connector_funf.submit_data', access_token)
+	authorization = authorization_manager.getAuthorizationForToken('connector_funf.submit_data', token)
 	if ('error' in authorization) or (authorization == None):
 		return False
 	else:

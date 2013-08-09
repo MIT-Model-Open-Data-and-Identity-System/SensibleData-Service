@@ -26,7 +26,7 @@ def getAuthorization(user, scope, application):
 	
 def getAuthorizationForToken(scope, token):
 	auth = Authorization.objects.filter(scope=Scope.objects.get(scope = scope),\
-		access_token=AccessToken.objects.get(access_token=token),\
+		access_token=AccessToken.objects.get(token=token),\
 		active = True)
 	if len(auth) > 0:
 		return auth[0]
