@@ -83,18 +83,22 @@ class Anonymizer(object):
 	
 	def anonymizeCallLog(self, document):
 		try:
-			document['name'] = json.loads(document['name'])["ONE_WAY_HASH"]
+			if len(document['name']) > 0:
+				document['name'] = json.loads(document['name'])["ONE_WAY_HASH"]
 			document['numbertype'] = json.loads(document['numbertype'])["ONE_WAY_HASH"]
 			document['number'] = json.loads(document['number'])["ONE_WAY_HASH"]
 		except KeyError: pass
 	
 	def anonymizeSMSProbe(self, document):
 		try:
-			document['body'] = json.loads(document['body'])["ONE_WAY_HASH"]
-			document['address'] = json.loads(document['address'])["ONE_WAY_HASH"]
-			document['person'] = json.loads(document['person'])["ONE_WAY_HASH"]
+			if len(document['body']) > 0:
+				document['body'] = json.loads(document['body'])["ONE_WAY_HASH"]
+			if len(document['address']) > 0:
+				document['address'] = json.loads(document['address'])["ONE_WAY_HASH"]
+			if len(document['person']) > 0:
+				document['person'] = json.loads(document['person'])["ONE_WAY_HASH"]
 		except KeyError: pass
-			
+		except ValueError: pass		
 
 	def anonymizeHardwareProbe(self, document):
 		document['BLUETOOTH_MAC'] = self.anonymizeValue('bluetooth_mac', document['BLUETOOTH_MAC'].lower()) #the same as bluetooth probe
