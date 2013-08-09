@@ -144,6 +144,8 @@ def row_to_doc(row, user, anonymizerObject):
 		
 def is_token_authorized(token):
 	pdb.set_trace()
+	if len(token) == 0:
+		return False
 	if token in valid_tokens:
 		return True
 	authorization = authorization_manager.getAuthorizationForToken('connector_funf.submit_data', token)
