@@ -6,6 +6,12 @@ from django.shortcuts import redirect
 from application_manager.models import Application
 import json
 from .models import ConnectorFacebook
+from connectors.models import Scope, Connector
+import urllib2
+import time
+from documents.models import InformedConsent
+from authorization_manager.models import Authorization
+from django.conf import settings
 
 def decodeParams(s):
 	s = s.strip()
@@ -20,26 +26,93 @@ def grantInbound(request):
 	url += 'client_id=%s'%params['client_id']
 	url += '&redirect_uri=%s'%ConnectorFacebook.objects.get(connector_type='connector_facebook_in').grant_url
 	url += '&response_type=code'
-	url += '&scope=%s'%(','.join(['email', 'read_stream']))
-	#scopes
-	#return redirect
-	return HttpResponse(url)
+	scopes_checked = set()
+	for x in request.GET.items():
+		try: 
+			if x[1] == 'checked': scopes_checked.add(x[0])
+		except: continue
+
+	scopes = set()
+	for scope in scopes_checked:
+		try:
+			scopes.add(Scope.objects.get(scope=scope.split('scope_')[1]).description_extra)
+		except: continue
+
+	scopes_str = set()
+	for scope in scopes:
+		for s in scope.split('facebook:')[1].split(','):
+			scopes_str.add(s.strip())
+
+
+	url += '&scope=%s'%','.join(scopes_str)
+	return redirect(url)
 
 
 @login_required
 def grantedInbound(request):
-	#redirect from facebook, we get code
-	#exchange code for token
-	#save token as authorization with scopes
-	#now we should use the token to grab data -> cron or cellery
 	code = request.GET.get('code', '')
-	return HttpResponse(code)
+	url = 'https://graph.facebook.com/oauth/access_token?'
+	params = decodeParams(Application.objects.get(connector_type='facebook_in').extra_params)
+	url += 'client_id=%s'%params['client_id']
+	url += '&redirect_uri=%s'%ConnectorFacebook.objects.get(connector_type='connector_facebook_in').grant_url
+	url += '&client_secret=%s'%params['client_secret']
+	url += '&code=%s'%code
+	
+	try:
+		response = urllib2.urlopen(url).read()
+		access_token = response.split('&')[0].split('access_token=')[1]
+	except: return HttpResponse(json.dumps({'error':'could not get access token (code 4718)'}))
+
+	url = 'https://graph.facebook.com/oauth/access_token?'
+	url += 'grant_type=fb_exchange_token&'
+	url += 'client_id=%s&'%params['client_id']
+	url += 'client_secret=%s&'%params['client_secret']
+	url += 'fb_exchange_token=%s'%access_token
+	
+	try:
+		response = urllib2.urlopen(url).read()
+		access_token = response.split('&')[0].split('access_token=')[1]
+	except: return HttpResponse(json.dumps({'error':'could not exchange access token (code 0001)'}))
+
+
+
+	url = 'https://graph.facebook.com/debug_token?'
+	url += 'input_token=%s&'%access_token
+	url += 'access_token=%s'%params['client_access_token']
+
+	try:
+		response = json.loads(urllib2.urlopen(url).read())
+	except: return HttpResponse(json.dumps({'error':'could not introspect token (code 0002)'}))
+
+	granted_scopes = response['data']['scopes']
+	user_id = response['data']['user_id']
+	expires_at = int(response['data']['expires_at'])
+
+	authorizations_granted = set()
+	for scope in granted_scopes:
+		for our_scope in Scope.objects.filter(connector=Connector.objects.get(connector_type='connector_facebook_in')).all():
+			if scope in our_scope.description_extra: authorizations_granted.add(our_scope)
+	
+	user = request.user
+	if len(InformedConsent.objects.filter(user=user).all()) == 0:
+		        return HttpResponse(json.dumps({'error':'user is not enrolled in the study (code 0003)'}))
+
+	for scope in authorizations_granted:
+		Authorization.objects.create(user=user, scope=scope, application=Application.objects.get(connector_type='facebook_in'), active=True, activated_at = int(time.time()), payload = json.dumps({'expires_at': expires_at, 'access_token': access_token, 'user_id': user_id}))
+
+	return redirect(settings.PLATFORM['platform_uri'])
 
 def buildInboundAuthUrl():
 	grant_url = ''
 	try: grant_url = Application.objects.get(connector_type='facebook_in').grant_url 
 	except Application.DoesNotExist: pass
 	return {'url': grant_url, 'message':'Authorized url'}
+
+def getAllInboundAuth():
+	return Authorization.objects.filter(active=True, application=Application.objects.get(connector_type='facebook_in')).all()
+
+def getResourceMappings():
+	return json.loads(Application.objects.get(connector_type='facebook_in').extra_params)['scope_resource_mapping']
 
 
 @login_required
