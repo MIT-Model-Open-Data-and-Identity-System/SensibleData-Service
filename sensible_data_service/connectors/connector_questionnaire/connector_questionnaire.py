@@ -15,6 +15,6 @@ def upload(request):
 	doc = urllib.unquote(request.REQUEST.get('doc'))
 	doc = json.loads(doc)
 	doc['user'] = user.username
-	doc_id = database.insert(doc, collection='questionnaire')
+	doc_id = database.insert(doc, collection='dk_dtu_compute_questionnaire')
 
 	return HttpResponse(json.dumps({'ok':str(doc_id)}), status=200)
