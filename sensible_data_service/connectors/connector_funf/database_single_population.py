@@ -28,6 +28,8 @@ myConnector = connectors.connectors_config.CONNECTORS['ConnectorFunf']['config']
 
 db = database.Database()
 
+valid_tokens = [];
+
 def load_files(directory_to_load=myConnector['decrypted_path']):
 	raw_filenames = [filename for filename in os.listdir(directory_to_load) if 	fnmatch.fnmatch(filename, '*.db')]
 	
@@ -73,6 +75,13 @@ def load_file(filename):
 			meta = {}
 			(meta['device'], meta['uuid'], meta['device_id'], meta['sensible_token'], meta['device_bt_mac']) = \
 				cursor.execute('select device, uuid, device_id, sensible_token, device_bt_mac from file_info').fetchone()
+			
+			if not is_token_authorized(meta['sensible_token']):
+				if not os.path.exists(myConnector['decrypted_not_authorized']):
+					os.makedirs(myConnector['decrypted_not_authorized'])
+				shutil.move(current_filepath, myConnector['decrypted_not_authorized'])
+				return 
+			
 			meta['device_id'] = anonymizerObject.anonymizeValue('device_id',meta['device_id'])
 			
 			#pdb.set_trace()
@@ -131,5 +140,20 @@ def row_to_doc(row, user, anonymizerObject):
 	except Exception as e:
 		log.log('ERROR',str(e) + ' in ' + json.dumps(data))
 		return None
+		
+		
+def is_token_authorized(token):
+	pdb.set_trace()
+	if len(token) == 0:
+		return False
+	if token in valid_tokens:
+		return True
+	authorization = authorization_manager.getAuthorizationForToken('connector_funf.submit_data', token)
+	if (authorization == None):
+		return False
+	else:
+		valid_tokens.append(token)
+		return True
+			
 			
 			

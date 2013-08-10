@@ -22,8 +22,8 @@ from subprocess import Popen, PIPE
 
 # bug fix
 # see http://stackoverflow.com/questions/13193278/understand-python-threading-bug
-import threading
-threading._DummyThread._Thread__stop = lambda x: 42
+# import threading
+# threading._DummyThread._Thread__stop = lambda x: 42
 # end of bug fix
 
 
