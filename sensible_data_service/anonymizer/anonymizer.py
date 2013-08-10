@@ -2,7 +2,8 @@ from Crypto.Cipher import AES
 from Crypto import Random
 from utils import SECURE_settings
 import bson.json_util as json
-
+from operator import getitem
+from collections import defaultdict
 
 class Anonymizer(object):
 
@@ -18,6 +19,30 @@ class Anonymizer(object):
 	def unpad(self, s):
 		return s[0:-ord(s[-1])]
 
+
+	def add_keys(self, d, l, c=None):
+		if len(l) > 1:
+			d[l[0]] = _d = {}
+			d[l[0]] = d.get(l[0], {})
+			self.add_keys(d[l[0]], l[1:], c)
+		else:
+			d[l[0]] = c
+
+
+	def merge(self, a, b, path=None):
+		if path is None: path = []
+		for key in b:
+			if key in a:
+				if isinstance(a[key], dict) and isinstance(b[key], dict):
+					self.merge(a[key], b[key], path + [str(key)])
+				elif a[key] == b[key]:
+					pass # same leaf value
+				else:
+					raise Exception('Conflict at %s' % '.'.join(path + [str(key)]))
+			else:
+				a[key] = b[key]
+				
+		return a
 
 
 	def anonymizeValue(self, key_v, value):
@@ -53,6 +78,21 @@ class Anonymizer(object):
 		if probe == 'edu_mit_media_funf_probe_builtin_SMSProbe': self.anonymizeSMSProbe(document)
 		if probe == 'edu_mit_media_funf_probe_builtin_HardwareInfoProbe': self.anonymizeHardwareProbe(document)
 		if probe == 'edu_mit_media_funf_probe_builtin_ContactProbe': self.anonymizeContactProbe(document)
+		
+		
+		
+		if probe == 'dk_dtu_compute_facebook_facebook_id': document = self.anonymizeFacebookId(document)
+		if probe == 'dk_dtu_compute_facebook_friendlists': self.anonymizeFacebookFriendlists(document)
+		if probe == 'dk_dtu_compute_facebook_friends': self.anonymizeFacebookFriends(document)
+		if probe == 'dk_dtu_compute_facebook_friendrequests': self.anonymizeFacebookFriendrequests(document)
+		if probe == 'dk_dtu_compute_facebook_groups': self.anonymizeFacebookGroups(document)
+		if probe == 'dk_dtu_compute_facebook_likes': self.anonymizeFacebookLikes(document)
+		if probe == 'dk_dtu_compute_facebook_feed': document = self.anonymizeFacebookFeed(document)
+		if probe == 'dk_dtu_compute_facebook_statuses': document = self.anonymizeFacebookStatuses(document)
+		if probe == 'dk_dtu_compute_facebook_education': document = self.anonymizeFacebookEducation(document)
+		if probe == 'dk_dtu_compute_facebook_locations': document = self.anonymizeFacebookLocations(document)
+		if probe == 'dk_dtu_compute_facebook_work': document = self.anonymizeFacebookWork(document)
+		
 		return document
 
 		
@@ -116,6 +156,141 @@ class Anonymizer(object):
 		try:
 			document['display_name'] = json.loads(document['display_name'])["ONE_WAY_HASH"]
 		except KeyError: pass
+
+	def anonymizeFacebookFriendlists(self, document):
+		for ls in document:
+			ls['id'] = self.encrypt(ls['id'])
+
+	def anonymizeFacebookFriends(self, document):
+		for ps in document:
+			ps['id'] = self.encrypt(ps['id'])
+			ps['name'] = self.encrypt(ps['name'])
+	
+	def anonymizeFacebookFriendrequests(self, document):
+		for rq in document:
+			rq['to']['id'] = self.encrypt(rq['to']['id'])
+			rq['to']['name'] = self.encrypt(rq['to']['name'])
+			rq['from']['id'] = self.encrypt(rq['from']['id'])
+			rq['from']['name'] = self.encrypt(rq['from']['name'])
+	
+	def anonymizeFacebookGroups(self, document):
+		for gr in document:
+			gr['id'] = self.encrypt(gr['id'])
+			gr['name'] = self.encrypt(gr['name'])
+	
+	def anonymizeFacebookLikes(self, document):
+		for lk in document:
+			lk['id'] = self.encrypt(lk['id'])
+			lk['name'] = self.encrypt(lk['name'])
+	
+	def anonymizeFacebookId(self, document):
+		return self.anonymizeValue('facebook_id', document)
+
+	
+	def anonymizeFacebookFeed(self, document):
+		allowed_keys = ['status_type', 'updated_time', 'type', 'created_time']
+		output = []
+		self.anonymizeFacebookFeedWorker(document, [], allowed_keys, output)
+		dd = reduce(self.merge, output)
+		return dd
+	
+
+	def anonymizeFacebookFeedWorker(self, document, keys, allowed_keys, output):
+		if type(document) == type([]):
+			for jj, item in enumerate(document):
+				t_keys = list(keys)
+				t_keys.append(str(jj))
+				self.anonymizeFacebookFeedWorker(item, t_keys, allowed_keys, output)
+		elif type(document) == type({}):
+			for key, value in document.items():
+				t_keys = list(keys)
+				t_keys.append(key)
+				self.anonymizeFacebookFeedWorker(value, t_keys, allowed_keys, output)
+		else:
+			if not keys[-1] in allowed_keys: document = self.encrypt(document)
+			d = {}
+			self.add_keys(d, keys, document)
+			output.append(d)
+	
+	def anonymizeFacebookStatuses(self, document):
+		allowed_keys = ['status_type', 'updated_time', 'type', 'created_time', 'latitude', 'longitude']
+		output = []
+		self.anonymizeFacebookStatusesWorker(document, [], allowed_keys, output)
+		dd = reduce(self.merge, output)
+		return dd
+	
+
+	def anonymizeFacebookStatusesWorker(self, document, keys, allowed_keys, output):
+		if type(document) == type([]):
+			for jj, item in enumerate(document):
+				t_keys = list(keys)
+				t_keys.append(str(jj))
+				self.anonymizeFacebookStatusesWorker(item, t_keys, allowed_keys, output)
+		elif type(document) == type({}):
+			for key, value in document.items():
+				t_keys = list(keys)
+				t_keys.append(key)
+				self.anonymizeFacebookStatusesWorker(value, t_keys, allowed_keys, output)
+		else:
+			if not keys[-1] in allowed_keys: document = self.encrypt(document)
+			d = {}
+			self.add_keys(d, keys, document)
+			output.append(d)
+	
+	
+	def anonymizeFacebookEducation(self, document):
+		for pl in document:
+			try:
+				for cl in pl['classes']:
+					try:
+						cl['id'] = self.encrypt(cl['id'])
+						for ps in cl['with']:
+							ps['id'] = self.encrypt(ps['id'])
+							ps['name'] = self.encrypt(ps['name'])
+					except KeyError: continue
+			except KeyError: continue
+
+		return document
+	
+	
+	def anonymizeFacebookLocations(self, document):
+		allowed_keys = ['status_type', 'updated_time', 'type', 'created_time', 'latitude', 'longitude']
+		output = []
+		self.anonymizeFacebookLocationsWorker(document, [], allowed_keys, output)
+		dd = reduce(self.merge, output)
+		return dd
+	
+
+	def anonymizeFacebookLocationsWorker(self, document, keys, allowed_keys, output):
+		if type(document) == type([]):
+			for jj, item in enumerate(document):
+				t_keys = list(keys)
+				t_keys.append(str(jj))
+				self.anonymizeFacebookLocationsWorker(item, t_keys, allowed_keys, output)
+		elif type(document) == type({}):
+			for key, value in document.items():
+				t_keys = list(keys)
+				t_keys.append(key)
+				self.anonymizeFacebookLocationsWorker(value, t_keys, allowed_keys, output)
+		else:
+			if not keys[-1] in allowed_keys: document = self.encrypt(document)
+			d = {}
+			self.add_keys(d, keys, document)
+			output.append(d)
+	
+	def anonymizeFacebookWork(self, document):
+		for pl in document:
+			try:
+				for cl in pl['projects']:
+					try:
+						cl['id'] = self.encrypt(cl['id'])
+						for ps in cl['with']:
+							ps['id'] = self.encrypt(ps['id'])
+							ps['name'] = self.encrypt(ps['name'])
+					except KeyError: continue
+			except KeyError: continue
+
+		return document
 
 	def encrypt(self, raw):
 		raw = unicode(raw).encode('utf-8')
