@@ -3,12 +3,17 @@ import json
 import time
 import urllib2
 from utils import database
-from anonymzier import anonymizer
+from anonymizer.anonymizer import Anonymizer
+
+db = None
+anonymizer = None
 
 def collect_facebook():
 	authorizations = auth.getAllInboundAuth()
+	global db 
 	db = database.Database()
-
+	global anonymizer
+	anonymizer = Anonymizer()
 
 	for authorization in authorizations:
 		scope = authorization.scope
@@ -23,31 +28,49 @@ def collect_facebook():
 		for facebook_scope in facebook_scopes:
 			try: collectData(user, facebook_id, facebook_scope, access_token, resource_mappings[facebook_scope])
 			except KeyError: continue
-			except: continue
+			#except: continue
 
 def collectData(user, facebook_id, facebook_scope, access_token, resources):
 	base_url = 'https://graph.facebook.com/'
 	for resource in resources:
 		url = base_url
-		url += '%s/'%str(facebook_id)
-		url += '%s/?'%resource
+		url += '%s/?'%str(facebook_id)
+		url += 'fields=%s&'%resource
 		url += 'access_token=%s'%access_token
 
-		try: getData(url, resource)
-		except: continue
+		print url
+		#try: getData(url, resource)
+		#except: continue
+		getData(url, resource, user, facebook_id)
 
 
-def getData(url, resource, depth=0):
+def getData(url, resource, user, facebook_id, depth=0):
 		response = json.loads(urllib2.urlopen(url).read())
-		data = response['data']
-		saveData(data, resource)
+		try: data = response[resource]['data']
+		except TypeError:
+			try: data = response[resource] #just a string response
+			except: return
+		except KeyError:
+			try: data = response[resource] #a single dict respnse
+			except: return
+		except: return
+		saveData(data, resource, user, facebook_id)
 		try: next = response['paging']['next']
 		except KeyError: next = None
 		next_depth = depth + 1
-		if len(data) > 0 and next and next_depth < 3: 
-			getData(next, resource, next_depth)
+		if len(data) > 0 and next and next_depth < 6: 
+			getData(next, resource, user, facebook_id, next_depth)
 
 
-def saveData(data, resource):
+def saveData(data, resource, user, facebook_id):
 	if len(data) == 0: return
-	print resource, data
+	probe = 'dk_dtu_compute_facebook_'+resource
+	facebook_id = anonymizer.anonymizeDocument(facebook_id, 'dk_dtu_compute_facebook_facebook_id')
+	document = anonymizer.anonymizeDocument(data, probe)
+	doc = {}
+	doc['data'] = document
+	doc['user'] = user.username
+	doc['facebook_id'] = facebook_id
+	doc['timestamp'] = int(time.time())
+	doc_id = db.insert(doc, collection=probe)
+	print doc_id
