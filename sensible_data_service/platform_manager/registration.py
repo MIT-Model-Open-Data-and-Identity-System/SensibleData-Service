@@ -11,6 +11,8 @@ from django.shortcuts import redirect
 from django.conf import settings
 from documents import create_document
 from django.contrib.sessions.models import Session
+from django.contrib.auth.models import User
+from datetime import datetime
 
 def saveCode(code, user, scope):
 	c = PlatformCode.objects.create(code=code, user=user, time_generated=int(time.time()))
@@ -61,7 +63,15 @@ def updateUserStatus(user):
 	
 @login_required
 def authorize(request):
-	Session.objects.all().delete()
+	try:
+		sessions = Session.objects.filter(expire_date__gte=datetime.now())
+		for session in sessions:
+			data = session.get_decoded()
+			try: user = User.objects.filter(id=data.get('_auth_user_id', None))[0]
+			except: continue
+			if request.user == user: session.delete()
+	except: pass
+
 	url = settings.PLATFORM['platform_uri']+'oauth2/oauth2/authorize/'
 	url += '?redirect_uri='+settings.PLATFORM['redirect_uri']
 	url += '&scope='+'enroll'
