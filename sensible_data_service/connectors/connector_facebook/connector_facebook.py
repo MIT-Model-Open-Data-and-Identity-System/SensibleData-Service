@@ -4,6 +4,7 @@ import time
 import urllib2
 from utils import database
 from anonymizer.anonymizer import Anonymizer
+from backup import backup
 
 db = None
 anonymizer = None
@@ -28,7 +29,7 @@ def collect_facebook():
 		for facebook_scope in facebook_scopes:
 			try: collectData(user, facebook_id, facebook_scope, access_token, resource_mappings[facebook_scope])
 			except KeyError: continue
-			#except: continue
+			except: continue
 
 def collectData(user, facebook_id, facebook_scope, access_token, resources):
 	base_url = 'https://graph.facebook.com/'
@@ -39,9 +40,9 @@ def collectData(user, facebook_id, facebook_scope, access_token, resources):
 		url += 'access_token=%s'%access_token
 
 		print url
-		#try: getData(url, resource)
-		#except: continue
-		getData(url, resource, user, facebook_id)
+		try: getData(url, resource, user, facebook_id)
+		except: continue
+		#getData(url, resource, user, facebook_id)
 
 
 def getData(url, resource, user, facebook_id, depth=0):
@@ -72,5 +73,6 @@ def saveData(data, resource, user, facebook_id):
 	doc['user'] = user.username
 	doc['facebook_id'] = facebook_id
 	doc['timestamp'] = int(time.time())
+	backup.backupValue(data=doc, probe='dk_dtu_compute_facebook_'+resource, user=user.username)
 	doc_id = db.insert(doc, collection=probe)
 	print doc_id
