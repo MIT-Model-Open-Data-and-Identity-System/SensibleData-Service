@@ -3,8 +3,43 @@ import time
 import os
 import datetime
 import json
+import shutil
 
 def backupValue(data, probe, user):
+	probeFolder = getProbeFolder(probe)
+	index = ''
+	try:
+		while True:
+			filename = os.path.join(probeFolder, user+'_'+str(time.time())+'_'+str(index)+'.json')
+			if os.path.exists(filename):
+				if index == '': index = 0
+				index += 1
+				if index > 1000: break
+				continue
+			f = open(filename, 'w')
+			f.write(json.dumps(data))
+			f.close()
+			return True
+	except: pass
+	return False
+
+def backupFile(filename, probe):
+	probeFolder = getProbeFolder(probe)
+	index = ''
+	try:
+		while True:
+			filename_backup = os.path.join(probeFolder, filename+'_'+str(index))
+			if os.path.exists(filename_backup):
+				if index == '': index = 0
+				index += 1
+				if index > 1000: break
+				continue
+			shutil.copy(filename, filename_backup)
+			return True
+	except: pass
+	return False
+
+def getProbeFolder(probe):
 	BACKUP_DIR = settings.DATA_BACKUP_DIR
 	if not os.path.exists(BACKUP_DIR): return {'error':'backup dir does not exist (code 0099)'}
 	currentHourlyFolder = os.path.join(BACKUP_DIR, buildHourlyFolder())
@@ -15,23 +50,7 @@ def backupValue(data, probe, user):
 	try: os.mkdir(probeFolder)
 	except OSError: pass
 
-	index = ''
-	try:
-		while True:
-			filename = os.path.join(probeFolder, user+'_'+str(time.time())+'_'+str(index)+'.json')
-			except: 
-			if os.path.exists(filename):
-				if index == '': index = 0
-				index += 1
-				if index > 1000: break
-				continue
-			f = open(filename, 'w')
-			f.write(json.dumps(data))
-			f.close()
-			break
-	except: pass
-
-
+	return probeFolder
 
 
 def buildHourlyFolder():
