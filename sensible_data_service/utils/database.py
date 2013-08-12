@@ -10,7 +10,9 @@ class Database:
 		self.client = MongoClient(settings.DATA_DATABASE['params']['url']%(SECURE_settings.DATA_DATABASE['username'],SECURE_settings.DATA_DATABASE['password']))
 		self.db = self.client[settings.DATA_DATABASE['params']['database']]
 
-	def insert(self, documents, collection):
+	def insert(self, documents, collection, roles = None):
+		if roles and 'researcher' in roles:
+			collection += '_researcher'
 		coll = self.db[collection]
 		doc_id = coll.insert(documents, continue_on_error=True)
 		return doc_id
