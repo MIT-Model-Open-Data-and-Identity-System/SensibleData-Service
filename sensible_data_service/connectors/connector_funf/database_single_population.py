@@ -89,7 +89,6 @@ def load_file(filename):
 			# get the user associated with the token
 			#meta['user'] = authorization_manager.getAuthorizationForToken(\
 			#	'connector_funf.submit_data', meta['token']).user
-			meta['user'] = 'TODO'
 			for row in cursor.execute('select * from data'):
 				doc = row_to_doc(row, meta['user'], anonymizerObject )
 				if doc == None:
