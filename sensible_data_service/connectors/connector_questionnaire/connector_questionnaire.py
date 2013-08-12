@@ -4,6 +4,7 @@ import json
 from utils.database import Database
 import urllib
 from accounts.models import UserRole
+from backup import backup
 
 def upload(request):
 
@@ -17,10 +18,15 @@ def upload(request):
 	try: roles = [x.role for x in UserRole.objects.get(user=user).roles.all()]
 	except: pass
 
-	database = Database()
 	doc = urllib.unquote(request.REQUEST.get('doc'))
 	doc = json.loads(doc)
 	doc['user'] = user.username
-	doc_id = database.insert(doc, collection='dk_dtu_compute_questionnaire', roles=roles)
+
+	probe = 'dk_dtu_compute_questionnaire'
+
+	backup.backupValue(data=doc, probe=probe, user=user.username)
+
+	database = Database()
+	doc_id = database.insert(doc, collection=probe, roles=roles)
 
 	return HttpResponse(json.dumps({'ok':str(doc_id)}), status=200)
