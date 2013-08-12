@@ -72,35 +72,44 @@ class Anonymizer(object):
 
 
 		if probe == 'edu_mit_media_funf_probe_builtin_WifiProbe': self.anonymizeWifi(document)
-		if probe == 'edu_mit_media_funf_probe_builtin_BluetoothProbe': self.anonymizeBluetooth(document)
-		if probe == 'edu_mit_media_funf_probe_builtin_LocationProbe': self.anonymizeLocation(document)
-		if probe == 'edu_mit_media_funf_probe_builtin_CallLogProbe': self.anonymizeCallLog(document)
-		if probe == 'edu_mit_media_funf_probe_builtin_SMSProbe': self.anonymizeSMSProbe(document)
-		if probe == 'edu_mit_media_funf_probe_builtin_HardwareInfoProbe': self.anonymizeHardwareProbe(document)
-		if probe == 'edu_mit_media_funf_probe_builtin_ContactProbe': self.anonymizeContactProbe(document)
+		elif probe == 'edu_mit_media_funf_probe_builtin_BluetoothProbe': self.anonymizeBluetooth(document)
+		elif probe == 'edu_mit_media_funf_probe_builtin_LocationProbe': self.anonymizeLocation(document)
+		elif probe == 'edu_mit_media_funf_probe_builtin_CallLogProbe': self.anonymizeCallLog(document)
+		elif probe == 'edu_mit_media_funf_probe_builtin_SMSProbe': self.anonymizeSMSProbe(document)
+		elif probe == 'edu_mit_media_funf_probe_builtin_HardwareInfoProbe': self.anonymizeHardwareProbe(document)
+		elif probe == 'edu_mit_media_funf_probe_builtin_ContactProbe': self.anonymizeContactProbe(document)
+		elif probe == 'edu_mit_media_funf_probe_builtin_BatteryProbe': self.anonymizeBatteryProbe(document)
 		
 		
 		
-		if probe == 'dk_dtu_compute_facebook_facebook_id': document = self.anonymizeFacebookId(document)
-		if probe == 'dk_dtu_compute_facebook_friendlists': self.anonymizeFacebookFriendlists(document)
-		if probe == 'dk_dtu_compute_facebook_friends': self.anonymizeFacebookFriends(document)
-		if probe == 'dk_dtu_compute_facebook_friendrequests': self.anonymizeFacebookFriendrequests(document)
-		if probe == 'dk_dtu_compute_facebook_groups': self.anonymizeFacebookGroups(document)
-		if probe == 'dk_dtu_compute_facebook_likes': self.anonymizeFacebookLikes(document)
-		if probe == 'dk_dtu_compute_facebook_feed': document = self.anonymizeFacebookFeed(document)
-		if probe == 'dk_dtu_compute_facebook_statuses': document = self.anonymizeFacebookStatuses(document)
-		if probe == 'dk_dtu_compute_facebook_education': document = self.anonymizeFacebookEducation(document)
-		if probe == 'dk_dtu_compute_facebook_locations': document = self.anonymizeFacebookLocations(document)
-		if probe == 'dk_dtu_compute_facebook_work': document = self.anonymizeFacebookWork(document)
+		elif probe == 'dk_dtu_compute_facebook_facebook_id': document = self.anonymizeFacebookId(document)
+		elif probe == 'dk_dtu_compute_facebook_friendlists': self.anonymizeFacebookFriendlists(document)
+		elif probe == 'dk_dtu_compute_facebook_friends': self.anonymizeFacebookFriends(document)
+		elif probe == 'dk_dtu_compute_facebook_friendrequests': self.anonymizeFacebookFriendrequests(document)
+		elif probe == 'dk_dtu_compute_facebook_groups': self.anonymizeFacebookGroups(document)
+		elif probe == 'dk_dtu_compute_facebook_likes': self.anonymizeFacebookLikes(document)
+		elif probe == 'dk_dtu_compute_facebook_feed': document = self.anonymizeFacebookFeed(document)
+		elif probe == 'dk_dtu_compute_facebook_statuses': document = self.anonymizeFacebookStatuses(document)
+		elif probe == 'dk_dtu_compute_facebook_education': document = self.anonymizeFacebookEducation(document)
+		elif probe == 'dk_dtu_compute_facebook_locations': document = self.anonymizeFacebookLocations(document)
+		elif probe == 'dk_dtu_compute_facebook_work': document = self.anonymizeFacebookWork(document)
 		
-		return document
-
+		return document	
 		
+	def anonymizeBatteryProbe(self, document):
+		document.pop('icon-small', None)
+		document.pop('invalid_charger',None)
+		document.pop('scale',None)
+		document.pop('voltage',None)
+		document.pop('technology',None)
+		document.pop('present',None)
+		
+	
 	def anonymizeWifi(self, document):
 		for scan in document['SCAN_RESULTS']:
 			#scan['SSID'] = self.encrypt(scan['SSID'])
 			#scan['BSSID'] = self.encrypt(scan['BSSID'])
-			scan['wifiSsid'] = {}
+			scan.pop('wifiSsid', None)
 	
 	def anonymizeBluetooth(self, document):
 		for device in document['DEVICES']:
