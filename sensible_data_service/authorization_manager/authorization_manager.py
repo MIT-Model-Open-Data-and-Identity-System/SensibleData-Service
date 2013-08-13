@@ -13,7 +13,6 @@ from django.db import transaction
 import connectors.connector_questionnaire.auth
 import connectors.connector_funf.auth
 import connectors.connector_facebook.auth
-import pdb
 
 def buildAuthUrl(connector, application=None):
 	if connector.connector_type == 'connector_funf':
@@ -31,7 +30,6 @@ def getAuthorization(user, scope, application):
 	return authorizations
 	
 def getAuthorizationForToken(scope, token):
-	pdb.set_trace()
 	auth = Authorization.objects.filter(scope=Scope.objects.get(scope = scope),\
 		access_token=AccessToken.objects.get(token=token),\
 		active = True)
