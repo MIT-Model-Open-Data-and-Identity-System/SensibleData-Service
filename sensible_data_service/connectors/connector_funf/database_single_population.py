@@ -101,7 +101,10 @@ def load_file(filename):
 			upload_start = time.time()
 			#pdb.set_trace()
 			for probe in documents_to_insert:
-				db.insert(documents_to_insert[probe], probe)
+				try:
+					db.insert(documents_to_insert[probe], probe)
+				except Exception as e:
+					log.log('Error', str(e) + ' not skipping the file though')
 			#log.log('Debug','DB upload time: ' + str(time.time() - upload_start) + ' s')	
 			os.remove(current_filepath);
 			
