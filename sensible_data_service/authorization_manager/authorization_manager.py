@@ -31,7 +31,6 @@ def getAuthorization(user, scope, application):
 	return authorizations
 	
 def getAuthorizationForToken(scope, token):
-	pdb.set_trace()
 	auth = Authorization.objects.filter(scope=Scope.objects.get(scope = scope),\
 		access_token=AccessToken.objects.get(token=token),\
 		active = True)
