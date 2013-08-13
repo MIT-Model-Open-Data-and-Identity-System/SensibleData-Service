@@ -13,7 +13,6 @@ from django.db import transaction
 import connectors.connector_questionnaire.auth
 import connectors.connector_funf.auth
 import connectors.connector_facebook.auth
-import pdb
 
 def buildAuthUrl(connector, application=None):
 	if connector.connector_type == 'connector_funf':

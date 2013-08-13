@@ -50,6 +50,14 @@ def grantInbound(request):
 
 @login_required
 def grantedInbound(request):
+	error = request.GET.get('error', '')
+	if not error == '':
+		error_description = request.GET.get('error', '')
+		r = redirect(settings.PLATFORM['platform_uri'])
+		r['Location'] += '?status=auth_error&message='+error_description
+		return r
+
+
 	code = request.GET.get('code', '')
 	url = 'https://graph.facebook.com/oauth/access_token?'
 	params = decodeParams(Application.objects.get(connector_type='facebook_in').extra_params)
