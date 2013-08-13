@@ -4,7 +4,7 @@ from utils import SECURE_settings
 import bson.json_util as json
 from operator import getitem
 from collections import defaultdict
-
+import pdb
 class Anonymizer(object):
 
 	BS = 16
@@ -62,7 +62,6 @@ class Anonymizer(object):
 		return self.decrypt(value)
 
 	def anonymizeDocument(self, document, probe):
-		
 		try:
 			key = SECURE_settings.PROBE_KEYS[probe]
 		except KeyError:
@@ -78,7 +77,7 @@ class Anonymizer(object):
 		elif probe == 'edu_mit_media_funf_probe_builtin_SMSProbe': self.anonymizeSMSProbe(document)
 		elif probe == 'edu_mit_media_funf_probe_builtin_HardwareInfoProbe': self.anonymizeHardwareProbe(document)
 		elif probe == 'edu_mit_media_funf_probe_builtin_ContactProbe': self.anonymizeContactProbe(document)
-		elif probe == 'edu_mit_media_funf_probe_builtin_BatteryProbe': self.anonymizeBatteryProbe(document)
+		elif probe == 'edu_mit_media_funf_probe_builtin_BatteryProbe': document = self.anonymizeBatteryProbe(document)
 		
 		
 		
@@ -103,6 +102,7 @@ class Anonymizer(object):
 		document.pop('voltage',None)
 		document.pop('technology',None)
 		document.pop('present',None)
+		return document
 		
 	
 	def anonymizeWifi(self, document):

@@ -30,12 +30,12 @@ def getAuthorization(user, scope, application):
 	return authorizations
 	
 def getAuthorizationForToken(scope, token):
-	auth = Authorization.objects.filter(scope=Scope.objects.get(scope = scope),\
-		access_token=AccessToken.objects.get(token=token),\
-		active = True)
-	if len(auth) > 0:
-		return auth[0]
-	else:
+	try:
+		auth = Authorization.objects.get(scope=Scope.objects.get(scope = scope),\
+			access_token=AccessToken.objects.get(token=token),\
+			active = True)
+		return auth
+	except Exception:
 		return None
 
 def createAuthorization(response, device_id = None):
