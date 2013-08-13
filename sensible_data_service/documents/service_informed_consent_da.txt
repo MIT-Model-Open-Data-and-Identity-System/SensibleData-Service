@@ -4,13 +4,13 @@ Med henblik på at deltage i projekt med titlen SensibleDTU (Projektet) ledet af
 at forskningsprojektet, som Projektet er en del af, har til formål er at få viden om livsstil og dit helbred, adfærd og trivsel, samt sociale netværk og bevægelsesmønstre blandt studerende på DTU.
 </br>
 </br>
-at DTU har indhentet tilladelse til at indhente registrere og lagre mine data til brug for forskningsprojektet 
+at DTU har indhentet tilladelse til at indhente, registrere og lagre mine data til brug for forskningsprojektet.
 </br>
 </br>
 at mine personoplysninger kun vil blive brugt til forskning og vil ikke blive delt med andre, hverken private firmaer eller studieadministrationen på DTU. 
 </br>
 </br>
-at jeg skal henvende mig til support@sensible.dtu hvis jeg har spørgsmål til Projektet eller ønsker at udtræde af Projektet.
+at jeg skal henvende mig til <a href="mailto: support@sensible.dtu.dk">support@sensible.dtu.dk</a> hvis jeg har spørgsmål til Projektet eller ønsker at udtræde af Projektet.
 </br>
 </br>
 at jeg til enhver tid kan udtræde af Projektet og levere mobiltelefonen tilbage. 

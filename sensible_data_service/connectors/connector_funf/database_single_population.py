@@ -99,8 +99,12 @@ def load_file(filename):
 			#pdb.set_trace()
 			#log.log('Debug','DB reading time: ' + str(time.time() - reading_start) + ' s')
 			upload_start = time.time()
+			#pdb.set_trace()
 			for probe in documents_to_insert:
-				db.insert(documents_to_insert[probe], probe)
+				try:
+					db.insert(documents_to_insert[probe], probe)
+				except Exception as e:
+					log.log('Error', str(e) + ' not skipping the file though')
 			#log.log('Debug','DB upload time: ' + str(time.time() - upload_start) + ' s')	
 			os.remove(current_filepath);
 			
@@ -128,12 +132,12 @@ def row_to_doc(row, user, anonymizerObject):
 		data = json.loads(data_raw)
 		if data.has_key('PROBE'): #only get data from probes
 			doc = {}
-			doc['timestamp'] = float(row[2])
-			doc['_id'] = hashlib.sha1(json.dumps(data)).hexdigest()+'_'+user+'_'+str(int(doc['timestamp']))+'_'+str(random.random())+'_'+str(random.random())
+			doc['timestamp'] = int(row[2])
+			doc['_id'] = hashlib.sha1(json.dumps(data)).hexdigest()+'_'+user+'_'+str(int(doc['timestamp']))
 			doc['probe'] = data['PROBE'].replace('.','_')
 			doc['data'] = anonymizerObject.anonymizeDocument(data, doc['probe'])
 			doc['name'] = row[1]
-			doc['timestamp_added'] = time.time()
+			doc['timestamp_added'] = int(time.time())
 			return doc
 		else:
 			return None
@@ -145,7 +149,7 @@ def row_to_doc(row, user, anonymizerObject):
 # returns the username associated with the token, or None, if the token is not valid
 def get_user_name(token):
 	# debug
-	return 'DEBUG_USER'
+	# return 'DEBUG_USER'
 	if len(token) == 0:
 		return None
 	if token in valid_tokens.keys():

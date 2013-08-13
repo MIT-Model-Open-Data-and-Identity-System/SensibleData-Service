@@ -4,7 +4,7 @@ import datetime
 import time
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-
+from backup import backup
 import pdb;
 from django.core.servers.basehttp import FileWrapper
 import mimetypes
@@ -71,7 +71,8 @@ def upload(request):
 						filepath = os.path.join(upload_path, filename)
 
 					write_file(filepath, uploaded_file)
-					shutil.copy(filepath, os.path.join(backup_path, filename))
+					backup.backupFile(filepath, "connector_funf")
+					#shutil.copy(filepath, os.path.join(backup_path, filename))
 					
 					# run decryption in the background
 					#log.log('Debug', settings.ROOT_DIR + './manage.py funf_single_decrypt' + filename)

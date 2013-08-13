@@ -4,6 +4,7 @@ import os
 import datetime
 import json
 import shutil
+import pdb
 
 def backupValue(data, probe, user):
 	probeFolder = getProbeFolder(probe)
@@ -25,10 +26,13 @@ def backupValue(data, probe, user):
 
 def backupFile(filename, probe):
 	probeFolder = getProbeFolder(probe)
+	if 'error' in probeFolder:
+		log.log('ERROR',str(probeFolder))
+		return False
 	index = ''
 	try:
 		while True:
-			filename_backup = os.path.join(probeFolder, filename+'_'+str(index))
+			filename_backup = os.path.join(probeFolder, os.path.basename(filename)+'_'+str(index))
 			if os.path.exists(filename_backup):
 				if index == '': index = 0
 				index += 1
