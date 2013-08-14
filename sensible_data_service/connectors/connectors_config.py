@@ -21,7 +21,7 @@ CONNECTORS = {
 			"decryption_failed_path" : DATA_BASE_DIR + "/sensible-data/connector_funf/decryption_failed/", #must be www-data writable
 			"load_failed_path" : DATA_BASE_DIR + "/sensible-data/connector_funf/load_failed/", #must be www-data writable
 			"decrypted_not_authorized" : DATA_BASE_DIR + "/sensible-data/connector_funf/decrypted_not_authorized/",
-			"config_path": DATA_BASE_DIR + "/sensible-data/connector_funf/config/", #must be www-data writable
+			"config_path": DATA_BASE_DIR + "/sensible-data/connector_funf/config/config.json", #must be www-data writable
 			"backup_path": DATA_BASE_DIR + "/sensible-data/connector_funf/backup/", #must be www-data writable
 			"connector_type": "client",
 			"max_population_processes": 4,

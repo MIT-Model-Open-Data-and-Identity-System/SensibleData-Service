@@ -5,6 +5,7 @@ import datetime
 import json
 import shutil
 import pdb
+from utils import log
 
 def backupValue(data, probe, user):
 	probeFolder = getProbeFolder(probe)
