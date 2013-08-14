@@ -3,6 +3,7 @@ import datetime
 import time
 import os
 import shutil
+from utils import SECURE_settings
 
 def run_backup():
 	current_folder = buildHourlyFolder(hours_delta = 0, days_delta = 1)
@@ -19,7 +20,7 @@ def run_backup():
 		archive_name = folder_name+'.tar.gz'
 		archive_name_encrypted = archive_name+'.enc'
 		command = 'tar cfz %s %s'%(archive_name, folder_name)
-		command_encrypt = 'openssl aes-256-cbc -a -k %s -in %s -out %s'%('password_TODO', archive_name, archive_name_encrypted)
+		command_encrypt = 'openssl aes-256-cbc -a -k %s -in %s -out %s'%(SECURE_settings.BACKUP_ENCRYPTION_KEY, archive_name, archive_name_encrypted)
 		os.system(command)
 		os.system(command_encrypt)
 
@@ -32,7 +33,7 @@ def run_backup():
 def recover(filename):
 	if '.enc' in filename:
 		try:
-			command_decrypt = 'openssl aes-256-cbc -d -a -k %s -in %s -out %s'%('password_TODO', filename, filename.split('.enc')[0])
+			command_decrypt = 'openssl aes-256-cbc -d -a -k %s -in %s -out %s'%(SECURE_settings.BACKUP_ENCRYPTION_KEY, filename, filename.split('.enc')[0])
 			os.system(command_decrypt)
 		except: pass
 		try:
