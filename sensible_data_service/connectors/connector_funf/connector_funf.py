@@ -38,7 +38,6 @@ def upload(request):
 	log.log('Debug', 'Received POST')
 	scope = 'all_probes'
 
-	access_token = request.REQUEST.get('access_token', '')
 
 
 	if request.META['CONTENT_TYPE'].split(';')[0]=='multipart/form-data':
@@ -61,12 +60,12 @@ def upload(request):
 					if not os.path.exists(backup_path):
 						os.makedirs(backup_path)
 					
-					filename = uploaded_file.name.split('.')[0].split('_')[0]+'_'+access_token+'_'+str(int(time.time()))+'.db'
+					filename = uploaded_file.name.split('.')[0].split('_')[0]+'_'+str(int(time.time()*1000))+'.db'
 					filepath = os.path.join(upload_path, filename)
 					while os.path.exists(filepath):
 						parts = filename.split('.db');
 						counted_parts = re.split('__',parts[0]);
-						appendix = str(random.random())
+						appendix = str(int(random.random()*10000))
 						filename = counted_parts[0] + '__' + appendix + '.db'
 						filepath = os.path.join(upload_path, filename)
 
@@ -101,8 +100,8 @@ def write_file(filepath, file):
 
 
 def config(request):
-	pdb.set_trace();
-	log.log('Debug', 'GET for config')
+	#pdb.set_trace();
+	#log.log('Debug', 'GET for config')
 	access_token = request.REQUEST.get('access_token', '')
 	#authorization = self.pipe.getAuthorization(access_token)
 	#config = self.readConfig(authorization['user'])
@@ -115,7 +114,6 @@ def config(request):
 def readConfig(user):
 	config = None
 	try:
-		pdb.set_trace();
 		with open(myConnector['config_path']) as config_file:
 			config = config_file.read()
 	except IOError: pass

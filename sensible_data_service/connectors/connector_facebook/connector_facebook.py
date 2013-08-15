@@ -5,6 +5,7 @@ import urllib2
 from utils import database
 from anonymizer.anonymizer import Anonymizer
 from backup import backup
+from accounts.models import UserRole
 
 db = None
 anonymizer = None
@@ -69,10 +70,13 @@ def saveData(data, resource, user, facebook_id):
 	facebook_id = anonymizer.anonymizeDocument(facebook_id, 'dk_dtu_compute_facebook_facebook_id')
 	document = anonymizer.anonymizeDocument(data, probe)
 	doc = {}
+	roles = None
+	try: roles = [x.role for x in UserRole.objects.get(user=user).roles.all()]
+	except: pass
 	doc['data'] = document
 	doc['user'] = user.username
 	doc['facebook_id'] = facebook_id
 	doc['timestamp'] = int(time.time())
 	backup.backupValue(data=doc, probe='dk_dtu_compute_facebook_'+resource, user=user.username)
-	doc_id = db.insert(doc, collection=probe)
+	doc_id = db.insert(doc, collection=probe, roles=roles)
 	print doc_id

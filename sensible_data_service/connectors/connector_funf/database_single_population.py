@@ -23,6 +23,7 @@ import traceback
 import pdb
 
 import time
+from accounts.models import UserRole
 
 myConnector = connectors.connectors_config.CONNECTORS['ConnectorFunf']['config']
 
@@ -76,7 +77,15 @@ def load_file(filename):
 			(meta['device'], meta['uuid'], meta['device_id'], meta['sensible_token'], meta['device_bt_mac']) = \
 				cursor.execute('select device, uuid, device_id, sensible_token, device_bt_mac from file_info').fetchone()
 			
-			meta['user'] = get_user_name(meta['sensible_token'])
+			meta['user'] = None
+			roles = []
+			try: 
+				user = get_user_name(meta['sensible_token'])
+				meta['user'] = user.username
+				roles = roles = [x.role for x in UserRole.objects.get(user=user).roles.all()]
+			except: pass
+
+
 			if meta['user'] == None:
 				if not os.path.exists(myConnector['decrypted_not_authorized']):
 					os.makedirs(myConnector['decrypted_not_authorized'])
@@ -102,7 +111,8 @@ def load_file(filename):
 			#pdb.set_trace()
 			for probe in documents_to_insert:
 				try:
-					db.insert(documents_to_insert[probe], probe)
+					#TODO user
+					db.insert(documents_to_insert[probe], probe, roles)
 				except Exception as e:
 					log.log('Error', str(e) + ' not skipping the file though')
 			#log.log('Debug','DB upload time: ' + str(time.time() - upload_start) + ' s')	
@@ -159,7 +169,4 @@ def get_user_name(token):
 		return None
 	else:
 		valid_tokens[token] = authorization.user.username
-		return authorization.user.username
-			
-			
-			
+		return authorization.user
