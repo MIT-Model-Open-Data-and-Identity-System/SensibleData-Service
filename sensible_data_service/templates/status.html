@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="page-header">
+	      <h1>Service Status</h1>
+</div>
+
+
+<div class="row">
+
+	<div class="well span">
+		<h2>You</h2>
+		<hr>
+		<p class="lead">username: {{ user.username }}</p>
+		<p class="lead">email: {{ user.email }}</p>
+	</div>
+	
+	<div class="well span">
+		<h2>Users</h2>
+		<hr>
+		<p class="lead">Users: <span id="users_no"></span></p>
+		<p class="lead">Informed Consents: <span id="users_informed_consent_no"></span></p>
+		<p>Last refreshed: <span id="users_last_refreshed"></span></p>
+	</div>
+	
+	<div class="well span">
+		<h2>Database</h2>
+		<hr>
+		<p class="lead">Status: <span id="database_status"></span></p>
+		<p class="lead">URI: <span id="database_uri"></span></p>
+		<p class="lead">Data Size: <span id="database_data_size"></span></p>
+		<p class="lead">Storage Size: <span id="database_storage_size"></span></p>
+		<p class="lead">Objects: <span id="database_objects"></span></p>
+		<p class="lead">Indexes: <span id="database_indexes"></span></p>
+		<p class="lead">Collections: <span id="database_collections"></span></p>
+		<p>Last refreshed: <span id="database_last_refreshed"></span></p>
+	</div>
+	
+	
+	<div class="well span">
+		<h2>Questionnaires</h2>
+		<hr>
+		<p class="lead">Documents: <span id="questionnaires_documents_no"></span></p>
+		<p class="lead">Users: <span id="questionnaires_users"></span></p>
+		<p class="lead">Finished: <span id="questionnaires_finished"></span></p>
+		<p class="lead">Male: <span id="questionnaires_male"></span></p>
+		<p class="lead">Female: <span id="questionnaires_female"></span></p>
+		<p>Last refreshed: <span id="questionnaires_last_refreshed"></span></p>
+	</div>
+	
+	<div class="well span">
+		<h2>Facebook</h2>
+		<hr>
+	</div>
+
+</div>
+
+<script>
+
+	window.setInterval("refresh()", 3000);
+	
+	var api_uri = '{{ api_uri }}';
+
+	refresh();
+
+	function refresh() {
+		refreshUsers();
+		refreshDatabase();
+		refreshQuestionnaires();
+	}
+
+	function refreshUsers() {
+		$.get(
+		api_uri,
+		{query : 'users'},
+		function(data) {gotUsers(data)}
+		);
+
+	}
+
+	function gotUsers(data) {
+		users = jQuery.parseJSON( data );
+		var d=new Date();
+		var t=d.toLocaleTimeString();
+		document.getElementById('users_last_refreshed').innerHTML = t;
+		document.getElementById('users_no').innerHTML = users['users_no'];
+		document.getElementById('users_informed_consent_no').innerHTML = users['users_informed_consent_no'];
+	}
+	
+	function refreshDatabase() {
+		$.get(
+		api_uri,
+		{query : 'database'},
+		function(data) {gotDatabase(data)}
+		);
+
+	}
+	
+	function gotDatabase(data) {
+		database = jQuery.parseJSON( data );
+		var d=new Date();
+		var t=d.toLocaleTimeString();
+		document.getElementById('database_last_refreshed').innerHTML = t;
+		document.getElementById('database_status').innerHTML = database['database_status'];
+		document.getElementById('database_uri').innerHTML = database['database_uri'];
+		document.getElementById('database_data_size').innerHTML = Math.round(database['database_stats']['dataSize']/1048576.0)+'MB';
+		document.getElementById('database_storage_size').innerHTML = Math.round(database['database_stats']['storageSize']/1048576.0)+'MB';
+		document.getElementById('database_indexes').innerHTML = database['database_stats']['indexes'];
+		document.getElementById('database_objects').innerHTML = database['database_stats']['objects'];
+		document.getElementById('database_collections').innerHTML = database['database_stats']['collections'];
+	}
+	
+	function refreshQuestionnaires() {
+		$.get(
+		api_uri,
+		{query : 'questionnaires'},
+		function(data) {gotQuestionnaires(data)}
+		);
+
+	}
+
+	function gotQuestionnaires(data) {
+		questionnaires = jQuery.parseJSON( data );
+		var d=new Date();
+		var t=d.toLocaleTimeString();
+		document.getElementById('questionnaires_last_refreshed').innerHTML = t;
+		document.getElementById('questionnaires_documents_no').innerHTML = questionnaires['documents_no'];
+		document.getElementById('questionnaires_users').innerHTML = questionnaires['users'];
+		document.getElementById('questionnaires_finished').innerHTML = questionnaires['finished'];
+		document.getElementById('questionnaires_male').innerHTML = questionnaires['male'];
+		document.getElementById('questionnaires_female').innerHTML = questionnaires['female'];
+	}
+
+
+</script>
+
+
+
+{% endblock %}

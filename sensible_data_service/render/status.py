@@ -1,0 +1,69 @@
+from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render_to_response
+from django.template import RequestContext
+import bson.json_util as json
+from utils import database
+from django.contrib.auth.models import User
+from documents.models import InformedConsent
+from django.conf import settings
+import pymongo
+
+@login_required
+def status(request):
+	authorized_users = ['arks@dtu.dk']
+	if not request.user.email in authorized_users:
+		return HttpResponse(json.dumps({'error':'sorry, %s you are not authorized :('%request.user.username}))
+	query = request.REQUEST.get('query', '')
+	#TODO
+	if query == '':
+		return render_to_response('status.html', {'api_uri':'https://54.229.13.160/devel/sensible-dtu/status/'}, context_instance=RequestContext(request))
+	if query =='users':
+		return users_request(request)
+	if query =='database':
+		return database_request(request)
+	if query =='questionnaires':
+		return questionnaires_request(request)
+
+def users_request(request):
+	values = {}
+	values['users_no'] = User.objects.count()
+	values['users_informed_consent_no'] = InformedConsent.objects.count()
+	return HttpResponse(json.dumps(values))
+
+def database_request(request):
+	values = {}
+	values['database_status'] = getDatabaseStatus()
+	values['database_stats'] = getDatabaseStats()
+	values['database_uri'] = settings.DATA_DATABASE['params']['url'].replace('%s:%s@','')
+	return HttpResponse(json.dumps(values))
+
+def questionnaires_request(request):
+	values = {}
+	try:
+		db = database.Database()
+		values['documents_no'] = db.db['dk_dtu_compute_questionnaire'].count()
+		values['users'] = len(db.db['dk_dtu_compute_questionnaire'].distinct('user'))
+		values['finished'] = db.db['dk_dtu_compute_questionnaire'].find({'variable_name':'_submitted'}).count()
+		values['male'] = db.db['dk_dtu_compute_questionnaire'].find({'variable_name':'sex', 'response': 'mand'}).count()
+		values['female'] = db.db['dk_dtu_compute_questionnaire'].find({'variable_name':'sex', 'response': 'kvinde'}).count()
+	except: pass
+	return HttpResponse(json.dumps(values))
+
+def getDatabaseStatus():
+	try:
+		db = database.Database()
+		doc_id = db.insert({'test':'test'}, 'test')
+		response = db.db['test'].remove({'_id':doc_id})
+		if response['ok'] == 1:
+			return 'OK'
+		else:
+			return response
+	except pymongo.errors.PyMongoError as e: return str(e)
+
+
+def getDatabaseStats():
+	try:
+		db = database.Database()
+		return db.db.command('dbstats')
+	except pymongo.errors.PyMongoError: return {'error': 'something went terribly wrong'}
