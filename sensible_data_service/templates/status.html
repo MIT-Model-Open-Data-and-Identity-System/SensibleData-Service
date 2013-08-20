@@ -52,6 +52,94 @@
 	<div class="well span">
 		<h2>Facebook</h2>
 		<hr>
+		    <table class="table">
+    			<tr>
+				<th><h3>Data</h3></th>
+				<th><h3>Documents</h3></th>
+				<th><h3>Users</h3></th>
+			</tr>
+			<tr>
+				<td><p class="lead">Birthday </p></td>
+				<td><center><span class="lead" id="facebook_birthday_doc"></span></center></td>		
+				<td><center><span class="lead" id="facebook_birthday_users"></span></center></td>
+			</tr>
+			<tr>
+				<td><p class="lead">Education </p></td>
+				<td><center><span class="lead" id="facebook_education_doc"></span></center></td>		
+				<td><center><span class="lead" id="facebook_education_users"></span></center></td>	
+			</tr>
+			<tr>
+				<td><p class="lead">Feed </p></td>
+				<td><center><span class="lead" id="facebook_feed_doc"></span></center></td>		
+				<td><center><span class="lead" id="facebook_feed_users"></span></center></td>
+			</tr>
+			<tr>
+				<td><p class="lead">Friend lists </p></td>
+				<td><center><span class="lead" id="facebook_friendlists_doc"></span></center></td>		
+				<td><center><span class="lead" id="facebook_friendlists_users"></span></center></td>
+			</tr>
+			<tr>
+				<td><p class="lead">Friend requests </p></td>
+				<td><center><span class="lead" id="facebook_friendrequests_doc"></span></center></td>		
+				<td><center><span class="lead" id="facebook_friendrequests_users"></span></center></td>
+			</tr>
+			<tr>
+				<td><p class="lead">Friends </p></td>
+				<td><center><span class="lead" id="facebook_friends_doc"></span></center></td>		
+				<td><center><span class="lead" id="facebook_friends_users"></span></center></td>
+			</tr>
+			<tr>
+				<td><p class="lead">Groups </p></td>
+				<td><center><span class="lead" id="facebook_groups_doc"></span></center></td>		
+				<td><center><span class="lead" id="facebook_groups_users"></span></center></td>
+			</tr>
+			<tr>
+				<td><p class="lead">Hometown </p></td>
+				<td><center><span class="lead" id="facebook_hometown_doc"></span></center></td>		
+				<td><center><span class="lead" id="facebook_hometown_users"></span></center></td>
+			</tr>
+			<tr>
+				<td><p class="lead">Interests </p></td>
+				<td><center><span class="lead" id="facebook_interests_doc"></span></center></td>		
+				<td><center><span class="lead" id="facebook_interests_users"></span></center></td>
+			</tr>
+			<tr>
+				<td><p class="lead">Likes </p></td>
+				<td><center><span class="lead" id="facebook_likes_doc"></span></center></td>		
+				<td><center><span class="lead" id="facebook_likes_users"></span></center></td>
+			</tr>
+			<tr>
+				<td><p class="lead">Location </p></td>
+				<td><center><span class="lead" id="facebook_location_doc"></span></center></td>		
+				<td><center><span class="lead" id="facebook_location_users"></span></center></td>
+			</tr>
+			<tr>
+				<td><p class="lead">Locations </p></td>
+				<td><center><span class="lead" id="facebook_locations_doc"></span></center></td>	
+				<td><center><span class="lead" id="facebook_locations_users"></span></center></td>
+			</tr>
+			<tr>
+				<td><p class="lead">Political </p></td>
+				<td><center><span class="lead" id="facebook_political_doc"></span></center></td>
+				<td><center><span class="lead" id="facebook_political_users"></span></center></td>
+			</tr>
+			<tr>
+				<td><p class="lead">Religion </p></td>
+				<td><center><span class="lead" id="facebook_religion_doc"></span></center></td>		
+				<td><center><span class="lead" id="facebook_religion_users"></span></center></td>
+			</tr>
+			<tr>
+				<td><p class="lead">Statuses </p></td>
+				<td><center><span class="lead" id="facebook_statuses_doc"></span></center></td>		
+				<td><center><span class="lead" id="facebook_statuses_users"></span></center></td>
+			</tr>
+			<tr>
+				<td><p class="lead">Work </p></td>
+				<td><center><span class="lead" id="facebook_work_doc"></span></center></td>
+				<td><center><span class="lead" id="facebook_work_users"></span></center></td>
+			</tr>
+    		    </table>
+		<p>Last refreshed: <span id="facebook_last_refreshed"></span></p>
 	</div>
 
 </div>
@@ -68,7 +156,8 @@
 		refreshUsers();
 		refreshDatabase();
 		refreshQuestionnaires();
-	}
+		refreshFacebook();
+	}		
 
 	function refreshUsers() {
 		$.get(
@@ -132,6 +221,28 @@
 		document.getElementById('questionnaires_female').innerHTML = questionnaires['female'];
 	}
 
+	function refreshFacebook() {
+		$.get(
+		api_uri,
+		{query : 'facebook'},
+		function(data) {gotFacebook(data)}
+		);
+
+	}
+
+	function gotFacebook(data) {
+		facebook = jQuery.parseJSON( data );
+		var d=new Date();
+		var t=d.toLocaleTimeString();
+		var sections=new Array() 
+		sections = ['birthday','education','feed','friendlists','friendrequests','friends','groups','hometown','interests','likes','location','locations','political','religion','statuses','work']
+	
+		document.getElementById('facebook_last_refreshed').innerHTML = t;
+		for (i=0; i<sections.length; i++){
+			document.getElementById('facebook_'+sections[i]+'_doc').innerHTML = facebook[sections[i]+'_doc'];
+			document.getElementById('facebook_'+sections[i]+'_users').innerHTML = facebook[sections[i]+'_users'];
+		}
+	}
 
 </script>
 
