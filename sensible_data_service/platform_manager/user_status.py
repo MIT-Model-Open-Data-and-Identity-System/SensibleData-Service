@@ -27,6 +27,7 @@ def userStatus(request):
 		application_scopes = application_manager.getApplicationScopes(application)
 		response['applications'][application.name]['scopes'] = {}
 		for scope in application_scopes:
+			if 'researcher' in scope.scope: continue
 			auth = authorization_manager.authorization_manager.getAuthorization(user, scope, application)
 			response['applications'][application.name]['scopes'][scope.scope] = {}
 			response['applications'][application.name]['scopes'][scope.scope]['authorized'] = 1 if len(auth)>0 else 0 

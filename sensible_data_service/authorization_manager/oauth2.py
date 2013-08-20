@@ -19,6 +19,7 @@ import json
 from datetime import datetime
 from django.shortcuts import redirect
 from urlparse import urlparse, parse_qs
+from accounts.models import UserRole
 
 @login_required
 def missing_redirect_uri(request):
@@ -54,7 +55,12 @@ def authorize_refreshed(request):
 	if request.method == 'GET':
         # Make sure the authorizer has validated before requesting the client
         # or access_ranges as otherwise they will be None.
-		if len(InformedConsent.objects.filter(user=authorizer.user).all()) == 0:
+		roles = []
+		try: roles = [x.role for x in UserRole.objects.get(user=authorizer.user).roles.all()]
+		except: pass
+
+		#if len(InformedConsent.objects.filter(user=authorizer.user).all()) == 0:
+		if (not 'researcher' in roles) and (len(InformedConsent.objects.filter(user=authorizer.user).all()) == 0):
 			return render_to_response('not_enrolled.html', {'platform_url':settings.PLATFORM['platform_uri']}, RequestContext(request))
 
 		template = {

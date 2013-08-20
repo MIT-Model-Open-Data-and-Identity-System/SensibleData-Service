@@ -6,16 +6,29 @@
 	      <h1>Researcher Dasbhoard</h1>
 	  </div>
 
+{% if not authorized %}
+
+<p class="lead">Sorry, seems you are not authorized to access researcher page.
+If you believe this is an error, please contact <a href="mailto:research@sensible.dtu.dk">research@sensible.dtu.dk</a>
+
+</p>
+
+{% else %}
+
+
+
 <div class="row">
 
-	<div class="well span5">
+	<div class="well span">
 		<h2>User</h2>
 		<hr>
 		<p class="lead">username: {{ user.username }}</p>
+		<p class="lead">name: {{ user.first_name }} {{ user.last_name }}</p>
 		<p class="lead">email: {{ user.email }}</p>
 	</div>
 	
-
+	{{ application_values }}
 
 </div>
+{% endif%}
 {% endblock %}

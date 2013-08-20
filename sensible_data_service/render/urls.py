@@ -13,6 +13,7 @@ urlpatterns = patterns('',
 	url(r'^quit/', 'application_manager.quit.quit'),
 	url(r'^logout/', 'application_manager.logout.logout', name='logout'),
 	url(r'^status/', 'render.status.status', name='status'),
+	url(r'^researcher/', 'render.researcher.researcher', name='researcher'),
 	 
 	url(r'^test/', include('testing.urls')),
 )

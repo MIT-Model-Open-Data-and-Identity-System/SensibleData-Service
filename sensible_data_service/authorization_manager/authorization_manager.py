@@ -9,6 +9,7 @@ from oauth2app.authenticate import Authenticator, AuthenticationException
 from django.conf import settings
 from documents.models import InformedConsent
 from django.db import transaction
+from accounts.models import UserRole
 
 import connectors.connector_questionnaire.auth
 import connectors.connector_funf.auth
@@ -44,8 +45,12 @@ def getAuthorizationForToken(scope, token):
 def createAuthorization(response, device_id = None):
 	access_token_to_query = response['access_token']
 	access_token = AccessToken.objects.get(token=str(access_token_to_query))
+
+	roles = []
+	try: roles = [x.role for x in UserRole.objects.get(user=access_token.user).roles.all()]
+	except: pass
 	
-	if len(InformedConsent.objects.filter(user=access_token.user).all()) == 0:        
+	if (not 'researcher' in roles) and (len(InformedConsent.objects.filter(user=access_token.user).all()) == 0):        
 		return {'error':'user is not enrolled in the study'}
 
 	server_nonce = hashlib.sha256(str(uuid.uuid4())).hexdigest()
