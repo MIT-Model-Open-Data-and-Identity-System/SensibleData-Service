@@ -11,19 +11,20 @@ import pymongo
 
 @login_required
 def status(request):
-	authorized_users = ['arks@dtu.dk']
+	authorized_users = ['arks@dtu.dk', 'cintia@dtu.dk']
 	if not request.user.email in authorized_users:
 		return HttpResponse(json.dumps({'error':'sorry, %s you are not authorized :('%request.user.username}))
 	query = request.REQUEST.get('query', '')
-	#TODO
 	if query == '':
-		return render_to_response('status.html', {'api_uri':'https://54.229.13.160/devel/sensible-dtu/status/'}, context_instance=RequestContext(request))
+		return render_to_response('status.html', {'api_uri':settings.BASE_URL+'status/'}, context_instance=RequestContext(request))
 	if query =='users':
 		return users_request(request)
 	if query =='database':
 		return database_request(request)
 	if query =='questionnaires':
 		return questionnaires_request(request)
+	if query =='facebook':
+		return facebook_request(request)
 
 def users_request(request):
 	values = {}
@@ -47,6 +48,17 @@ def questionnaires_request(request):
 		values['finished'] = db.db['dk_dtu_compute_questionnaire'].find({'variable_name':'_submitted'}).count()
 		values['male'] = db.db['dk_dtu_compute_questionnaire'].find({'variable_name':'sex', 'response': 'mand'}).count()
 		values['female'] = db.db['dk_dtu_compute_questionnaire'].find({'variable_name':'sex', 'response': 'kvinde'}).count()
+	except: pass
+	return HttpResponse(json.dumps(values))
+
+def facebook_request(request):
+	values = {}
+	sections = ['birthday','education','feed','friendlists','friendrequests','friends','groups','hometown','interests','likes','location','locations','political','religion','statuses','work']
+	try:
+		db = database.Database()
+		for x in sections:
+			values[x+'_doc'] = db.db['dk_dtu_compute_facebook_'+x].count()
+			values[x+'_users'] = len(db.db['dk_dtu_compute_facebook_'+x].distinct('facebook_id'))
 	except: pass
 	return HttpResponse(json.dumps(values))
 
