@@ -20,3 +20,7 @@ class Database:
 	def getDocuments(self, query, collection):
 		coll = self.db[collection]
 		return coll.find(query)
+
+	def getDocumentsCustom(self, query, collection, fields):
+		coll = self.db[collection]
+		return coll.find(spec=query, fields=fields)
