@@ -42,6 +42,27 @@ def getAuthorizationForToken(scope, token):
 	except Exception:
 		return None
 
+def getAuthorizationForDevice(scope, device_id, timestamp):
+	lowest_delta = 999999999999999999999
+	final_auth = None
+	try:
+		devices = Device.objects.filter(device_id = device_id).all()
+		for device in devices:
+			auths = Authorization.objects.filter(scope=Scope.objects.get(scope=scope), active=True, device=device).all()
+			for auth in auths:
+				t = auth.created_at
+				user = auth.user
+				if t > timestamp: continue
+				delta = timestamp - t
+				if delta > lowest_delta: continue	
+				lowest_delta = delta
+				final_auth = auth
+		
+		
+
+	except: pass
+	return final_auth
+
 def createAuthorization(response, device_id = None):
 	access_token_to_query = response['access_token']
 	access_token = AccessToken.objects.get(token=str(access_token_to_query))
