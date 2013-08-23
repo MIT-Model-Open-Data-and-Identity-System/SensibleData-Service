@@ -26,7 +26,6 @@ def locationDecrypted(request):
 	if len(accepted_scopes & auth_scopes) == 0:
 		return HttpResponse(json.dumps({'error':'token not authorized for any accepted scope %s'%str(list(accepted_scopes))}), status=401)
 
-
 	users_to_return = buildUsersToReturn(auth['user'], request)
 	
 	(fields, sort, start_date, end_date) = processApiCall(request)
@@ -51,12 +50,7 @@ def locationDecrypted(request):
 def buildUsersToReturn(auth_user, request):
 	users_to_return = []
 	roles = []
-	try: roles = [x.role for x in UserRole.objects.get(user=auth_user).roles.all()]
-	except: pass
-	if 'researcher' in roles:
-		users_to_return = [x.username for x in User.objects.filter().all()]
-	else:
-		users_to_return.append(auth_user.username)
+	users_to_return.append(auth_user.username)
 	return users_to_return
 
 def processApiCall(request):
