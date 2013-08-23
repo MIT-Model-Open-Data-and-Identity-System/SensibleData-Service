@@ -74,6 +74,9 @@ def decrypt_file(directory_to_decrypt, f):
 				#population_start = time.time()	
 				#database_single_population.load_file(f)
 				#log.log('Debug','Population time: ' + str(time.time()-population_start) + ' ms')
+			else:
+				fail.fail(curr_filename, myConnector['decryption_failed_path'], 'Could not decrypt file: ' + f)
+				return False
 			return True
 		else:
 			return False
