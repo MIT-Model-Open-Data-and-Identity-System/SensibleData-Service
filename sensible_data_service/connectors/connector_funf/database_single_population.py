@@ -38,8 +38,8 @@ def load_files(directory_to_load=myConnector['decrypted_path']):
 	
 	for f in raw_filenames:
 		population_start = time.time()	
-		load_file(f)
-		log.log('Debug','Population time: ' + str(time.time()-population_start) + ' ms')
+		inserted_counter = load_file(f)
+		log.log('Debug','ptime: %.4f'%(time.time()-population_start) + ';documents: '+str(inserted_counter))
 		
 
 def load_file(filename):
@@ -50,11 +50,12 @@ def load_file(filename):
 	anonymizerObject = Anonymizer()
 	
 	documents_to_insert = defaultdict(list)
-	
+	inserted_counter = 0
 	proc_dir = os.path.join(myConnector['decrypted_path'], 'processing')
 	if not os.path.exists(proc_dir):
 		os.makedirs(proc_dir)
 		
+	log.log('Debug', 'file '+filename)
 	decrypted_filepath = os.path.join(myConnector['decrypted_path'], filename)
 	processing_filepath = os.path.join(proc_dir,filename)
 	current_filepath = decrypted_filepath
@@ -74,14 +75,15 @@ def load_file(filename):
 			
 			# get the meta data from db file
 			meta = {}
-			(meta['device'], meta['uuid'], meta['device_id'], meta['sensible_token'], meta['device_bt_mac']) = \
-				cursor.execute('select device, uuid, device_id, sensible_token, device_bt_mac from file_info').fetchone()
+			(meta['device'], meta['uuid'], meta['device_id'], meta['sensible_token'], meta['device_bt_mac'], meta['timestamp']) = cursor.execute('select device, uuid, device_id, sensible_token, device_bt_mac, created from file_info').fetchone()
 			
 			meta['user'] = None
 			roles = []
 			try: 
-				user = get_user_name(meta['sensible_token'])
+				(user, token) = get_user_name(meta['sensible_token'], meta['device_id'], meta['timestamp'])
 				meta['user'] = user.username
+				meta['sensible_token'] = token
+				log.log('Debug', 'user '+meta['user']+' token '+str(token))
 				roles = roles = [x.role for x in UserRole.objects.get(user=user).roles.all()]
 			except: pass
 
@@ -105,17 +107,13 @@ def load_file(filename):
 				documents_to_insert[doc['probe']].append(dict(doc.items() + meta.items()))
 			
 			cursor.close();
-			#pdb.set_trace()
-			#log.log('Debug','DB reading time: ' + str(time.time() - reading_start) + ' s')
 			upload_start = time.time()
-			#pdb.set_trace()
 			for probe in documents_to_insert:
+				inserted_counter += len(documents_to_insert[probe])
 				try:
-					#TODO user
 					db.insert(documents_to_insert[probe], probe, roles)
 				except Exception as e:
-					log.log('Error', str(e) + ' not skipping the file though')
-			#log.log('Debug','DB upload time: ' + str(time.time() - upload_start) + ' s')	
+					pass
 			os.remove(current_filepath);
 			
 		except Exception as e:
@@ -127,7 +125,8 @@ def load_file(filename):
 			else:
 				pass
 			
-			return False
+			return 0
+	return inserted_counter
 
 def row_to_doc(row, user, anonymizerObject):
 	#pdb.set_trace()
@@ -156,17 +155,19 @@ def row_to_doc(row, user, anonymizerObject):
 		return None
 		
 		
-# returns the username associated with the token, or None, if the token is not valid
-def get_user_name(token):
-	# debug
-	# return 'DEBUG_USER'
+# returns the user associated with the token, or None, if the token is not valid
+def get_user_name(token, device_id, timestamp):
+	#workaround for missing token in the file
 	if len(token) == 0:
-		return None
+		authorization = authorization_manager.getAuthorizationForDevice('connector_funf.submit_data', device_id, timestamp)
+		if (authorization == None): return (None, None)
+		return (authorization.user, authorization.access_token.token)
+
 	if token in valid_tokens.keys():
 		return valid_tokens[token]
 	authorization = authorization_manager.getAuthorizationForToken('connector_funf.submit_data', token)
 	if (authorization == None):
-		return None
+		return (None, None)
 	else:
-		valid_tokens[token] = authorization.user.username
-		return authorization.user
+		valid_tokens[token] = (authorization.user, token)
+		return (authorization.user, token)
