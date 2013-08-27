@@ -30,6 +30,7 @@ class Trail(object):
         return list(collection)   
 
     def get_max_flow_id(self, collection_id):
+        collection_id = str(collection_id)
         max_flow_id = 0
         resultEntry = self.trail[collection_id].find_one(sort=[("flow_id", -1)])
         if (resultEntry is not None):
@@ -37,10 +38,7 @@ class Trail(object):
         return max_flow_id
 
     def get_study_user_entry(self, collection_id, flow_id):
-        print "flow id = ", flow_id, " collection_id = ", collection_id
-
         result = self.trail[collection_id].find_one({"flow_id" : flow_id})
-        print result
         return result
 
     def get_link(self, collection_id, flow_id):
