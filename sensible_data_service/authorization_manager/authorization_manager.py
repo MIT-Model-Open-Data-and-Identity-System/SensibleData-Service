@@ -16,6 +16,7 @@ import connectors.connector_funf.auth
 import connectors.connector_facebook.auth
 import connectors.connector_raw.auth
 
+
 def buildAuthUrl(connector, application=None):
 	if connector.connector_type == 'connector_funf':
 		return connectors.connector_funf.auth.buildAuthUrl()
@@ -78,6 +79,9 @@ def createAuthorization(response, device_id = None):
 	for scope in access_token.scope.all():
 		if device_id == None:
 			authorization = Authorization.objects.create(user=access_token.user, scope=scope, application=Application.objects.get(client=access_token.client), access_token=access_token, nonce=server_nonce, active=True, activated_at=time.time())
+
+                        # placeholder for auditor.user_enrollment(username, client_id or client secret directly)
+
 		else:
 			try:
 				authorization = Authorization.objects.create(user=access_token.user, scope=scope, application=Application.objects.get(client=access_token.client), access_token=access_token, nonce=server_nonce, active=True, activated_at=time.time(), device=Device.objects.get(user=access_token.user, device_id = device_id))
