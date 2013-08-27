@@ -19,15 +19,77 @@ If you believe this is an error, please contact <a href="mailto:research@sensibl
 
 <div class="row">
 
-	<div class="well span">
-		<h2>User</h2>
+	<div class="well span11">
+		<h2>You</h2>
 		<hr>
 		<p class="lead">username: {{ user.username }}</p>
 		<p class="lead">name: {{ user.first_name }} {{ user.last_name }}</p>
 		<p class="lead">email: {{ user.email }}</p>
 	</div>
 	
-	{{ application_values }}
+	<div class="well span11">
+		<h2>Data Access</h2>
+		<hr>
+			{% for application, params in application_values.items %}
+			<h2><a href="{{ params.uri }}">{{ application }} <button value="" class="btn btn-primary btn-small" style="margin-bottom: 2px"><i class="icon-chevron-right icon-white"></i><i class="icon-chevron-right icon-white"></i></button></a></h2>
+			
+				<p><h5>{{ params.description | safe}}</h5></p>
+				<p></hr></p>
+
+
+				<table class="table table-condensed table-striped">
+					<tbody >
+								<tr>
+										<td class="span8" style="border-top: none; vertical-align:middle;">
+											{% for scope, scope_params in params.scopes.items %}
+												<form method="get" action="{{ scope_params.auth_url.url }}">
+												{% if scope != 'message' and scope != 'status' %}
+													{% if scope_params.authorized == 1 %}
+														<div class="span6" style="border-color: #46a546; padding: 2px 3px 0px; -webkit-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px 3px 3px 3px; border-width:1px; border-style:solid; border-top-style:solid; margin: 20px 10px 20px">
+														<h4><div class="" style="margin:-13px 0px 0px; background-color:#46a546; text-align:center; padding: 4px 20px 4px; font-weight: bold; white-space: pre-wrap; -webkit-border-radius: 3px; -moz-border-radius: 3px 3px 3px 3px; border-radius: 0px 0px 3px 3px; color: #ffffff;"> can {{ scope_params.description | safe }}</div></h4>
+														<strong>{{ scope_params.description_extra | safe }}</strong>
+														</div>
+													{% else %}
+														<div class="span6" style="border-color: #c43c35; padding: 2px 3px 0px; -webkit-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px 3px 3px 3px; border-width:1px; border-style:solid; border-top-style:solid; margin: 20px 10px 20px"><input type="checkbox" name="scope_{{ scope }}" checked id="cb_{{ service }}_{{ application }}_{{ auth_uri }}_{{ scope }}" value="checked" hidden />
+														<h4><div class="" style="margin:-13px 0px 0px; background-color:#c43c35; text-align:center; padding: 4px 20px 4px; font-weight: bold; white-space: pre-wrap; -webkit-border-radius: 3px; -moz-border-radius: 3px 3px 3px 3px; border-radius: 0px 0px 3px 3px; color: #ffffff;"> not allowed to {{ scope_params.description | safe }} </div></h4>
+														<strong>{{ scope_params.description_extra | safe }}</strong>
+														</div>
+
+
+													{% endif %}
+										</td>
+										<td style="text-align:left; vertical-align:middle; border-top: none">
+										{% if scope_params.authorized == 0 %}
+											{% if auth_uri != '' %}
+											<p><button type="submit" name="submit" value="" class="btn btn-success btn-large">Allow <i class="icon-chevron-right icon-white"></i></button></p>
+											{% else %}
+											<button disabled value="" class="btn btn-success btn-large">{{ scope_params.message | safe}}</button>
+											{% endif %}
+
+											{% else %}
+											{% for auth in  scope_params.authorization %}
+											<p class="lead">Access Token <strong>{{ auth.access_token.token }}</strong> expires <script> document.write( new Date({{ auth.access_token.expire }}*1000) ) </script></p>
+											{% endfor %}
+											{% endif %}
+
+												{% endif %}
+											</form>
+										{% endfor %}
+
+									</td>
+
+							</tr>
+
+
+
+					</tbody>
+				</table>
+
+
+
+			{% endfor %}
+	</div>
+	
 
 </div>
 {% endif%}
