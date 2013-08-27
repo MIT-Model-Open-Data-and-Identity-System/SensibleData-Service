@@ -102,10 +102,8 @@ class Auditor(object):
 		# get secrets using client_id and platform config file
         client_secret = "fake_secret"
         platform_secret = "fake_secret"
-
-		key = hashlib.sha256(str(username)+str(client_secret)+str(platform_secret)).hexdigest()
-        
-		key_id = self.set_key(collection_id, key)
+        key = hashlib.sha256(str(username)+str(client_secret)+str(platform_secret)).hexdigest()
+        key_id = self.set_key(collection_id, key)
         entry_id = self.start_collection(collection_id)
         return key
 
