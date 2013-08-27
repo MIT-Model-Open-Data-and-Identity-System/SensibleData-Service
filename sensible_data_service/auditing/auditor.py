@@ -37,7 +37,9 @@ class Auditor(object):
 #######################################################################################
     def append(self, collection_id, data):
 
-#data extraction/treatment from the entry
+# sanity checks on 
+# collection_id [not None, not null, be sure that already exists]
+# data: that is of the agreed format
 
 # entry field creation
         timestamp = helper.get_timestamp() 
@@ -49,35 +51,47 @@ class Auditor(object):
         link = helper.link(checksum, previous_link, str(study_user_key))
         self.update_key(collection_id)     
         entry = self.assemble(timestamp, flow_id, saved_data, checksum, link) # <timestamp, flow_id, saved_data, checksum, link>
-        entry_id = self.trail.append(collection_id, entry) # finally, append
+        entry_id = self.trail.insert(collection_id, entry) # finally, append
         returned = (collection_id, flow_id, entry_id)
         return returned
 
-# Whatch out on timing-attacks. Read more about "break-on-inequality" algorithm to compare a candidate HMAC digest with the calculated digest is wrong.
+# Watch out on timing-attacks. Read more about "break-on-inequality" algorithm to compare a candidate HMAC digest with the calculated digest is wrong.
 # Add a caching system. Instead of connecting to the db for every single entry, cache a bunch of them locally.
-    def verify(self, collection_id, start, stop):
+    def verify(self, collection_id, start, stop, key):
 
         keep_looking = True
         audit = {}
         index = start
 
+        if (stop > self.trail.get_max_flow_id(collection_id)):
+            stop = self.trail.get_max_flow_id(collection_id)
+
+
+
         while (keep_looking and index <= stop):
 # get a single entry:
-            current_entry = self.trail.get_study_user_entry(collection_id, start)
+            current_entry = self.trail.get_study_user_entry(collection_id, index)
             print current_entry
 
+
 # check saved_data against checksum in the same entry: current saved data and current checksum. No key involved.
+
+            status_checksum = self.check_checksum(current_entry["saved_data"], current_entry["checksum"])
+            if ( not status_checksum["status"] ) :
+                keep_looking = False
+
 # check chain link: this checksum, the previous link and the previous key [to be generated from the master secret key] is equal to the current store value?
 
+            previous_link = self.trail.get_link(collection_id, index - 1)
+            status_link = self.check_link(previous_link, current_entry["checksum"], current_entry["link"], key, index)
+            if ( not status_link["status"]) :
+                keep_looking  = False
+
+
+            audit = {index : [status_checksum["status"], status_link["status"]]}
             index = index + 1
 
         return audit
-
-
-#    def user_enrollment(self, collection_id, key):
-#        key = self.set_key(collection_id, key)
-#        collection = self.start_collection(collection_id)
-#        return (key, collection)
 
 
 # TODO: add check if the 3-ple is not already present.
@@ -85,11 +99,17 @@ class Auditor(object):
 
         collection_id = username + "_" + str(client_id)
 # Check if already present:
+        message = ""
         if (self.get_study_user_trail(collection_id)):
-            print "Already present"
-            return False
+            message = message + collection_id + " log already present " 
 
-# get secrets using clien_id and platform config file
+        if (self.keystore.exists_collection(collection_id)):
+            message = message + "entry in the keystore already present"
+
+        if message != "" :
+            return message
+
+# get secrets using client_id and platform config file
 
         client_secret = "fake_secret"
         platform_secret = "fake_secret"
@@ -97,6 +117,8 @@ class Auditor(object):
         h = SHA256.new()
         h.update(username + client_secret + platform_secret)
         key = h.hexdigest()
+
+        print key
 
         key_id = self.set_key(collection_id, key)
         entry_id = self.start_collection(collection_id)
@@ -135,6 +157,25 @@ class Auditor(object):
         returned = self.trail.insert(collection_id, entry)
         return returned
 
+    
+
+
+# Leave this if later the user changes the pw
     def set_key(self, collection_id, key):
         return self.keystore.set_key(collection_id, key)
 
+
+    def check_checksum(self, saved_data, checksum):
+        status = False
+        temp_checksum = helper.checksum(saved_data)
+        if ( temp_checksum == checksum):
+            status = True
+        return {"status": status, "temp_checksum" : temp_checksum}
+    
+    def check_link(self, previous_link, checksum, link, key, index):
+        status = False
+        previous_key = helper.do_hash(index - 1, key)
+        temp_link = helper.link(checksum, previous_link, previous_key)
+        if ( temp_link == link):
+            status = True
+        return {"status": status, "temp_link" : temp_link}
