@@ -42,6 +42,7 @@ def getAuthorizationForToken(scope, token):
 	except Exception:
 		return None
 
+#TODO this needs to take application also
 def getAuthorizationForDevice(scope, device_id, timestamp):
 	lowest_delta = 999999999999999999999
 	final_auth = None
@@ -74,8 +75,13 @@ def createAuthorization(response, device_id = None):
 	if (not 'researcher' in roles) and (len(InformedConsent.objects.filter(user=access_token.user).all()) == 0):        
 		return {'error':'user is not enrolled in the study'}
 
+
+
 	server_nonce = hashlib.sha256(str(uuid.uuid4())).hexdigest()
 	for scope in access_token.scope.all():
+		if not 'researcher' in roles and 'researcher' in scope.scope:
+			continue
+
 		if device_id == None:
 			authorization = Authorization.objects.create(user=access_token.user, scope=scope, application=Application.objects.get(client=access_token.client), access_token=access_token, nonce=server_nonce, active=True, activated_at=time.time())
 		else:
