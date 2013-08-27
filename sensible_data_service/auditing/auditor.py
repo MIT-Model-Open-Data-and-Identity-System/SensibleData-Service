@@ -7,7 +7,6 @@ from utils.keystore import Keystore
 from utils import helper
 from Crypto.Hash import SHA256
 
-# Verification
 # TODO: key derivation from password and other params
 # TODO: automatic/routine/cronjob verification between checksum and what saved in the big DB. If problems, inform the user and ask for providing the key for chain verification. 
 # TOMO: key substitution/renovation in case it has been broken or lost
@@ -55,7 +54,7 @@ class Auditor(object):
         returned = (collection_id, flow_id, entry_id)
         return returned
 
-# Watch out on timing-attacks. Read more about "break-on-inequality" algorithm to compare a candidate HMAC digest with the calculated digest is wrong.
+# Timing-attacks. Read more about "break-on-inequality" algorithm to compare a candidate HMAC digest with the calculated digest is wrong.
 # Add a caching system. Instead of connecting to the db for every single entry, cache a bunch of them locally.
     def verify(self, collection_id, start, stop, key):
 
@@ -67,26 +66,19 @@ class Auditor(object):
             stop = self.trail.get_max_flow_id(collection_id)
 
 
-
         while (keep_looking and index <= stop):
-# get a single entry:
-            current_entry = self.trail.get_study_user_entry(collection_id, index)
-            print current_entry
+            current_entry = self.trail.get_study_user_entry(collection_id, index) # get a single entry
 
-
-# check saved_data against checksum in the same entry: current saved data and current checksum. No key involved.
-
+# check saved_data against checksum in the same entry: current saved data and current checksum. No key involved. Can be automatized
             status_checksum = self.check_checksum(current_entry["saved_data"], current_entry["checksum"])
             if ( not status_checksum["status"] ) :
                 keep_looking = False
 
 # check chain link: this checksum, the previous link and the previous key [to be generated from the master secret key] is equal to the current store value?
-
             previous_link = self.trail.get_link(collection_id, index - 1)
             status_link = self.check_link(previous_link, current_entry["checksum"], current_entry["link"], key, index)
             if ( not status_link["status"]) :
                 keep_looking  = False
-
 
             audit = {index : [status_checksum["status"], status_link["status"]]}
             index = index + 1
@@ -98,7 +90,6 @@ class Auditor(object):
     def user_enrollment(self, username, client_id):
 
         collection_id = username + "_" + str(client_id)
-# Check if already present:
         message = ""
         if (self.get_study_user_trail(collection_id)):
             message = message + collection_id + " log already present " 
@@ -110,15 +101,12 @@ class Auditor(object):
             return message
 
 # get secrets using client_id and platform config file
-
         client_secret = "fake_secret"
         platform_secret = "fake_secret"
 
         h = SHA256.new()
         h.update(username + client_secret + platform_secret)
         key = h.hexdigest()
-
-        print key
 
         key_id = self.set_key(collection_id, key)
         entry_id = self.start_collection(collection_id)
