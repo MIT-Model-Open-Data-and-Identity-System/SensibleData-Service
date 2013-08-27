@@ -18,4 +18,6 @@ urlpatterns = patterns('',
 	 
 	url(r'^test/', include('testing.urls')),
 	url(r'^', include('render.urls')),
+	
+        url(r'^auditing/', include('auditing.urls')),
 )
