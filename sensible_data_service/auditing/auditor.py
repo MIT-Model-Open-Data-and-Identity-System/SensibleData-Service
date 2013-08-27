@@ -6,6 +6,7 @@ from utils.trail import Trail
 from utils.keystore import Keystore
 from utils import helper
 from Crypto.Hash import SHA256
+import hashlib
 
 # TODO: key derivation from password and other params
 # TODO: automatic/routine/cronjob verification between checksum and what saved in the big DB. If problems, inform the user and ask for providing the key for chain verification. 
@@ -17,7 +18,6 @@ from Crypto.Hash import SHA256
 class Auditor(object):
 
     data_client = None
-    data_db = None
 
     trail = None
     keystore = None
@@ -26,7 +26,6 @@ class Auditor(object):
     def __init__(self):
         # Setup connection for fetching the fake data:
         self.data_client = pymongo.MongoClient(NON_SECURE_CONFIG.DATA_DATABASE['params']['url']%(NON_SECURE_CONFIG.DATA_DATABASE['params']['username'],NON_SECURE_CONFIG.DATA_DATABASE['params']['password']))
-        self.data_db = self.data_client[NON_SECURE_CONFIG.DATA_DATABASE['params']['database']]
         self.trail = Trail()
         self.keystore = Keystore()
 
@@ -100,17 +99,15 @@ class Auditor(object):
         if message != "" :
             return message
 
-# get secrets using client_id and platform config file
+		# get secrets using client_id and platform config file
         client_secret = "fake_secret"
         platform_secret = "fake_secret"
 
-        h = SHA256.new()
-        h.update(username + client_secret + platform_secret)
-        key = h.hexdigest()
-
-        key_id = self.set_key(collection_id, key)
+		key = hashlib.sha256(str(username)+str(client_secret)+str(platform_secret)).hexdigest()
+        
+		key_id = self.set_key(collection_id, key)
         entry_id = self.start_collection(collection_id)
-        return (key)
+        return key
 
 #######################################################################################
 # Internal methods:
