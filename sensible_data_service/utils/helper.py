@@ -49,9 +49,18 @@ def link(checksum, previous_link, study_user_key):
     hmac.update(previous_link)
     return hmac.hexdigest()
 
+# key = 128 hex digits
 def do_hash(rounds, key):
     for i in range(0,rounds):
         h = SHA512.new()
         h.update(key)
         key = h.hexdigest()
     return str(key)
+
+
+# PBKDF2 with random, unique salts and constant-time comparison:
+
+
+
+
+
