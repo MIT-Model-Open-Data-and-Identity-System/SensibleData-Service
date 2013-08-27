@@ -20,7 +20,7 @@ class Trail(object):
 
 
 # One collection every pair of <study, user>. collection_id = "<study_id> underscore <user_id>" = sensibledtu_riccardo
-    def append(self, collection_id, entry):
+    def insert(self, collection_id, entry):
         collection = self.trail[collection_id]
         record_id = collection.insert(entry)
         return str(record_id)
