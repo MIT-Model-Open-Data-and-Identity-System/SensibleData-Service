@@ -12,6 +12,7 @@ class Keystore(object):
 
 # TODO: change find_one with find_all and check that it MUST return ONLY 1 value. In other case, raise an exeption
     def get_key(self, collection_id):
+        print collection_id
         return self.keytable.find_one({"study_username" : collection_id}).get("key")
 
     def update_key(self, collection_id, key):
@@ -19,3 +20,6 @@ class Keystore(object):
 
     def set_key(self, collection_id, key):
         return self.keytable.insert({ "study_username" : collection_id, "key" : key})
+
+    def exists_collection(self, collection_id):
+        return self.keytable.find().count()
