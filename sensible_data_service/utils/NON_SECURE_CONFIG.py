@@ -21,7 +21,10 @@ TRAIL_DATABASE = {
 
 SETUP = {
     "flow_id" : 0,
-    "saved_data" : "this_is_the_first_saved_data",
+    "saved_data" : {
+        "key_1" : "value_1",
+        "key_2" : "value_2"
+        },
     "checksum" : "this_is_the_first_checksum",
     "link" : "this_is_the_first_link",
 }
