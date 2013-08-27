@@ -22,19 +22,12 @@ def append(request):
 
 # TODO: put the calls to the following method somewhere during the enrollment in the studies:
 
-#def user_enrollment(request):
-#    adtr = Auditor()
-#    collection_id = request.GET.get("collection_id")
-#    key = request.GET.get("key")
-#    returned = adtr.user_enrollment(collection_id, key)
-#    return HttpResponse(json.dumps(str(returned)))
-
 # can be called using getMaxFlowId
 def verify(request):
     collection_id = request.GET.get("collection_id")
     key = request.GET.get("key")
     adtr = Auditor()
-    returned = adtr.verify(collection_id, 0, 5)
+    returned = adtr.verify(collection_id, 1, 50, key)
     return HttpResponse(returned)
 
 def user_enrollment(request):
