@@ -140,7 +140,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 ROOT_URLCONF = 'sensible_data_service.urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.
-WSGI_APPLICATION = 'sensible_data_service.wsgi.application'
+#WSGI_APPLICATION = 'sensible_data_service.wsgi.application'
 
 TEMPLATE_DIRS = (
 	ROOT_DIR+'templates',
@@ -176,6 +176,8 @@ INSTALLED_APPS = (
     'documents',
     'render',
     'backup',
+
+    'auditing',
 )
 
 # A sample logging configuration. The only tangible logging
