@@ -9,14 +9,13 @@ from django.http import HttpResponse
 
 class Trail(object):
 
-    client = None
     trail = None
 
     def __init__(self):
     
         # Setup the connection to the db hosting the log
-        self.client = pymongo.MongoClient(NON_SECURE_CONFIG.TRAIL_DATABASE['params']['url']%(NON_SECURE_CONFIG.TRAIL_DATABASE['params']['username'],NON_SECURE_CONFIG.TRAIL_DATABASE['params']['password']))
-        self.trail = self.client[NON_SECURE_CONFIG.TRAIL_DATABASE['params']['database']]
+        client = pymongo.MongoClient(NON_SECURE_CONFIG.TRAIL_DATABASE['params']['url']%(NON_SECURE_CONFIG.TRAIL_DATABASE['params']['username'],NON_SECURE_CONFIG.TRAIL_DATABASE['params']['password']))
+        self.trail = client[NON_SECURE_CONFIG.TRAIL_DATABASE['params']['database']]
 
 
 # One collection every pair of <study, user>. collection_id = "<study_id> underscore <user_id>" = sensibledtu_riccardo

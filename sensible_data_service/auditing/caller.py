@@ -4,6 +4,11 @@ from django.http import HttpResponse
 import json
 from utils import NON_SECURE_CONFIG
 from auditor import Auditor
+from utils import helper
+
+CLIENT_ID = "sensibleDTU"
+USERNAME = "riccardo"
+KEY = "this_is_the_key"
 
 def ping(request):
     return HttpResponse(json.dumps("pong"))
@@ -16,26 +21,26 @@ def pull_data(self):
 ### This "append call" must be prepended to "utils/Database.py insert"
 def append(request):
     adtr = Auditor()
-    collection_id = request.GET.get("collection_id")
-    returned = adtr.append(collection_id, {"key" : "value"})
+    
+    collection_id = helper.collection_format(CLIENT_ID, USERNAME)
+    data = {"some key" : "some value"} 	
+    returned = adtr.append(collection_id, data)
     return HttpResponse(json.dumps(returned))
 
 # TODO: put the calls to the following method somewhere during the enrollment in the studies:
 
 # can be called using getMaxFlowId
 def verify(request):
-    collection_id = request.GET.get("collection_id")
-    key = request.GET.get("key")
+    collection_id = helper.collection_format(CLIENT_ID, USERNAME)
+    key = KEY
     adtr = Auditor()
     returned = adtr.verify(collection_id, 1, 50, key)
     return HttpResponse(returned)
 
 def user_enrollment(request):
-    username = "riccardo"
-    client_id = "sensibleDTU"
     adtr = Auditor()
-    key = adtr.user_enrollment(username, client_id)
-    return HttpResponse(key)
+    response = adtr.user_enrollment(CLIENT_ID, USERNAME)
+    return HttpResponse(response["data"])
 
 
 

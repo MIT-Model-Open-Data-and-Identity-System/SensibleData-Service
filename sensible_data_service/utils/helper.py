@@ -60,7 +60,8 @@ def do_hash(rounds, key):
 
 # PBKDF2 with random, unique salts and constant-time comparison:
 
-
+def collection_format(service, username):
+    return str(service) + "_" + str(username)
 
 
 

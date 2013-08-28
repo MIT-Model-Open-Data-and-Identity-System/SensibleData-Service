@@ -18,19 +18,38 @@ import hashlib
 class Auditor(object):
 		
     trail = None
-    keystore = None
+    evolving_keystore = None
+    secret_keystore = None
 		
     def __init__(self):
         # Setup connection for fetching the fake data:
-        self.data_client = pymongo.MongoClient(NON_SECURE_CONFIG.DATA_DATABASE['params']['url']%(NON_SECURE_CONFIG.DATA_DATABASE['params']['username'],NON_SECURE_CONFIG.DATA_DATABASE['params']['password']))
         self.trail = Trail()
-        self.keystore = Keystore()
+        self.evolving_keystore = Keystore("evolving")
+        self.secret_keystore = Keystore("secret")
+        print "HERE"
 
 #######################################################################################
 # API methods:
-#######################################################################################
-    def append(self, collection_id, data):
+######################################################################################
+    def user_enrollment(self, client_id, username):
+        status = {}
+        collection_id = helper.collection_format(client_id, username)
+	
+        if (self.get_study_user_trail(collection_id) or self.evolving_keystore.exists_collection(collection_id)):
+            status["code"] = -1
+            status["data"] = "3-ple username, client_secret, platform_secret already present in the trail"
+            return status
 
+        key = self.create_key(collection_id, username, client_id)
+        entry_id = self.start_collection(collection_id)
+
+        status["code"] = 0
+        status["data"] = key
+        return status
+
+
+
+    def append(self, collection_id, data):
 # sanity checks on: 
 # collection_id [not None, not null, be sure that already exists]
 # data: that is of the agreed format
@@ -40,13 +59,13 @@ class Auditor(object):
         flow_id = self.trail.get_max_flow_id(collection_id) + 1
         saved_data = helper.extract_info(data)
         checksum = helper.checksum(saved_data)
-        study_user_key = self.keystore.get_key(collection_id)
+        study_user_key = self.evolving_keystore.get_key(collection_id)
         previous_link = self.trail.get_link(collection_id, flow_id -1 )
         link = helper.link(checksum, previous_link, str(study_user_key))
         self.update_key(collection_id)     
         entry = self.assemble(timestamp, flow_id, saved_data, checksum, link) # <timestamp, flow_id, saved_data, checksum, link>
         entry_id = self.trail.insert(collection_id, entry) # finally, append
-        returned = (collection_id, flow_id, entry_id)
+        returned = (collection_id, flow_id)
         return returned
 
 # Timing-attacks. Read more about "break-on-inequality" algorithm to compare a candidate HMAC digest with the calculated digest is wrong.
@@ -59,7 +78,6 @@ class Auditor(object):
 
         if (stop > self.trail.get_max_flow_id(collection_id)):
             stop = self.trail.get_max_flow_id(collection_id)
-
 
         while (keep_looking and index <= stop):
             current_entry = self.trail.get_study_user_entry(collection_id, index) # get a single entry
@@ -81,31 +99,6 @@ class Auditor(object):
         return audit
 
 
-# TODO: add check if the 3-ple is not already present.
-	def user_enrollment(self, username, client_id):
-		status = {}
-		collection_id = username + "_" + str(client_id)
-			    
-		if (self.get_study_user_trail(collection_id)):
-			print " log already present " 
-			status["code"] = -1
-				
-		if (self.keystore.exists_collection(collection_id)):
-			print "entry in the keystore already present"
-			status["code"] = -2
-		
-		status["code"] = 0
-		print "ok"
-		
-		# TODO: get secrets using client_id and platform config file
-		client_secret = "fake_secret"
-		platform_secret = "fake_secret"
-		key = hashlib.sha256(str(username)+str(client_secret)+str(platform_secret)).hexdigest()
-		key_id = self.set_key(collection_id, key)
-		entry_id = self.start_collection(collection_id)
-		return key
-
-
 
 #######################################################################################
 # Internal methods:
@@ -116,18 +109,13 @@ class Auditor(object):
 
 
     def get_previous_entry(self, study, username, flow_id):
-        collection_id = study + "_" + user
+        collection_id = helper.collection_format(study, username)
         returned = self.trail.get_study_user_entry(collection_id, flow_id-1)
         return returned
 
 
-    def update_key(self, collection_id):
-        key = self.keystore.get_key(collection_id)
-        key = helper.do_hash(1,key)
-        self.keystore.update_key(collection_id, key)
        
-
-# TODO: add control: set a key only if for that collection the key does NOT exist yet. If it does, throw an exeption [ask for updating maybe, instead]      
+### Log related ###
 # TODO: move this to the trail, since it is DB dependent
     def assemble(self, timestamp, flow_id, saved_data, checksum, link):
         entry = {"timestamp":timestamp, "flow_id":flow_id, "saved_data":saved_data, "checksum":checksum, "link":link}
@@ -140,12 +128,36 @@ class Auditor(object):
         returned = self.trail.insert(collection_id, entry)
         return returned
 
-    
+
+### Key related ##
+
+# TODO: get secrets using client_id and platform config file
+    def create_key(self, collection_id, username, client_id):
+        client_secret = self.get_client_secret(client_id)
+        platform_secret = self.get_platform_secret()
+        key = None
+        if ( not self.evolving_keystore.exists_collection(collection_id) ):
+            key = hashlib.sha256(str(username)+str(client_secret)+str(platform_secret)).hexdigest()
+            self.evolving_keystore.set_key(collection_id, key)
+        return key
+
+    def get_client_secret(self, client_id):
+#TODO:  Do something to fetch the secret using the client_id
+        return "fake_client_secret"
+
+    def get_platform_secret(self):
+# TODO: Do something
+        return "fake_platform_secret"
 
 
-# Leave this if later the user changes the pw
-    def set_key(self, collection_id, key):
-        return self.keystore.set_key(collection_id, key)
+    def update_key(self, collection_id):
+        key = None
+        print self.evolving_keystore.exists_collection(collection_id)
+        if ( self.evolving_keystore.exists_collection(collection_id) ):
+            key = self.evolving_keystore.get_key(collection_id)
+            key = helper.do_hash(1,key)
+            self.evolving_keystore.update_key(collection_id, key)
+        return key
 
 
     def check_checksum(self, saved_data, checksum):
@@ -163,3 +175,4 @@ class Auditor(object):
         if ( temp_link == link):
             status = True
         return {"status": status, "temp_link" : temp_link}
+
