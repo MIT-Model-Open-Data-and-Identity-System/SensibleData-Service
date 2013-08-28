@@ -14,18 +14,17 @@ import hashlib
 # TOMO: chain restore if chain breaks
 # TOMO: Permissions
 
-
+	
 class Auditor(object):
-
+		
     trail = None
     keystore = None
-
+		
     def __init__(self):
         # Setup connection for fetching the fake data:
         self.data_client = pymongo.MongoClient(NON_SECURE_CONFIG.DATA_DATABASE['params']['url']%(NON_SECURE_CONFIG.DATA_DATABASE['params']['username'],NON_SECURE_CONFIG.DATA_DATABASE['params']['password']))
         self.trail = Trail()
         self.keystore = Keystore()
-
 
 #######################################################################################
 # API methods:
@@ -83,26 +82,30 @@ class Auditor(object):
 
 
 # TODO: add check if the 3-ple is not already present.
-    def user_enrollment(self, username, client_id):
-
-        collection_id = username + "_" + str(client_id)
-        message = ""
+	def user_enrollment(self, username, client_id):
+		status = {}
+		collection_id = username + "_" + str(client_id)
+		message = ""
         if (self.get_study_user_trail(collection_id)):
-            message = message + collection_id + " log already present " 
-
+			print " log already present " 
+			status["code"] = -1
+	
         if (self.keystore.exists_collection(collection_id)):
-            message = message + "entry in the keystore already present"
+			print "entry in the keystore already present"
+			status["code"] = -2
 
-        if message != "" :
-            return message
+        status["code"] = 0
+        print "ok"
 
-		# get secrets using client_id and platform config file
+# TODO: get secrets using client_id and platform config file
         client_secret = "fake_secret"
         platform_secret = "fake_secret"
         key = hashlib.sha256(str(username)+str(client_secret)+str(platform_secret)).hexdigest()
         key_id = self.set_key(collection_id, key)
         entry_id = self.start_collection(collection_id)
         return key
+
+
 
 #######################################################################################
 # Internal methods:
@@ -151,6 +154,7 @@ class Auditor(object):
         if ( temp_checksum == checksum):
             status = True
         return {"status": status, "temp_checksum" : temp_checksum}
+
     
     def check_link(self, previous_link, checksum, link, key, index):
         status = False

@@ -31,8 +31,8 @@ def verify(request):
     return HttpResponse(returned)
 
 def user_enrollment(request):
-    username = request.GET.get("username")
-    client_id = request.GET.get("client_id")
+    username = "riccardo"
+    client_id = "sensibleDTU"
     adtr = Auditor()
     key = adtr.user_enrollment(username, client_id)
     return HttpResponse(key)
