@@ -85,25 +85,25 @@ class Auditor(object):
 	def user_enrollment(self, username, client_id):
 		status = {}
 		collection_id = username + "_" + str(client_id)
-		message = ""
-        if (self.get_study_user_trail(collection_id)):
-		print " log already present " 
-		status["code"] = -1
-	
-        if (self.keystore.exists_collection(collection_id)):
-		print "entry in the keystore already present"
-		status["code"] = -2
-
-        status["code"] = 0
-        print "ok"
-
-# TODO: get secrets using client_id and platform config file
-        client_secret = "fake_secret"
-        platform_secret = "fake_secret"
-        key = hashlib.sha256(str(username)+str(client_secret)+str(platform_secret)).hexdigest()
-        key_id = self.set_key(collection_id, key)
-        entry_id = self.start_collection(collection_id)
-        return key
+			    
+		if (self.get_study_user_trail(collection_id)):
+			print " log already present " 
+			status["code"] = -1
+				
+		if (self.keystore.exists_collection(collection_id)):
+			print "entry in the keystore already present"
+			status["code"] = -2
+		
+		status["code"] = 0
+		print "ok"
+		
+		# TODO: get secrets using client_id and platform config file
+		client_secret = "fake_secret"
+		platform_secret = "fake_secret"
+		key = hashlib.sha256(str(username)+str(client_secret)+str(platform_secret)).hexdigest()
+		key_id = self.set_key(collection_id, key)
+		entry_id = self.start_collection(collection_id)
+		return key
 
 
 
