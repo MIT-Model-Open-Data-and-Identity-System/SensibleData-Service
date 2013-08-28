@@ -26,7 +26,7 @@ SECRET_KEY_DATABASE = {
         "database":"secret_key_database" ,
         "username":"cardoppler", 
         "password":"cardoppler",
-	"secret":"secret",
+	"secret":"secret"
     }
 }
 SETUP = {
