@@ -17,11 +17,8 @@ import hashlib
 
 class Auditor(object):
 
-    data_client = None
-
     trail = None
     keystore = None
-
 
     def __init__(self):
         # Setup connection for fetching the fake data:
@@ -35,7 +32,7 @@ class Auditor(object):
 #######################################################################################
     def append(self, collection_id, data):
 
-# sanity checks on 
+# sanity checks on: 
 # collection_id [not None, not null, be sure that already exists]
 # data: that is of the agreed format
 
