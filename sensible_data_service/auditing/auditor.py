@@ -26,7 +26,6 @@ class Auditor(object):
         self.trail = Trail()
         self.evolving_keystore = Keystore("evolving")
         self.secret_keystore = Keystore("secret")
-        print "HERE"
 
 #######################################################################################
 # API methods:
@@ -70,11 +69,12 @@ class Auditor(object):
 
 # Timing-attacks. Read more about "break-on-inequality" algorithm to compare a candidate HMAC digest with the calculated digest is wrong.
 # Add a caching system. Instead of connecting to the db for every single entry, cache a bunch of them locally.
-    def verify(self, collection_id, start, stop, key):
+    def verify(self, collection_id, start, stop):
 
         keep_looking = True
         audit = {}
         index = start
+        key = self.secret_keystore.get_key(collection_id)
 
         if (stop > self.trail.get_max_flow_id(collection_id)):
             stop = self.trail.get_max_flow_id(collection_id)
@@ -138,7 +138,8 @@ class Auditor(object):
         key = None
         if ( not self.evolving_keystore.exists_collection(collection_id) ):
             key = hashlib.sha256(str(username)+str(client_secret)+str(platform_secret)).hexdigest()
-            self.evolving_keystore.set_key(collection_id, key)
+            self.secret_keystore.set_key(collection_id, key) # only when a new user is created this key is created
+            self.evolving_keystore.set_key(collection_id, key) # this key will always be evolved instead
         return key
 
     def get_client_secret(self, client_id):
