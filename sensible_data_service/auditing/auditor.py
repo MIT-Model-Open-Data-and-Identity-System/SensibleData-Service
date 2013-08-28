@@ -8,11 +8,14 @@ from utils import helper
 from Crypto.Hash import SHA256
 import hashlib
 
-# TODO: key derivation from password and other params
-# TODO: automatic/routine/cronjob verification between checksum and what saved in the big DB. If problems, inform the user and ask for providing the key for chain verification. 
-# TOMO: key substitution/renovation in case it has been broken or lost
+# TODO: Data format
+# TODO: Placeholder for 1) user registration, 2) document insertion in the db
+# TODO: Follow the entire flow and check if everything is good in the db
+# TODO: key substitution/renovation in case it has been broken or lost
+
+# TOMO: automatic/routine/cronjob verification between checksum and what saved in the big DB. If problems, inform the user and ask for providing the key for chain verification. 
 # TOMO: chain restore if chain breaks
-# TOMO: Permissions
+# TOMO: Need permissions?
 
 	
 class Auditor(object):
@@ -22,7 +25,6 @@ class Auditor(object):
     secret_keystore = None
 		
     def __init__(self):
-        # Setup connection for fetching the fake data:
         self.trail = Trail()
         self.evolving_keystore = Keystore("evolving")
         self.secret_keystore = Keystore("secret")
@@ -49,9 +51,9 @@ class Auditor(object):
 
 
     def append(self, collection_id, data):
-# sanity checks on: 
-# collection_id [not None, not null, be sure that already exists]
-# data: that is of the agreed format
+# sanity checks if: 
+# - collection_id [not None, not null, be sure that already exists]
+# - data: that is of the agreed format
 
 # entry field creation
         timestamp = helper.get_timestamp() 
@@ -113,7 +115,6 @@ class Auditor(object):
         returned = self.trail.get_study_user_entry(collection_id, flow_id-1)
         return returned
 
-
        
 ### Log related ###
 # TODO: move this to the trail, since it is DB dependent
@@ -130,8 +131,6 @@ class Auditor(object):
 
 
 ### Key related ##
-
-# TODO: get secrets using client_id and platform config file
     def create_key(self, collection_id, username, client_id):
         client_secret = self.get_client_secret(client_id)
         platform_secret = self.get_platform_secret()
