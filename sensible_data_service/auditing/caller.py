@@ -8,7 +8,6 @@ from utils import helper
 
 CLIENT_ID = "sensibleDTU"
 USERNAME = "riccardo"
-KEY = "this_is_the_key"
 
 def ping(request):
     return HttpResponse(json.dumps("pong"))
@@ -32,9 +31,8 @@ def append(request):
 # can be called using getMaxFlowId
 def verify(request):
     collection_id = helper.collection_format(CLIENT_ID, USERNAME)
-    key = KEY
     adtr = Auditor()
-    returned = adtr.verify(collection_id, 1, 50, key)
+    returned = adtr.verify(collection_id, 1, 50)
     return HttpResponse(returned)
 
 def user_enrollment(request):
