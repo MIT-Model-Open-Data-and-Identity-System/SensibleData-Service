@@ -87,12 +87,12 @@ class Auditor(object):
 		collection_id = username + "_" + str(client_id)
 		message = ""
         if (self.get_study_user_trail(collection_id)):
-			print " log already present " 
-			status["code"] = -1
+		print " log already present " 
+		status["code"] = -1
 	
         if (self.keystore.exists_collection(collection_id)):
-			print "entry in the keystore already present"
-			status["code"] = -2
+		print "entry in the keystore already present"
+		status["code"] = -2
 
         status["code"] = 0
         print "ok"
