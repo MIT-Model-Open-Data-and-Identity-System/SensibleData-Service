@@ -23,3 +23,5 @@ sensible_data_service/connectors/connector_funf/resp.html
 *.db
 
 sensible_data_service/connectors/connector_funf/multi_tester.py
+
+sensible_data_service/sensible_data_service/settings.py
