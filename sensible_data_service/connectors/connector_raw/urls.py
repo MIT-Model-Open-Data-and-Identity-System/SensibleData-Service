@@ -2,6 +2,7 @@ from django.conf.urls import patterns, include, url
 
 urlpatterns = patterns('connectors.connector_raw',
          url(r'^v1/location/', 'location.location'),
+         url(r'^v1/user/', 'user.user'),
          url(r'^v1/bluetooth/', 'bluetooth.bluetooth'),
          url(r'^v1/questionnaire/', 'questionnaire.questionnaire'),
 
