@@ -21,12 +21,14 @@ def location(request):
 	auth = authorization_manager.authenticate_token(request)
 
 	if 'error' in auth:
-		return HttpResponse(json.dumps(auth), status=401)
+		response = {'meta':{'status':{'status':'error','code':401,'desc':auth['error']}}}
+		return HttpResponse(json.dumps(response), status=401, content_type="application/json")
 
 	auth_scopes = set([x for x in auth['scope']])
 
 	if len(accepted_scopes & auth_scopes) == 0:
-		return HttpResponse(json.dumps({'error':'token not authorized for any accepted scope %s'%str(list(accepted_scopes))}), status=401)
+		response = {'meta':{'status':{'status':'error','code':401,'desc':'token not authorized for any accepted scope %s'%str(list(accepted_scopes))}}}
+		return HttpResponse(json.dumps(response), status=401)
 	
 	if ('dummy' in request.REQUEST.keys()):
 		return HttpResponse('[]', content_type="application/json")
@@ -69,13 +71,22 @@ def locationBuild(request, users_to_return, decrypted = False, own_data = False,
 	#Let's not build indexes like that, this may be very ineficcient (blocking index building, no control over space); we also should NOT build indexes in background, bad experience with data consistency
 
 #		if proc_req['sortby'] is None:
-#			db.db[collection].ensure_index([('data.TIMESTAMP',-1),('_id',1)])
+#		db.db[collection].ensure_index([('data.TIMESTAMP',-1),('_id',1)])
+#		db.db[collection].ensure_index([('data.TIMESTAMP',1),('_id',1)])
+#		db.db[collection].ensure_index([('user',1),('_id',1)])
 #		else:
 #			db.db[collection].ensure_index([(proc_req['sortby'],proc_req['order']), ('_id',1)])
 		
 		docs = db.getDocumentsCustom(query=query, collection=collection,\
 				fields = proc_req['fields'])
 
+		### hinting
+		# if the users are specified, we use the hint with users
+		if proc_req['users'] is not None:
+			docs = docs.hint([('data.TIMESTAMP',proc_req['order']), ('_id',1), ('user',1)])
+		# else, we use only id and timestamp
+		else:
+			docs = docs.hint([('data.TIMESTAMP',proc_req['order']), ('_id',1)])
 		#pagination (skipping)
 		if proc_req['after'] is not None:
 			docs = docs.skip(1)
@@ -97,7 +108,8 @@ def locationBuild(request, users_to_return, decrypted = False, own_data = False,
 			response['meta']['paging']['cursors'] = {}
 			response['meta']['paging']['cursors']['after'] =\
 					{proc_req['sortby']:getValueOfFullKey(results[-1], proc_req['sortby']),\
-					'_id':results[-1]['_id']}
+					'_id':results[-1]['_id'],
+					'user':results[-1]['user']}
 			if results_count == proc_req['limit']:
 				if proc_req['after'] is not None:	
 					response['meta']['paging']['links'] =\
@@ -170,41 +182,58 @@ def processApiCall(request, users_to_return):
 	response['after'] = None
 
 	### deal with sorting
-	sortby = request.REQUEST.get('sortby',None)
-	if sortby is not None:
-		response['sortby'] = sortby
-		order = request.REQUEST.get('order',None)
-		if order is not None:
-			if order in ['-1', '1']:
-				response['order'] = int(order)
-			else:
-				raise BadRequestException('error',400,str(order) + ' is not a valid value for order parameter. Use 1 for ascending or -1 for descending')
+	# sorting will be supported lated. Now, we can only sort by data.TIMESTAMP, either asc or desc
+	response['sortby'] = 'data.TIMESTAMP'
+	if request.REQUEST.get('order', None) is not None:
+		if request.REQUEST.get('order',None) not in ['-1','1']:
+			raise BadRequestException('error',400,str(request.REQUEST.get('order')) + ' is not a valid value for order parameter. Use 1 for ascending or -1 for descending')
 		else:
-			raise BadRequestException('error',400,'You have to specify the order of sorting. Use 1 for ascending or -1 for descending')
+			response['order'] = int(request.REQUEST.get('order'))
+	elif request.REQUEST.get('sort', None) is not None:
+		if request.REQUEST.get('sort',None) not in ['-1','1']:
+			raise BadRequestException('error',400,str(request.REQUEST.get('sort')) + ' is not a valid value for order parameter. Use 1 for ascending or -1 for descending')
+		else:
+			response['order'] = int(request.REQUEST.get('sort'))
 	else:
-		#@ FIXME <deprecated>
-		sort = request.REQUEST.get('sort',None)
-		if sort is not None:
-			if sort not in ['-1', '1']:
-				raise BadRequestException('error',400,str(sort) + ' is not a valid value for order parameter. Use 1 for ascending or -1 for descending')
-			else:
-				response['sortby'] = 'data.TIMESTAMP'
-				response['order'] = int(sort)
-		#@ FIXME </deprecated>
-		else:
-			response['sortby'] = 'data.TIMESTAMP'
-			if request.REQUEST.get('order',None) is not None:
-				if request.REQUEST.get('order',None) in ['-1','1']:
-					response['order'] = int(request.REQUEST.get('order',None))
-				else:
-					raise BadRequestException('error',400,str(request.REQUEST.get('order')) + ' is not a valid value for order parameter. Use 1 for ascending or -1 for descending')	
-			else:
-				response['order'] = -1
+		response['order'] = -1
+#	sortby = request.REQUEST.get('sortby',None)
+#	if sortby is not None:
+#		response['sortby'] = sortby
+#		order = request.REQUEST.get('order',None)
+#		if order is not None:
+#			if order in ['-1', '1']:
+#				response['order'] = int(order)
+#			else:
+#				raise BadRequestException('error',400,str(order) + ' is not a valid value for order parameter. Use 1 for ascending or -1 for descending')
+#		else:
+#			raise BadRequestException('error',400,'You have to specify the order of sorting. Use 1 for ascending or -1 for descending')
+#	else:
+#		#@ FIXME <deprecated>
+#		sort = request.REQUEST.get('sort',None)
+#		if sort is not None:
+#			if sort not in ['-1', '1']:
+#				raise BadRequestException('error',400,str(sort) + ' is not a valid value for order parameter. Use 1 for ascending or -1 for descending')
+#			else:
+#				response['sortby'] = 'data.TIMESTAMP'
+#				response['order'] = int(sort)
+#		#@ FIXME </deprecated>
+#		else:
+#			response['sortby'] = 'data.TIMESTAMP'
+#			if request.REQUEST.get('order',None) is not None:
+#				if request.REQUEST.get('order',None) in ['-1','1']:
+#					response['order'] = int(request.REQUEST.get('order',None))
+#				else:
+#					raise BadRequestException('error',400,str(request.REQUEST.get('order')) + ' is not a valid value for order parameter. Use 1 for ascending or -1 for descending')	
+#			else:
+#				response['order'] = -1
 	
 	### deal with fields
 	fields_string = request.REQUEST.get('fields', '')
 	if len(fields_string) > 0:
-		response['fields'] = {}
+		response['fields'] = {\
+                                'user':1,\
+                                'data.TIMESTAMP':1,\
+                                '_id':1}
 		for field in fields_string.split(','):
 			if len(field) > 0 and field != 'sensible_token':
 				response['fields'][field] = 1
@@ -267,7 +296,7 @@ def buildQuery(users_to_return, request):
 		#else:
 		#	query['$max'] = request['after']
 
-	query['$hint'] = {request['sortby'] : request['order'], '_id':1}
+	#query['$hint'] = {str(request['sortby']) : request['order'], '_id':1}
 	
 	if request['end_date'] is not None or request['start_date'] is not None:
 		query['$query']['data.TIMESTAMP'] = {}
