@@ -58,7 +58,7 @@ def facebook_request(request):
 		db = database.Database()
 		for x in sections:
 			values[x+'_doc'] = db.db['dk_dtu_compute_facebook_'+x].count()
-			values[x+'_users'] = len(db.db['dk_dtu_compute_facebook_'+x].distinct('facebook_id'))
+			values[x+'_users'] = len(db.db['dk_dtu_compute_facebook_'+x].distinct('user'))
 	except: pass
 	return HttpResponse(json.dumps(values))
 
