@@ -66,16 +66,7 @@ def locationBuild(request, users_to_return, decrypted = False, own_data = False,
 		collection = 'edu_mit_media_funf_probe_builtin_LocationProbe'
 		if own_data and 'researcher' in roles: collection += '_researcher'
 
-		
 		db = database.Database()
-	#Let's not build indexes like that, this may be very ineficcient (blocking index building, no control over space); we also should NOT build indexes in background, bad experience with data consistency
-
-#		if proc_req['sortby'] is None:
-#		db.db[collection].ensure_index([('data.TIMESTAMP',-1),('_id',1)])
-#		db.db[collection].ensure_index([('data.TIMESTAMP',1),('_id',1)])
-#		db.db[collection].ensure_index([('user',1),('_id',1)])
-#		else:
-#			db.db[collection].ensure_index([(proc_req['sortby'],proc_req['order']), ('_id',1)])
 		
 		docs = db.getDocumentsCustom(query=query, collection=collection,\
 				fields = proc_req['fields'])
@@ -182,7 +173,7 @@ def processApiCall(request, users_to_return):
 	response['after'] = None
 
 	### deal with sorting
-	# sorting will be supported lated. Now, we can only sort by data.TIMESTAMP, either asc or desc
+	# sorting will be supported later. Now, we can only sort by data.TIMESTAMP, either asc or desc
 	response['sortby'] = 'data.TIMESTAMP'
 	if request.REQUEST.get('order', None) is not None:
 		if request.REQUEST.get('order',None) not in ['-1','1']:
