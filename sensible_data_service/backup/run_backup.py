@@ -4,6 +4,45 @@ import time
 import os
 import shutil
 from utils import SECURE_settings
+import glacier
+import shelve
+import boto
+
+def uploadToGlacier(filename):
+	inventory = shelve.open(settings.ROOT_DIR+'backup/'+'SECURE_sensibledtu1k_glacier_inventory')
+	glacier_connection = boto.connect_glacier(aws_access_key_id=SECURE_settings.GLACIER['ACCESS_KEY_ID'], aws_secret_access_key=SECURE_settings.GLACIER['SECRET_ACCESS_KEY'], region_name='eu-west-1')
+	vault = glacier_connection.get_vault(SECURE_settings.GLACIER['VAULT'])
+	archive_id = glacier.upload(inventory, vault, filename)
+	inventory.close()
+	print archive_id
+	return archive_id
+
+def run_upload_to_glacier():
+
+	current_folder = buildHourlyFolder(hours_delta = 0, days_delta = 3)
+	BACKUP_DIR = settings.DATA_BACKUP_DIR
+	print 'running upload to glacier'
+	print BACKUP_DIR
+	print current_folder
+
+	for hourly_folder in os.listdir(BACKUP_DIR):
+		if not hourly_folder < current_folder: continue
+		if not 'tar.gz' in hourly_folder: continue
+		print 'to upload: ', hourly_folder
+		folder_name = os.path.join(BACKUP_DIR, hourly_folder)
+		print 'trying: ',folder_name
+		archive_id = uploadToGlacier(folder_name)
+		if archive_id == None:
+			print 'failed: ', folder_name
+			continue
+		try: shutil.move(folder_name, os.path.join(BACKUP_DIR, '9999_uploaded_to_glacier/'))
+		except IOError: 
+			os.mkdir(os.path.join(BACKUP_DIR, '9999_uploaded_to_glacier/'))
+			shutil.move(folder_name, os.path.join(BACKUP_DIR, '9999_uploaded_to_glacier/'))
+		print 'success: ', folder_name
+	
+	return True
+
 
 def run_backup():
 	current_folder = buildHourlyFolder(hours_delta = 0, days_delta = 1)
