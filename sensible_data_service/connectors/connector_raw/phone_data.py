@@ -10,13 +10,20 @@ import urllib
 import time
 from connector_utils import *
 
+
+def bluetooth(request):
+	return get_data(request, PHONE_DATA_SETTINGS['bluetooth'])
+
 def location(request):
+	return get_data(request, PHONE_DATA_SETTINGS['location'])
+
+def get_data(request, probe_settings):
 	decrypted = booleanize(request.REQUEST.get('decrypted', False))
 
 	if decrypted:
-		accepted_scopes = set(['connector_raw.location', 'connector_raw.all_data'])
+		accepted_scopes = set([probe_settings['scope'], 'connector_raw.all_data'])
 	else:
-		accepted_scopes = set(['connector_raw.location', 'connector_raw.all_data', 'connector_raw.all_data_researcher'])
+		accepted_scopes = set([probe_settings['scope'], 'connector_raw.all_data', 'connector_raw.all_data_researcher'])
 
 	auth = authorization_manager.authenticate_token(request)
 
@@ -36,8 +43,9 @@ def location(request):
 	is_researcher = False
 	for s in auth_scopes:
 		if s == 'connector_raw.all_data_researcher': is_researcher = True
-
+	
 	users_to_return = buildUsersToReturn(auth['user'], request, is_researcher = is_researcher)
+	#return HttpResponse(str((users_to_return)) + ', ' + str(is_researcher))
 	roles = []
 	try: roles = [x.role for x in UserRole.objects.get(user=auth['user']).roles.all()]
 	except: pass
@@ -46,9 +54,9 @@ def location(request):
 	if len(users_to_return) == 1 and users_to_return[0] == auth['user'].username: own_data = True
 
 
-	return locationBuild(request, users_to_return, decrypted = decrypted, own_data = own_data, roles = roles)
+	return dataBuild(request, probe_settings, users_to_return, decrypted = decrypted, own_data = own_data, roles = roles)
 
-def locationBuild(request, users_to_return, decrypted = False, own_data = False, roles = []):
+def dataBuild(request, probe_settings, users_to_return, decrypted = False, own_data = False, roles = []):
 	_start_time = time.time()
 	
 	pretty = booleanize(request.REQUEST.get('pretty', False))
@@ -61,9 +69,9 @@ def locationBuild(request, users_to_return, decrypted = False, own_data = False,
 	try:
 		if len(users_to_return) == 0:
 			raise BadRequestException('error',403,'The current token does not allow to view data from any users')
-		proc_req = processApiCall(request, users_to_return)
+		proc_req = processApiCall(request, probe_settings, users_to_return)
 		query = buildQuery(users_to_return, proc_req)	
-		collection = 'edu_mit_media_funf_probe_builtin_LocationProbe'
+		collection = probe_settings['collection']
 		if own_data and 'researcher' in roles: collection += '_researcher'
 
 		db = database.Database()
@@ -149,14 +157,12 @@ def buildUsersToReturn(auth_user, request, is_researcher = False):
 			users_to_return = requested_users
 		else: users_to_return.append('all')
 		return users_to_return
-
-
 	return users_to_return
 
-def processApiCall(request, users_to_return):
+def processApiCall(request, probe_settings, users_to_return):
 	
 	response = {}
-	api_params = ['bearer_token','pretty','decrypted','sortby','order','fields','start_date','end_date','limit','users','after','callback']
+	api_params = ['bearer_token','pretty','decrypted','order','fields','start_date','end_date','limit','users','after','callback']
 	for k in request.REQUEST.keys():
 		if k not in api_params:
 			raise BadRequestException('error',400, str(k) + ' is not a legal API parameter.'\
@@ -195,13 +201,7 @@ def processApiCall(request, users_to_return):
 				response['fields'][field] = 1
 	# default set of fields
 	else:
-		response['fields'] = {\
-				'user':1,\
-				'data.TIMESTAMP':1,\
-				'_id':1,\
-				'data.LOCATION.geojson.coordinates':1,\
-				'data.LOCATION.mProvider':1,\
-				'data.LOCATION.mAccuracy':1}
+		response['fields'] = probe_settings['default_fields'] 
 	# always add the field by which sorting is done
 	#if response['sortby'] not in response['fields'].keys():
 	#	response['fields'][response['sortby']] = 1
