@@ -17,10 +17,14 @@ class Database:
 		doc_id = coll.insert(documents, continue_on_error=True)
 		return doc_id
 
-	def getDocuments(self, query, collection):
+	def getDocuments(self, query, collection, roles = None):
+		if roles and 'researcher' in roles:
+			collection += '_researcher'
 		coll = self.db[collection]
 		return coll.find(query)
 
-	def getDocumentsCustom(self, query, collection, fields):
+	def getDocumentsCustom(self, query, collection, fields, roles = None):
+		if roles and 'researcher' in roles:
+			collection += '_researcher'
 		coll = self.db[collection]
-		return coll.find(spec=query, fields=fields)
+		return coll.find(query, fields)

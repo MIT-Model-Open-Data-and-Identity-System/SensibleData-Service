@@ -59,9 +59,13 @@ def authorize_refreshed(request):
 		try: roles = [x.role for x in UserRole.objects.get(user=authorizer.user).roles.all()]
 		except: pass
 
-		#if len(InformedConsent.objects.filter(user=authorizer.user).all()) == 0:
 		if (not 'researcher' in roles) and (len(InformedConsent.objects.filter(user=authorizer.user).all()) == 0):
 			return render_to_response('not_enrolled.html', {'platform_url':settings.PLATFORM['platform_uri']}, RequestContext(request))
+
+		#TODO make this is into a policy module rather than hardcoded policy(place, user) return True/False
+		if not 'researcher' in roles:
+			authorizer.access_ranges = [x for x in authorizer.access_ranges if 'researcher' not in x.scope]
+
 
 		template = {
 				"client":authorizer.client,
@@ -80,6 +84,7 @@ def authorize_refreshed(request):
 				template,
 				RequestContext(request))
 	elif request.method == 'POST':
+		#TODO here we should prevent event the access token from being created according to policy
 		form = AuthorizeForm(request.POST)
 		if form.is_valid():
 			if request.POST.get("connect") == "Yes":

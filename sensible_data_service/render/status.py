@@ -25,6 +25,8 @@ def status(request):
 		return questionnaires_request(request)
 	if query =='facebook':
 		return facebook_request(request)
+	if query =='mobile':
+		return mobile_request(request)
 
 def users_request(request):
 	values = {}
@@ -59,6 +61,17 @@ def facebook_request(request):
 		for x in sections:
 			values[x+'_doc'] = db.db['dk_dtu_compute_facebook_'+x].count()
 			values[x+'_users'] = len(db.db['dk_dtu_compute_facebook_'+x].distinct('user'))
+	except: pass
+	return HttpResponse(json.dumps(values))
+
+def mobile_request(request):
+	values = {}
+	sections =['BluetoothProbe','CallLogProbe','CellProbe','ContactProbe','HardwareInfoProbe','LocationProbe','ScreenProbe','SMSProbe','TimeOffsetProbe','WifiProbe']
+	try:
+		db = database.Database()
+		for x in sections:
+			values[x+'_doc'] = db.db['edu_mit_media_funf_probe_builtin_'+x].count()
+			values[x+'_users'] = len(db.db['edu_mit_media_funf_probe_builtin_'+x].distinct('user'))
 	except: pass
 	return HttpResponse(json.dumps(values))
 
