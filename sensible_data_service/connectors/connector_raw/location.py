@@ -94,7 +94,10 @@ def locationBuild(request, users_to_return, decrypted = False, own_data = False,
 		#apply limit
 		docs.limit(proc_req['limit'])
 
-		results = cursorToArray(docs)
+		try:
+			results = cursorToArray(docs)
+		except Exception as e:
+			raise BadRequestException('error',500,'The request caused a DB malfunction: ' + str(e))
 		results_count = len(results)
 
 		response['meta']['status'] = proc_req['status']
