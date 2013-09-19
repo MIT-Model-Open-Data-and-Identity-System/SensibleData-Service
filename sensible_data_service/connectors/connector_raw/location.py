@@ -66,16 +66,7 @@ def locationBuild(request, users_to_return, decrypted = False, own_data = False,
 		collection = 'edu_mit_media_funf_probe_builtin_LocationProbe'
 		if own_data and 'researcher' in roles: collection += '_researcher'
 
-		
 		db = database.Database()
-	#Let's not build indexes like that, this may be very ineficcient (blocking index building, no control over space); we also should NOT build indexes in background, bad experience with data consistency
-
-#		if proc_req['sortby'] is None:
-#		db.db[collection].ensure_index([('data.TIMESTAMP',-1),('_id',1)])
-#		db.db[collection].ensure_index([('data.TIMESTAMP',1),('_id',1)])
-#		db.db[collection].ensure_index([('user',1),('_id',1)])
-#		else:
-#			db.db[collection].ensure_index([(proc_req['sortby'],proc_req['order']), ('_id',1)])
 		
 		docs = db.getDocumentsCustom(query=query, collection=collection,\
 				fields = proc_req['fields'])
@@ -165,7 +156,7 @@ def buildUsersToReturn(auth_user, request, is_researcher = False):
 def processApiCall(request, users_to_return):
 	
 	response = {}
-	api_params = ['bearer_token','pretty','decrypted','sortby','order','fields','start_date','end_date','limit','users','after','sort', 'callback']
+	api_params = ['bearer_token','pretty','decrypted','sortby','order','fields','start_date','end_date','limit','users','after','callback']
 	for k in request.REQUEST.keys():
 		if k not in api_params:
 			raise BadRequestException('error',400, str(k) + ' is not a legal API parameter.'\
@@ -175,9 +166,6 @@ def processApiCall(request, users_to_return):
 	response['fields'] = None
 	response['sortby'] = None
 	response['order'] = None
-	#@ FIXME<deprecated>
-	response['sort'] = None
-	#@ FIXME</deprecated>
 	response['start_date'] = None
 	response['end_date'] = None
 	response['limit'] = 1000
@@ -185,50 +173,15 @@ def processApiCall(request, users_to_return):
 	response['after'] = None
 
 	### deal with sorting
-	# sorting will be supported lated. Now, we can only sort by data.TIMESTAMP, either asc or desc
+	# sorting will be supported later. Now, we can only sort by data.TIMESTAMP, either asc or desc
 	response['sortby'] = 'data.TIMESTAMP'
 	if request.REQUEST.get('order', None) is not None:
 		if request.REQUEST.get('order',None) not in ['-1','1']:
 			raise BadRequestException('error',400,str(request.REQUEST.get('order')) + ' is not a valid value for order parameter. Use 1 for ascending or -1 for descending')
 		else:
 			response['order'] = int(request.REQUEST.get('order'))
-	elif request.REQUEST.get('sort', None) is not None:
-		if request.REQUEST.get('sort',None) not in ['-1','1']:
-			raise BadRequestException('error',400,str(request.REQUEST.get('sort')) + ' is not a valid value for order parameter. Use 1 for ascending or -1 for descending')
-		else:
-			response['order'] = int(request.REQUEST.get('sort'))
 	else:
 		response['order'] = -1
-#	sortby = request.REQUEST.get('sortby',None)
-#	if sortby is not None:
-#		response['sortby'] = sortby
-#		order = request.REQUEST.get('order',None)
-#		if order is not None:
-#			if order in ['-1', '1']:
-#				response['order'] = int(order)
-#			else:
-#				raise BadRequestException('error',400,str(order) + ' is not a valid value for order parameter. Use 1 for ascending or -1 for descending')
-#		else:
-#			raise BadRequestException('error',400,'You have to specify the order of sorting. Use 1 for ascending or -1 for descending')
-#	else:
-#		#@ FIXME <deprecated>
-#		sort = request.REQUEST.get('sort',None)
-#		if sort is not None:
-#			if sort not in ['-1', '1']:
-#				raise BadRequestException('error',400,str(sort) + ' is not a valid value for order parameter. Use 1 for ascending or -1 for descending')
-#			else:
-#				response['sortby'] = 'data.TIMESTAMP'
-#				response['order'] = int(sort)
-#		#@ FIXME </deprecated>
-#		else:
-#			response['sortby'] = 'data.TIMESTAMP'
-#			if request.REQUEST.get('order',None) is not None:
-#				if request.REQUEST.get('order',None) in ['-1','1']:
-#					response['order'] = int(request.REQUEST.get('order',None))
-#				else:
-#					raise BadRequestException('error',400,str(request.REQUEST.get('order')) + ' is not a valid value for order parameter. Use 1 for ascending or -1 for descending')	
-#			else:
-#				response['order'] = -1
 	
 	### deal with fields
 	fields_string = request.REQUEST.get('fields', '')
@@ -240,7 +193,6 @@ def processApiCall(request, users_to_return):
 		for field in fields_string.split(','):
 			if len(field) > 0 and field != 'sensible_token':
 				response['fields'][field] = 1
-		response['fields']['_id'] = 1
 	# default set of fields
 	else:
 		response['fields'] = {\
@@ -251,29 +203,38 @@ def processApiCall(request, users_to_return):
 				'data.LOCATION.mProvider':1,\
 				'data.LOCATION.mAccuracy':1}
 	# always add the field by which sorting is done
-	if response['sortby'] not in response['fields'].keys():
-		response['fields'][response['sortby']] = 1
+	#if response['sortby'] not in response['fields'].keys():
+	#	response['fields'][response['sortby']] = 1
 
 		
 	### deal with start_date and end_date
 	if request.REQUEST.get('start_date',None) is not None:
-		response['start_date'] = int(request.REQUEST.get('start_date'))
+		try:
+			response['start_date'] = int(request.REQUEST.get('start_date'))
+		except ValueError:
+			raise BadRequestException('error',400,request.REQUEST.get('start_date') + ' is not a valid value for the start_date parameter. Use an integer value')
 	if request.REQUEST.get('end_date',None) is not None:
-		response['end_date'] = int(request.REQUEST.get('end_date'))
+		try:
+			response['end_date'] = int(request.REQUEST.get('end_date'))
+		except:
+			raise BadRequestException('error',400,request.REQUEST.get('end_date') + ' is not a valid value for the end_date parameter. Use an integer value')
 
 	### deal with limit
 	if int(request.REQUEST.get('limit',1000)) < 1000:
-		response['limit'] = int(request.REQUEST.get('limit'))
+		try:
+			response['limit'] = int(request.REQUEST.get('limit'))
+		except ValueError:
+			raise BadRequestException('error',400, request.REQUEST.get('limit') + ' is not a valid value for the limit parameter. Use an integer value')
 	
-	### deal with the list of users
-	#if request.REQUEST.get('users', None) is not None:
-	#	response['users'] = [user for user in request.REQUEST.get('users').split(',') if len(user) > 0]
+	# list of users is passed as function argument	
 	response['users'] = users_to_return
 	
-	### deal with after/before
+	### deal with after (paging)
 	if request.REQUEST.get('after', None) is not None:
-
-		response['after'] = json.loads(request.REQUEST.get('after', None))
+		try:
+			response['after'] = json.loads(request.REQUEST.get('after', None))
+		except ValueError:
+			raise BadRequestException('error',400,'Specified after parameter is not a valid JSON string')
 
 	### return
 	return response
@@ -285,13 +246,6 @@ def buildQuery(users_to_return, request):
 		query['$query']['user'] = {'$in':users_to_return}
 	
 
-#	if request['after'] is not None:
-#		query['_id'] = {}
-#		query['_id']['&gt'] = request['after']['_id']
-#	elif request['before'] is not None:
-#		query['_id'] = {}
-#		query['_id']['&lt'] = request['before']['_id']
-	
 	
 	if request['after'] is not None: # there is paging involved
 		#if request['order']==1:
@@ -299,7 +253,6 @@ def buildQuery(users_to_return, request):
 		#else:
 		#	query['$max'] = request['after']
 
-	#query['$hint'] = {str(request['sortby']) : request['order'], '_id':1}
 	
 	if request['end_date'] is not None or request['start_date'] is not None:
 		query['$query']['data.TIMESTAMP'] = {}
