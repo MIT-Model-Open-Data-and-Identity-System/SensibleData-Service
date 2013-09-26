@@ -94,7 +94,17 @@ class Anonymizer(object):
 		elif probe == 'dk_dtu_compute_facebook_work': document = self.anonymizeFacebookWork(document)
 		
 		return document	
-		
+	
+	def deanonymizeDocument(self, document, probe):
+		try:
+			key = SECURE_settings.PROBE_KEYS[probe]
+		except KeyError:
+			return document
+		self.key = key.decode("hex")
+
+		if probe == 'edu_mit_media_funf_probe_builtin_BluetoothProbe': document = self.deanonymizeBluetooth(document)
+		return document
+				
 	def anonymizeBatteryProbe(self, document):
 		document.pop('icon-small', None)
 		document.pop('invalid_charger',None)
@@ -117,8 +127,29 @@ class Anonymizer(object):
 			try:
 				device['android_bluetooth_device_extra_NAME'] = self.encrypt(device['android_bluetooth_device_extra_NAME'])
 			except KeyError: pass
-		
-			
+	
+	def deanonymizeBluetooth(self, documents):
+		addresses = {}
+		names = {}
+		if type(documents) == dict:
+			douments = [documents]
+		for document in documents:
+			for device in document['data']['DEVICES']:
+				try:
+					device['android_bluetooth_device_extra_DEVICE']['mAddress'] = addresses[device['android_bluetooth_device_extra_DEVICE']['mAddress']]
+				except KeyError:
+					addresses[device['android_bluetooth_device_extra_DEVICE']['mAddress']] = self.decrypt(device['android_bluetooth_device_extra_DEVICE']['mAddress'])
+					device['android_bluetooth_device_extra_DEVICE']['mAddress'] = addresses[device['android_bluetooth_device_extra_DEVICE']['mAddress']]
+
+				try:
+					device['android_bluetooth_device_extra_NAME'] = names[device['android_bluetooth_device_extra_NAME']]
+				except KeyError:
+					try:
+						names[device['android_bluetooth_device_extra_NAME']] = self.decrypt(device['android_bluetooth_device_extra_NAME'])		
+						device['android_bluetooth_device_extra_NAME'] = names[device['android_bluetooth_device_extra_NAME']]
+					except KeyError: pass
+		return documents
+
 	def anonymizeLocation(self, document):
 		lat = document['LOCATION']['mLatitude']
 		lon = document['LOCATION']['mLongitude']

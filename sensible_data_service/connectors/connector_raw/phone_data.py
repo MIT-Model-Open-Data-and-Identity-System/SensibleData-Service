@@ -9,13 +9,21 @@ import re
 import urllib
 import time
 from connector_utils import *
+from anonymizer.anonymizer import Anonymizer
 
+def calllog(request):
+	return get_data(request, PHONE_DATA_SETTINGS['calllog'])
 
+def sms(request):
+	return get_data(request, PHONE_DATA_SETTINGS['sms'])
 def bluetooth(request):
 	return get_data(request, PHONE_DATA_SETTINGS['bluetooth'])
 
 def location(request):
 	return get_data(request, PHONE_DATA_SETTINGS['location'])
+
+def wifi(request):
+	return get_data(request, PHONE_DATA_SETTINGS['wifi'])
 
 def get_data(request, probe_settings):
 	decrypted = booleanize(request.REQUEST.get('decrypted', False))
@@ -45,7 +53,6 @@ def get_data(request, probe_settings):
 		if s == 'connector_raw.all_data_researcher': is_researcher = True
 	
 	users_to_return = buildUsersToReturn(auth['user'], request, is_researcher = is_researcher)
-	#return HttpResponse(str((users_to_return)) + ', ' + str(is_researcher))
 	roles = []
 	try: roles = [x.role for x in UserRole.objects.get(user=auth['user']).roles.all()]
 	except: pass
@@ -59,7 +66,6 @@ def get_data(request, probe_settings):
 def dataBuild(request, probe_settings, users_to_return, decrypted = False, own_data = False, roles = []):
 	_start_time = time.time()
 	
-	pretty = booleanize(request.REQUEST.get('pretty', False))
 	results = None
 	query = None
 	proc_req = None
@@ -94,14 +100,14 @@ def dataBuild(request, probe_settings, users_to_return, decrypted = False, own_d
 		docs.limit(proc_req['limit'])
 
 		try:
-			results = cursorToArray(docs)
+			results = cursorToArray(docs, decrypted = decrypted, probe=probe_settings['collection'])
 		except Exception as e:
 			raise BadRequestException('error',500,'The request caused a DB malfunction: ' + str(e))
 		results_count = len(results)
 
 		response['meta']['status'] = proc_req['status']
 		response['meta']['results_count'] = len(results)
-		response['meta']['api_call'] = request.REQUEST
+		response['meta']['api_call'] = proc_req 
 		response['meta']['query'] = query
 		response['results'] = results
 
@@ -132,8 +138,12 @@ def dataBuild(request, probe_settings, users_to_return, decrypted = False, own_d
 	if decrypted:
 		pass
 
-	if pretty:
+	if proc_req['pretty']:
 		return render_to_response('pretty_json.html', {'response': json.dumps(response, indent=2)})
+        elif proc_req['format'] == 'csv':
+		output = '#' + json.dumps(response['meta'], indent=2).replace('\n','\n#') + '\n'
+		output += array_to_csv(results,probe_settings['collection'])
+		return HttpResponse(output, content_type="text/javascript", status=response['meta']['status']['code'])
 	else:
 		return HttpResponse(json.dumps(response), content_type="application/json", status=response['meta']['status']['code'])
 	return HttpResponse('hello decrypted')
@@ -142,8 +152,13 @@ def urlize_dict(dictionary):
 	return urllib.quote(json.dumps(dictionary, indent=None, separators=(',',':')))
 
 
-def cursorToArray(cursor):
-	return [doc for doc in cursor]
+def cursorToArray(cursor, decrypted = False, probe = ''):
+	array = [doc for doc in cursor]
+	if decrypted and 'BluetoothProbe' in probe:
+		anonymizer = Anonymizer()
+		return anonymizer.deanonymizeDocument(array, probe)
+	else:
+		return array
 
 def buildUsersToReturn(auth_user, request, is_researcher = False):
 	users_to_return = []
@@ -162,7 +177,7 @@ def buildUsersToReturn(auth_user, request, is_researcher = False):
 def processApiCall(request, probe_settings, users_to_return):
 	
 	response = {}
-	api_params = ['bearer_token','pretty','decrypted','order','fields','start_date','end_date','limit','users','after','callback']
+	api_params = ['bearer_token','pretty','decrypted','order','fields','start_date','end_date','limit','users','after','callback', 'format']
 	for k in request.REQUEST.keys():
 		if k not in api_params:
 			raise BadRequestException('error',400, str(k) + ' is not a legal API parameter.'\
@@ -177,6 +192,8 @@ def processApiCall(request, probe_settings, users_to_return):
 	response['limit'] = 1000
 	response['users'] = None
 	response['after'] = None
+	response['format'] = 'json'
+	response['pretty'] = booleanize(request.REQUEST.get('pretty',False))
 
 	### deal with sorting
 	# sorting will be supported later. Now, we can only sort by data.TIMESTAMP, either asc or desc
@@ -235,7 +252,15 @@ def processApiCall(request, probe_settings, users_to_return):
 			response['after'] = json.loads(request.REQUEST.get('after', None))
 		except ValueError:
 			raise BadRequestException('error',400,'Specified after parameter is not a valid JSON string')
-
+	
+	### deal with format
+	if request.REQUEST.get('format',None) is not None:
+		if request.REQUEST.get('format',None) not in ['pretty','json','csv']:
+			raise BadRequestException('error',400,str(request.REQUEST.get('format',None)) + ' is not a valid format. Valid formats are: pretty, json, csv')
+		else:
+			response['format'] = request.REQUEST.get('format',None)
+			if response['format'] == 'pretty':
+				response['pretty'] = True
 	### return
 	return response
 
