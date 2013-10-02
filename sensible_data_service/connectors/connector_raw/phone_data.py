@@ -143,11 +143,12 @@ def dataBuild(request, probe_settings, users_to_return, decrypted = False, own_d
 
 	auditdb= audit.Audit()
 	doc_audit=response['meta']
-	#users_return=[]
-	#users_results = cursorToArray(results, decrypted = decrypted, probe=probe_settings['collection'])
-	#for data_users in users_results:
-		#users_return.append(data_users['user'])
-	doc_audit['users']=users_to_return
+	users_return=[]
+	users_results = cursorToArray(results, decrypted = decrypted, probe=probe_settings['collection'])
+	for data_users in users_results:
+		if data_users['user'] not in users_return:
+			users_return.append(data_users['user'])
+	doc_audit['users']=users_return
 	doc_audit=transform.transform(doc_audit)
 	auditdb.d(typ='prueba',tag='prueba2',doc=doc_audit)
 	
