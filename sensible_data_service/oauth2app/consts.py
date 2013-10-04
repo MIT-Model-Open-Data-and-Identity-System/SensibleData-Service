@@ -19,9 +19,9 @@ CODE_KEY_LENGTH = getattr(settings, "OAUTH2_CODE_KEY_LENGTH", 30)
 # Length of the MAC authentication key.
 MAC_KEY_LENGTH = getattr(settings, "OAUTH2_MAC_KEY_LENGTH", 20)
 # Length of the access token.
-ACCESS_TOKEN_LENGTH = getattr(settings, "OAUTH2_ACCESS_TOKEN_LENGTH", 10)
+ACCESS_TOKEN_LENGTH = getattr(settings, "OAUTH2_ACCESS_TOKEN_LENGTH", 30)
 # Length of the refresh token.
-REFRESH_TOKEN_LENGTH = getattr(settings, "OAUTH2_REFRESH_TOKEN_LENGTH", 10)
+REFRESH_TOKEN_LENGTH = getattr(settings, "OAUTH2_REFRESH_TOKEN_LENGTH", 30)
 # Issue refreshable tokens.
 REFRESHABLE = getattr(settings, "OAUTH2_REFRESHABLE", True)
 # Number of seconds in which an authorization code should expire.
