@@ -26,7 +26,6 @@ def location(request):
 
 def wifi(request):
 	return get_data(request, PHONE_DATA_SETTINGS['wifi'])
-
 def get_data(request, probe_settings):
 	decrypted = booleanize(request.REQUEST.get('decrypted', False))
 
@@ -150,7 +149,6 @@ def dataBuild(request, probe_settings, users_to_return, decrypted = False, own_d
 			users_return.append(data_users['user'])
 	doc_audit['users']=users_return
 	doc_audit=transform.transform(doc_audit)
-	auditdb.d(typ='prueba',tag='prueba2',doc=doc_audit)
 	
 	if proc_req['pretty']:
 		return render_to_response('pretty_json.html', {'response': json.dumps(response, indent=2)})
