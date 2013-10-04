@@ -32,8 +32,43 @@ def array_to_csv(array, collection):
 		return sms_to_csv(array, output)
 	elif 'calllog' in collection.lower():
 		return calllog_to_csv(array, output)
+	elif 'likes' in collection.lower():
+		return likes_to_csv(array,output)
 	else:
 		return 'We do not yet support csv output for ' + collection + ' data. Sorry!'
+
+def likes_to_csv(array, output):
+	#print header
+	fields = ['user','timestamp','data.id','data.category','facebook_id']
+	for i, field in enumerate(fields):
+		output += field
+		if i < len(fields)-1:
+			output += ','
+		else:
+			output += '\n' 
+	output_lines = [] 
+	for row in array:
+		try:
+			if len(row['data']) > 0:
+				for result in row['data']:
+					temp = '"' + row['user'] + '",' + str(row['timestamp']) + ',' 
+					try:
+						temp += '"' + str(result['id']) + '",'
+					except KeyError: temp += '"",'
+					try:
+						temp += '"' + result['category'] + '",'
+					except KeyError: temp += '"",'
+					try:
+						temp += '"' + str(row['facebook_id']) + '"'
+					except KeyError: temp += '""'
+					output_lines.append(temp)
+			else:
+				output_lines.append('"' + row['user'] + '",' + str(row['timestamp']) + ',,,')
+
+		except KeyError: output_lines.append('"' + row['user'] + '",' + str(row['timestamp']) + ',,,,')
+
+		
+	return output + '\n'.join(output_lines)
 
 def wifi_to_csv(array, output):
 	fields = ['user','data.TIMESTAMP','BSSID','SSID','level']
@@ -228,4 +263,16 @@ PHONE_DATA_SETTINGS = {\
 			'data.address':1,\
 			'data.type':1}}
 
+	}
+
+FACEBOOK_DATA_SETTINGS = {\
+	'likes':{\
+		'scope':'connector_raw.likes',
+		'collection':'dk_dtu_compute_facebook_likes',
+		'default_fields':{\
+			'user':1,\
+			'timestamp':1,\
+			'data.id':1,\
+			'data.category':1,\
+			'facebook_id':1}}
 	}
