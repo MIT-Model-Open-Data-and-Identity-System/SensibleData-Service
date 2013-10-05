@@ -79,12 +79,14 @@ def dataBuild(request, probe_settings, users_to_return, decrypted = False, own_d
 		proc_req = processApiCall(request, probe_settings, users_to_return)
 		query = buildQuery(users_to_return, proc_req)	
 		collection = probe_settings['collection']
-		if own_data and 'researcher' in roles: collection += '_researcher'
+		roles_to_use = []
+                if own_data and 'researcher' in roles: roles_to_use = ['researcher']
+                if own_data and 'developer' in roles: roles_to_use = ['developer']
 
 		db = database.Database()
 		
 		docs = db.getDocumentsCustom(query=query, collection=collection,\
-				fields = proc_req['fields'])
+				fields = proc_req['fields'], roles=roles_to_use)
 
 		### hinting
 		# if the users are specified, we use the hint with users

@@ -33,6 +33,11 @@ import re
 myConnector = connectors.connectors_config.CONNECTORS['ConnectorFunf']['config']
 
 @csrf_exempt
+def rescue(request):
+	log.log('Debug','Rescue ' + request.POST['imei'] + ' @ ' + request.POST['lat'] + ',' + request.POST['lon'] + ' ~' + request.POST['acc'] + ' on ' + request.POST['timestamp'] + ' from ' + request.POST['provider'] + ' due to ' + request.POST['action'])
+	return HttpResponse('got it','text/javascript', status=200)
+
+@csrf_exempt
 def upload(request):
 	random.seed(time.time())
 	log.log('Debug', 'Received POST')
