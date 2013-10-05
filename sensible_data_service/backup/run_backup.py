@@ -25,7 +25,7 @@ def run_upload_to_glacier():
 	print BACKUP_DIR
 	print current_folder
 
-	for hourly_folder in os.listdir(BACKUP_DIR):
+	for hourly_folder in sorted(os.listdir(BACKUP_DIR)):
 		if not hourly_folder < current_folder: continue
 		if not 'tar.gz' in hourly_folder: continue
 		print 'to upload: ', hourly_folder
@@ -35,12 +35,12 @@ def run_upload_to_glacier():
 		if archive_id == None:
 			print 'failed: ', folder_name
 			continue
-		try: shutil.move(folder_name, os.path.join(BACKUP_DIR, '9999_uploaded_to_glacier/'))
+		try: shutil.move(folder_name, os.path.join(BACKUP_DIR, '9999_uploaded_to_glacier/'+'_'.join(hourly_folder.split('_')[:3]))+'/')
 		except IOError: 
-			os.mkdir(os.path.join(BACKUP_DIR, '9999_uploaded_to_glacier/'))
-			shutil.move(folder_name, os.path.join(BACKUP_DIR, '9999_uploaded_to_glacier/'))
+			os.mkdir(os.path.join(BACKUP_DIR, '9999_uploaded_to_glacier/'+'_'.join(hourly_folder.split('_')[:3]))+'/')
+			shutil.move(folder_name, os.path.join(BACKUP_DIR, '9999_uploaded_to_glacier/'+'_'.join(hourly_folder.split('_')[:3]))+'/')
 		print 'success: ', folder_name
-	
+
 	return True
 
 
