@@ -34,8 +34,388 @@ def array_to_csv(array, collection):
 		return calllog_to_csv(array, output)
 	elif 'likes' in collection.lower():
 		return likes_to_csv(array,output)
+	elif 'friends' in collection.lower():
+		return friends_to_csv(array,output)
+	elif 'friendlists' in collection.lower():
+		return friendlists_to_csv(array,output)
+	elif 'birthday' in collection.lower():
+		return birthday_to_csv(array,output)
+	elif 'education' in collection.lower():
+		return education_to_csv(array,output)
+	elif 'groups' in collection.lower():
+		return groups_to_csv(array,output)
+	elif 'hometown' in collection.lower():
+		return hometown_to_csv(array,output)
+	elif 'interests' in collection.lower():
+		return interests_to_csv(array,output)
+	elif 'locationfacebook' in collection.lower():
+		return locationfacebook_to_csv(array,output)
+	elif 'political' in collection.lower():
+		return political_to_csv(array,output)
+	elif 'religion' in collection.lower():
+		return religion_to_csv(array,output)
+	elif 'work' in collection.lower():
+		return work_to_csv(array,output)
 	else:
 		return 'We do not yet support csv output for ' + collection + ' data. Sorry!'
+
+def birthday_to_csv(array, output):
+	#print header
+	fields = ['user','timestamp','data','facebook_id']
+	for i, field in enumerate(fields):
+		output += field
+		if i < len(fields)-1:
+			output += ','
+		else:
+			output += '\n' 
+	output_lines = [] 
+	for row in array:
+		try:
+			if len(row['data']) > 0:	
+				temp = '"' + row['user'] + '",' + str(row['timestamp']) + ',' 
+				try:
+					temp += '"' + row['data']+ '",'
+				except KeyError: temp += '"",'
+				try:
+					temp += '"' + str(row['facebook_id']) + '"'
+				except KeyError: temp += '""'
+				output_lines.append(temp)
+			else:
+				output_lines.append('"' + row['user'] + '",' + str(row['timestamp']) + ',,,')
+
+		except KeyError: output_lines.append('"' + row['user'] + '",' + str(row['timestamp']) + ',,,,')
+
+		
+	return output + '\n'.join(output_lines)
+
+def education_to_csv(array, output):
+	#print header
+	fields = ['user','timestamp','data.school.name','data.classes.name','data.type','facebook_id']
+	for i, field in enumerate(fields):
+		output += field
+		if i < len(fields)-1:
+			output += ','
+		else:
+			output += '\n' 
+	output_lines = [] 
+	for row in array:
+		try:
+			if len(row['data']) > 0:
+				for result in row['data']:
+					temp = '"' + row['user'] + '",' + str(row['timestamp']) + ',' 
+					try:
+						for school in result['school']:
+							temp += '"' + school['name'] + '",'
+					except KeyError: temp += '"",'
+					try:
+						for classe in result['classes']:
+							temp += '"' + classe['name'] + '",'
+					except KeyError: temp += '"",'
+					try:
+						temp += '"' + result['type'] + '",'
+					except KeyError: temp += '"",'
+					try:
+						temp += '"' + str(row['facebook_id']) + '"'
+					except KeyError: temp += '""'
+					output_lines.append(temp)
+			else:
+				output_lines.append('"' + row['user'] + '",' + str(row['timestamp']) + ',,,')
+
+		except KeyError: output_lines.append('"' + row['user'] + '",' + str(row['timestamp']) + ',,,,')
+
+		
+	return output + '\n'.join(output_lines)
+
+
+def friends_to_csv(array, output):
+	#print header
+	fields = ['user','timestamp','data.name','data.id','facebook_id']
+	for i, field in enumerate(fields):
+		output += field
+		if i < len(fields)-1:
+			output += ','
+		else:
+			output += '\n' 
+	output_lines = [] 
+	for row in array:
+		try:
+			if len(row['data']) > 0:
+				for result in row['data']:
+					temp = '"' + row['user'] + '",' + str(row['timestamp']) + ',' 
+					try:
+						temp += '"' + result['name'] + '",'
+					except KeyError: temp += '"",'
+					try:
+						temp += '"' + str(result['id']) + '",'
+					except KeyError: temp += '"",'
+					try:
+						temp += '"' + str(row['facebook_id']) + '"'
+					except KeyError: temp += '""'
+					output_lines.append(temp)
+			else:
+				output_lines.append('"' + row['user'] + '",' + str(row['timestamp']) + ',,,')
+
+		except KeyError: output_lines.append('"' + row['user'] + '",' + str(row['timestamp']) + ',,,,')
+
+		
+	return output + '\n'.join(output_lines)
+
+def friendlists_to_csv(array, output):
+	#print header
+	fields = ['user','timestamp','data.id','data.name','data.list_type','facebook_id']
+	for i, field in enumerate(fields):
+		output += field
+		if i < len(fields)-1:
+			output += ','
+		else:
+			output += '\n' 
+	output_lines = [] 
+	for row in array:
+		try:
+			if len(row['data']) > 0:
+				for result in row['data']:
+					temp = '"' + row['user'] + '",' + str(row['timestamp']) + ',' 
+					try:
+						temp += '"' + str(result['id']) + '",'
+					except KeyError: temp += '"",'
+					try:
+						temp += '"' + result['name'] + '",'
+					except KeyError: temp += '"",'
+					try:
+						temp += '"' + result['list_type'] + '",'
+					except KeyError: temp += '"",'
+					try:
+						temp += '"' + str(row['facebook_id']) + '"'
+					except KeyError: temp += '""'
+					output_lines.append(temp)
+			else:
+				output_lines.append('"' + row['user'] + '",' + str(row['timestamp']) + ',,,')
+
+		except KeyError: output_lines.append('"' + row['user'] + '",' + str(row['timestamp']) + ',,,,')
+
+		
+	return output + '\n'.join(output_lines)
+
+def groups_to_csv(array, output):
+	#print header
+	fields = ['user','timestamp','data.id','facebook_id']
+	for i, field in enumerate(fields):
+		output += field
+		if i < len(fields)-1:
+			output += ','
+		else:
+			output += '\n' 
+	output_lines = [] 
+	for row in array:
+		try:
+			if len(row['data']) > 0:
+				for result in row['data']:
+					temp = '"' + row['user'] + '",' + str(row['timestamp']) + ',' 
+					try:
+						temp += '"' + str(result['id']) + '",'
+					except KeyError: temp += '"",'
+					try:
+						temp += '"' + str(row['facebook_id']) + '"'
+					except KeyError: temp += '""'
+					output_lines.append(temp)
+			else:
+				output_lines.append('"' + row['user'] + '",' + str(row['timestamp']) + ',,,')
+
+		except KeyError: output_lines.append('"' + row['user'] + '",' + str(row['timestamp']) + ',,,,')
+
+		
+	return output + '\n'.join(output_lines)
+
+def hometown_to_csv(array, output):
+	#print header
+	fields = ['user','timestamp','data.id','data.name','facebook_id']
+	for i, field in enumerate(fields):
+		output += field
+		if i < len(fields)-1:
+			output += ','
+		else:
+			output += '\n' 
+	output_lines = [] 
+	for row in array:
+		try:
+			if len(row['data']) > 0:
+				for result in row['data']:
+					temp = '"' + row['user'] + '",' + str(row['timestamp']) + ',' 
+					try:
+						temp += '"' + result['id'] + '",'
+					except KeyError: temp += '"",'
+					try:
+						temp += '"' + result['name'] + '",'
+					except KeyError: temp += '"",'
+					try:
+						temp += '"' + str(row['facebook_id']) + '"'
+					except KeyError: temp += '""'
+					output_lines.append(temp)
+			else:
+				output_lines.append('"' + row['user'] + '",' + str(row['timestamp']) + ',,,')
+
+		except KeyError: output_lines.append('"' + row['user'] + '",' + str(row['timestamp']) + ',,,,')
+
+		
+	return output + '\n'.join(output_lines)
+
+def interests_to_csv(array, output):
+	#print header
+	fields = ['user','timestamp','data.id','data.name','data.category','facebook_id']
+	for i, field in enumerate(fields):
+		output += field
+		if i < len(fields)-1:
+			output += ','
+		else:
+			output += '\n' 
+	output_lines = [] 
+	for row in array:
+		try:
+			if len(row['data']) > 0:
+				for result in row['data']:
+					temp = '"' + row['user'] + '",' + str(row['timestamp']) + ',' 
+					try:
+						temp += '"' + str(result['id']) + '",'
+					except KeyError: temp += '"",'
+					try:
+						temp += '"' + result['name'] + '",'
+					except KeyError: temp += '"",'
+					try:
+						temp += '"' + result['category'] + '",'
+					except KeyError: temp += '"",'
+					try:
+						temp += '"' + str(row['facebook_id']) + '"'
+					except KeyError: temp += '""'
+					output_lines.append(temp)
+			else:
+				output_lines.append('"' + row['user'] + '",' + str(row['timestamp']) + ',,,')
+
+		except KeyError: output_lines.append('"' + row['user'] + '",' + str(row['timestamp']) + ',,,,')
+
+		
+	return output + '\n'.join(output_lines)
+
+def locationfacebook_to_csv(array, output):
+	#print header
+	fields = ['user','timestamp','data.id','data.name','facebook_id']
+	for i, field in enumerate(fields):
+		output += field
+		if i < len(fields)-1:
+			output += ','
+		else:
+			output += '\n' 
+	output_lines = [] 
+	for row in array:
+		try:
+			if len(row['data']) > 0:
+				for result in row['data']:
+					temp = '"' + row['user'] + '",' + str(row['timestamp']) + ',' 
+					try:
+						temp += '"' + str(result['id']) + '",'
+					except KeyError: temp += '"",'
+					try:
+						temp += '"' + result['name'] + '",'
+					except KeyError: temp += '"",'
+					try:
+						temp += '"' + str(row['facebook_id']) + '"'
+					except KeyError: temp += '""'
+					output_lines.append(temp)
+			else:
+				output_lines.append('"' + row['user'] + '",' + str(row['timestamp']) + ',,,')
+
+		except KeyError: output_lines.append('"' + row['user'] + '",' + str(row['timestamp']) + ',,,,')
+
+		
+	return output + '\n'.join(output_lines)
+
+def political_to_csv(array, output):
+	#print header
+	fields = ['user','timestamp','data','facebook_id']
+	for i, field in enumerate(fields):
+		output += field
+		if i < len(fields)-1:
+			output += ','
+		else:
+			output += '\n' 
+	output_lines = [] 
+	for row in array:
+		try:
+			if len(row['data']) > 0:
+					temp = '"' + row['user'] + '",' + str(row['timestamp']) + ',' 
+					try:
+						temp += '"' + row['data'] + '",'
+					except KeyError: temp += '"",'
+					try:
+						temp += '"' + str(row['facebook_id']) + '"'
+					except KeyError: temp += '""'
+					output_lines.append(temp)
+			else:
+				output_lines.append('"' + row['user'] + '",' + str(row['timestamp']) + ',,,')
+
+		except KeyError: output_lines.append('"' + row['user'] + '",' + str(row['timestamp']) + ',,,,')
+
+		
+	return output + '\n'.join(output_lines)
+
+def religion_to_csv(array, output):
+	#print header
+	fields = ['user','timestamp','data','facebook_id']
+	for i, field in enumerate(fields):
+		output += field
+		if i < len(fields)-1:
+			output += ','
+		else:
+			output += '\n' 
+	output_lines = [] 
+	for row in array:
+		try:
+			if len(row['data']) > 0:
+					temp = '"' + row['user'] + '",' + str(row['timestamp']) + ',' 
+					try:
+						temp += '"' + row['data'] + '",'
+					except KeyError: temp += '"",'
+					try:
+						temp += '"' + str(row['facebook_id']) + '"'
+					except KeyError: temp += '""'
+					output_lines.append(temp)
+			else:
+				output_lines.append('"' + row['user'] + '",' + str(row['timestamp']) + ',,,')
+
+		except KeyError: output_lines.append('"' + row['user'] + '",' + str(row['timestamp']) + ',,,,')
+
+		
+	return output + '\n'.join(output_lines)
+
+def work_to_csv(array, output):
+	#print header
+	fields = ['user','timestamp','data.employer.name','facebook_id']
+	for i, field in enumerate(fields):
+		output += field
+		if i < len(fields)-1:
+			output += ','
+		else:
+			output += '\n' 
+	output_lines = [] 
+	for row in array:
+		try:
+			if len(row['data']) > 0:
+				for result in row['data']:
+					temp = '"' + row['user'] + '",' + str(row['timestamp']) + ',' 
+					try:
+						for employer in result['employer']:
+							temp += '"' + employer['name'] + '",'
+					except KeyError: temp += '"",'
+					try:
+						temp += '"' + str(row['facebook_id']) + '"'
+					except KeyError: temp += '""'
+					output_lines.append(temp)
+			else:
+				output_lines.append('"' + row['user'] + '",' + str(row['timestamp']) + ',,,')
+
+		except KeyError: output_lines.append('"' + row['user'] + '",' + str(row['timestamp']) + ',,,,')
+
+		
+	return output + '\n'.join(output_lines)
 
 def likes_to_csv(array, output):
 	#print header
@@ -274,5 +654,102 @@ FACEBOOK_DATA_SETTINGS = {\
 			'timestamp':1,\
 			'data.id':1,\
 			'data.category':1,\
+			'facebook_id':1}},
+	'friends':{\
+		'scope':'connector_raw.friends',
+		'collection':'dk_dtu_compute_facebook_friends',
+		'default_fields':{\
+			'user':1,\
+			'timestamp':1,\
+			'data.name':1,\
+			'data.id':1,\
+			'facebook_id':1}},
+	'friendlists':{\
+		'scope':'connector_raw.friendlists',
+		'collection':'dk_dtu_compute_facebook_friendlists',
+		'default_fields':{\
+			'user':1,\
+			'timestamp':1,\
+			'data.id':1,\
+			'data.name':1,\
+			'data.list_type':1,\
+			'facebook_id':1}},
+	'birthday':{\
+		'scope':'connector_raw.birthday',
+		'collection':'dk_dtu_compute_facebook_birthday',
+		'default_fields':{\
+			'user':1,\
+			'timestamp':1,\
+			'data':1,\
+			'facebook_id':1}},
+	'education':{\
+		'scope':'connector_raw.education',
+		'collection':'dk_dtu_compute_facebook_education',
+		'default_fields':{\
+			'user':1,\
+			'timestamp':1,\
+			'data.school.name':1,\
+			'data.classes.name':1,\
+			'data.type':1,\
+			'facebook_id':1}},
+	'groups':{\
+		'scope':'connector_raw.groups',
+		'collection':'dk_dtu_compute_facebook_groups',
+		'default_fields':{\
+			'user':1,\
+			'timestamp':1,\
+			'data.id':1,\
+			'facebook_id':1}},
+	'hometown':{\
+		'scope':'connector_raw.hometown',
+		'collection':'dk_dtu_compute_facebook_hometown',
+		'default_fields':{\
+			'user':1,\
+			'timestamp':1,\
+			'data.id':1,\
+			'data.name':1,\
+			'facebook_id':1}},
+	'interests':{\
+		'scope':'connector_raw.interests',
+		'collection':'dk_dtu_compute_facebook_interests',
+		'default_fields':{\
+			'user':1,\
+			'timestamp':1,\
+			'data.id':1,\
+			'data.name':1,\
+			'data.category':1,\
+			'facebook_id':1}},
+	'locationfacebook':{\
+		'scope':'connector_raw.locationfacebook',
+		'collection':'dk_dtu_compute_facebook_location',
+		'default_fields':{\
+			'user':1,\
+			'timestamp':1,\
+			'data.id':1,\
+			'data.name':1,\
+			'facebook_id':1}},
+	'political':{\
+		'scope':'connector_raw.political',
+		'collection':'dk_dtu_compute_facebook_political',
+		'default_fields':{\
+			'user':1,\
+			'timestamp':1,\
+			'data':1,\
+			'facebook_id':1}},
+	'religion':{\
+		'scope':'connector_raw.religion',
+		'collection':'dk_dtu_compute_facebook_religion',
+		'default_fields':{\
+			'user':1,\
+			'timestamp':1,\
+			'data':1,\
+			'facebook_id':1}},
+	'work':{\
+		'scope':'connector_raw.work',
+		'collection':'dk_dtu_compute_facebook_work',
+		'default_fields':{\
+			'user':1,\
+			'timestamp':1,\
+			'data.employer.name':1,\
 			'facebook_id':1}}
 	}

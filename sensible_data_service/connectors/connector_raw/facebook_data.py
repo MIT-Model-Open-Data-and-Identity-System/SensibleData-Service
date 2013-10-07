@@ -2,20 +2,41 @@ from django.http import HttpResponse
 import bson.json_util as json
 from authorization_manager import authorization_manager
 from utils import database
-from utils import audit
+#from utils import audit
 from django.shortcuts import render_to_response
 from accounts.models import UserRole
 from django.contrib.auth.models import User
 import re
 import urllib
 import time
-import transform
+#import transform
 from connector_utils import *
 from anonymizer.anonymizer import Anonymizer
 
+def birthday(request):
+	return get_data(request, FACEBOOK_DATA_SETTINGS['birthday'])
+def education(request):
+	return get_data(request, FACEBOOK_DATA_SETTINGS['education'])
 def likes(request):
 	return get_data(request, FACEBOOK_DATA_SETTINGS['likes'])
-
+def friends(request):
+	return get_data(request, FACEBOOK_DATA_SETTINGS['friends'])
+def friendlists(request):
+	return get_data(request, FACEBOOK_DATA_SETTINGS['friendlists'])
+def groups(request):
+	return get_data(request, FACEBOOK_DATA_SETTINGS['groups'])
+def hometown(request):
+	return get_data(request, FACEBOOK_DATA_SETTINGS['hometown'])
+def interests(request):
+	return get_data(request, FACEBOOK_DATA_SETTINGS['interests'])
+def locationfacebook(request):
+	return get_data(request, FACEBOOK_DATA_SETTINGS['locationfacebook'])
+def political(request):
+	return get_data(request, FACEBOOK_DATA_SETTINGS['political'])
+def religion(request):
+	return get_data(request, FACEBOOK_DATA_SETTINGS['religion'])
+def work(request):
+	return get_data(request, FACEBOOK_DATA_SETTINGS['work'])
 
 def get_data(request, probe_settings):
 	decrypted = booleanize(request.REQUEST.get('decrypted', False))
@@ -130,16 +151,16 @@ def dataBuild(request, probe_settings, users_to_return, decrypted = False, own_d
 	if decrypted:
 		pass
 	
-	auditdb= audit.Audit()
-	doc_audit=response['meta']
-	users_return=[]
-	users_results = cursorToArray(results, decrypted = decrypted, probe=probe_settings['collection'])
-	for data_users in users_results:
-		if data_users['user'] not in users_return:
-			users_return.append(data_users['user'])
-	doc_audit['users']=users_return
-	doc_audit=transform.transform(doc_audit)
-	auditdb.d(typ='prueba',tag='prueba2',doc=doc_audit,onlyfile=False)
+	#auditdb= audit.Audit()
+	#doc_audit=response['meta']
+	#users_return=[]
+	#users_results = cursorToArray(results, decrypted = decrypted, probe=probe_settings['collection'])
+	#for data_users in users_results:
+	#	if data_users['user'] not in users_return:
+	#		users_return.append(data_users['user'])
+	#doc_audit['users']=users_return
+	#doc_audit=transform.transform(doc_audit)
+	#auditdb.d(typ='prueba',tag='prueba2',doc=doc_audit,onlyfile=False)
 	
 	if proc_req['pretty']:
 		return render_to_response('pretty_json.html', {'response': json.dumps(response, indent=2)})
