@@ -171,6 +171,7 @@ INSTALLED_APPS = (
     'connectors.connector_questionnaire',
     'connectors.connector_facebook',
     'connectors.connector_raw',
+    'connectors.connector_sbs2',
     'anonymizer',
     'oauth2app',
     'documents',
