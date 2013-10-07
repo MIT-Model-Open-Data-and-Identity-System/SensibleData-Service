@@ -5,7 +5,6 @@ import time
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from backup import backup
-import pdb;
 from django.core.servers.basehttp import FileWrapper
 import mimetypes
 from utils import log
@@ -14,7 +13,6 @@ from django.conf import settings
 from connectors.connector import connector
 import bson.json_util as json
 
-#from connectors.connector_funf.models import ConnectorFunf
 import connectors.connectors_config;
 import authorization_manager
 
@@ -49,14 +47,6 @@ def upload(request):
 		try:
 			uploaded_file = request.FILES['uploadedfile']
 			if uploaded_file:
-				#try:
-					
-					#authorization = authorization_manager.getAuthorizationForToken(scope, access_token)
-					#mConnector = ConnectorFunf.objects.all()[0];
-					#if ('error' in authorization) or (authorization == None):
-					#	upload_path = mConnector.upload_not_authorized_path;
-					#else:
-					#	upload_path = mConnector.upload_path
 					upload_path = myConnector['upload_path']	
 					backup_path = myConnector['backup_path']
 
@@ -76,16 +66,6 @@ def upload(request):
 
 					write_file(filepath, uploaded_file)
 					backup.backupFile(filepath, "connector_funf")
-					#shutil.copy(filepath, os.path.join(backup_path, filename))
-					
-					# run decryption in the background
-					#log.log('Debug', settings.ROOT_DIR + './manage.py funf_single_decrypt' + filename)
-					#p = Popen([settings.ROOT_DIR + './manage.py','funf_single_decrypt',filename], stdout=PIPE, stderr=PIPE)
-
-				#except Exception as e:
-				#	log.log('Error', 'Could not write: ' + str(e))
-				#	return HttpResponse(status='500')
-				#else:
 					return HttpResponse(json.dumps({'ok':'success'}))
 			else:
 				log.log('Error', 'failed to read')
@@ -105,11 +85,7 @@ def write_file(filepath, file):
 
 
 def config(request):
-	#pdb.set_trace();
-	#log.log('Debug', 'GET for config')
 	access_token = request.REQUEST.get('access_token', '')
-	#authorization = self.pipe.getAuthorization(access_token)
-	#config = self.readConfig(authorization['user'])
 	config = readConfig('dummy')
 	if config:
 		return HttpResponse(config)
