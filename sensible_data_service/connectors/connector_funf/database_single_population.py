@@ -20,7 +20,6 @@ from django.conf import settings
 import connectors.connectors_config
 
 import traceback
-import pdb
 
 import time
 from accounts.models import UserRole
@@ -43,7 +42,6 @@ def load_files(directory_to_load=myConnector['decrypted_path']):
 		
 
 def load_file(filename):
-	#pdb.set_trace()
 	#log.log('Debug', 'Trying to populate db with ' + filename);
 	#connection_time = time.time()
 	#log.log('Debug', 'Connection to db: ' + str(time.time() - connection_time) + ' s');
@@ -96,7 +94,6 @@ def load_file(filename):
 			
 			meta['device_id'] = anonymizerObject.anonymizeValue('device_id',meta['device_id'])
 			
-			#pdb.set_trace()
 			# get the user associated with the token
 			#meta['user'] = authorization_manager.getAuthorizationForToken(\
 			#	'connector_funf.submit_data', meta['token']).user
@@ -129,7 +126,6 @@ def load_file(filename):
 	return inserted_counter
 
 def row_to_doc(row, user, anonymizerObject):
-	#pdb.set_trace()
 	random.seed(time.time())
 	#TODO: separate this sanitization
 	data_raw = row[3].replace('android.bluetooth.device.extra.DEVICE','android_bluetooth_device_extra_DEVICE')\
