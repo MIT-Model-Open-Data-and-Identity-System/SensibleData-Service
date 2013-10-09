@@ -168,6 +168,7 @@ INSTALLED_APPS = (
     'platform_manager',
     'testing',
     'connectors.connector_funf',
+    'connectors.connector_economics',
     'connectors.connector_questionnaire',
     'connectors.connector_facebook',
     'connectors.connector_raw',

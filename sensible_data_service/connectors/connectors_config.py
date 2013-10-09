@@ -5,6 +5,26 @@ from django.conf import settings
 DATA_BASE_DIR = settings.DATA_BASE_DIR
 
 CONNECTORS = {
+	"ConnectorEconomics": {
+		"name": "connector_economics",
+		"description": "Economics games description.",
+		"scopes": {
+			"all_probes": { #TODO: figure this out
+				"description": "",
+			}
+
+		},
+		"config": {
+			"connector_type": "client",
+			"grant_url" : "http://test.com",
+			"revoke_url": "http://test.com",
+
+			},
+		"schedule": {
+
+			}
+
+		},
 	"ConnectorFunf": {
 		"name": "connector_funf",
 		"description": "This software runs on your phone and collects data.",
