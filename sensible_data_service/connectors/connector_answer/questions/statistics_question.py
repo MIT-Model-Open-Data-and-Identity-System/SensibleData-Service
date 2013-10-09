@@ -5,7 +5,7 @@ import json
 import time
 
 NAME = 'statistics_question'
-SCHEDULE = { 'schedule': timedelta(seconds=60), 'args': [['edu_mit_media_funf_probe_builtin_BluetoothProbe']] }
+SCHEDULE = { 'schedule': timedelta(seconds=90), 'args': [['edu_mit_media_funf_probe_builtin_BluetoothProbe', 'edu_mit_media_funf_probe_builtin_CallLogProbe', 'edu_mit_media_funf_probe_builtin_CellProbe', 'edu_mit_media_funf_probe_builtin_ContactProbe', 'edu_mit_media_funf_probe_builtin_HardwareInfoProbe', 'edu_mit_media_funf_probe_builtin_LocationProbe', 'edu_mit_media_funf_probe_builtin_SMSProbe', 'edu_mit_media_funf_probe_builtin_ScreenProbe', 'edu_mit_media_funf_probe_builtin_TimeOffsetProbe', 'edu_mit_media_funf_probe_builtin_WifiProbe']] }
 LOCK_EXPIRE = 60*60 #max time in sec after which the task will be considered zombie
 
 def run(collection):
