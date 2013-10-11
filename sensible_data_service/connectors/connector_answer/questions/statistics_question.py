@@ -5,10 +5,12 @@ import json
 import time
 
 NAME = 'statistics_question'
-SCHEDULE = { 'schedule': timedelta(seconds=90), 'args': [['edu_mit_media_funf_probe_builtin_BluetoothProbe', 'edu_mit_media_funf_probe_builtin_CallLogProbe', 'edu_mit_media_funf_probe_builtin_CellProbe', 'edu_mit_media_funf_probe_builtin_ContactProbe', 'edu_mit_media_funf_probe_builtin_HardwareInfoProbe', 'edu_mit_media_funf_probe_builtin_LocationProbe', 'edu_mit_media_funf_probe_builtin_SMSProbe', 'edu_mit_media_funf_probe_builtin_ScreenProbe', 'edu_mit_media_funf_probe_builtin_TimeOffsetProbe', 'edu_mit_media_funf_probe_builtin_WifiProbe']] }
+SCHEDULE = { 'schedule': timedelta(seconds=60*10) }
+COLLECTIONS = ['edu_mit_media_funf_probe_builtin_BluetoothProbe', 'edu_mit_media_funf_probe_builtin_CallLogProbe', 'edu_mit_media_funf_probe_builtin_CellProbe', 'edu_mit_media_funf_probe_builtin_ContactProbe', 'edu_mit_media_funf_probe_builtin_HardwareInfoProbe', 'edu_mit_media_funf_probe_builtin_LocationProbe', 'edu_mit_media_funf_probe_builtin_SMSProbe', 'edu_mit_media_funf_probe_builtin_ScreenProbe', 'edu_mit_media_funf_probe_builtin_TimeOffsetProbe', 'edu_mit_media_funf_probe_builtin_WifiProbe']
 LOCK_EXPIRE = 60*60 #max time in sec after which the task will be considered zombie
 
 def run(collection):
+	print collection
 	db = database.Database()
 	mapper = Code("""
 					function() {
@@ -42,6 +44,7 @@ def run(collection):
 	output_collection = NAME+'_'+collection
 	min_v = findPreviousMax(db, output_collection)
 	max_v = time.time()-5*60
+	print min_v, max_v
 	if min_v > max_v: return False
 
 	r = db.db[collection].map_reduce(mapper, reducer, out={'reduce':output_collection}, query={'timestamp_added':{'$gt': min_v, '$lt': max_v}})

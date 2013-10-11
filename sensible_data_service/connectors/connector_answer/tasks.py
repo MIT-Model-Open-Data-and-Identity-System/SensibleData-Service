@@ -4,8 +4,9 @@ from django.core.cache import cache
 import time
 
 @task()
-def calculateStatistics(collections):
+def calculateStatistics():
 	question = statistics_question
+	collections = question.COLLECTIONS
 
 	LOCK_EXPIRE = question.LOCK_EXPIRE
 	lock_id = 'lock-%s'%question.NAME

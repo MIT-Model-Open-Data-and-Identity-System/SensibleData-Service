@@ -5,7 +5,6 @@ from questions import statistics_question
 CELERYBEAT_SCHEDULE = {
 		statistics_question.NAME: {
 			'task': 'connectors.connector_answer.tasks.calculateStatistics',
-			'schedule': statistics_question.SCHEDULE['schedule'],
-			'args': statistics_question.SCHEDULE['args']
+			'schedule': statistics_question.SCHEDULE['schedule']
 			},
 		}
