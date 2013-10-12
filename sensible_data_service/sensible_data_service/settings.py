@@ -3,13 +3,13 @@
 import os
 import LOCAL_SETTINGS
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 
 
 ADMINS = (
-     ('Dude', 'dude@rug.com'),
+     ('Arkadiusz Stopczynski', 'arks@dtu.dk'),
 )
 
 MANAGERS = ADMINS
@@ -54,7 +54,7 @@ OPENID_RENDER_FAILURE = failure_handler_function
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = ['54.229.13.160']
+ALLOWED_HOSTS = ['.sensible.dtu.dk']
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
