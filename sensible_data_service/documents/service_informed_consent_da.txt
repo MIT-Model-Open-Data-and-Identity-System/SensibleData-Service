@@ -1,4 +1,52 @@
-This is the dummy text from service_informed_consent_da.txt
-<br/>
-<br/>
-This text should be replaced before deployment.
+Med henblik på at deltage i projekt med titlen SensibleDTU (Projektet) ledet af Lektor Sune Lehmann  Jørgensen på DTU Compute, erklærer undertegnede studerende sig oplyst om følgende:
+</br>
+</br>
+at forskningsprojektet, som Projektet er en del af, har til formål er at få viden om livsstil og dit helbred, adfærd og trivsel, samt sociale netværk og bevægelsesmønstre blandt studerende på DTU.
+</br>
+</br>
+at DTU har indhentet tilladelse til at indhente, registrere og lagre mine data til brug for forskningsprojektet.
+</br>
+</br>
+at mine personoplysninger kun vil blive brugt til forskning og vil ikke blive delt med andre, hverken private firmaer eller studieadministrationen på DTU. 
+</br>
+</br>
+at jeg skal henvende mig til <a href="mailto: support@sensible.dtu.dk">support@sensible.dtu.dk</a> hvis jeg har spørgsmål til Projektet eller ønsker at udtræde af Projektet.
+</br>
+</br>
+at jeg til enhver tid kan udtræde af Projektet og levere mobiltelefonen tilbage. 
+</br>
+</br>
+Yderligere er undertegnede indforstået med, at det er en betingelse for min deltagelse i Projektet og for udlevering af telefon til brug under Projektet:
+</br>
+</br>
+at jeg ved udlevering af telefon af mærket LG Nexus 4 til min brug under min deltagelse i Projektet, betaler et depositum på kr. 300,00. Dette depositum kan DTU bruge som sikkerhed for, at jeg afleverer telefonen tilbage i god stand ved min afslutning af deltagelse i Projektet eller når DTU beder mig om at tilbagelevere 
+</br>
+</br>
+at jeg får mit depositum retur når jeg returnerer telefonen og denne er i en almindelig god stand.
+</br>
+</br>
+at jeg indsætter et SIM kort i telefonen og benytter den som min primære (mobil) telefon.
+</br>
+</br>
+at jeg er indforstået med, at DTU til brug for Projektet, registrerer og indsamler data angående Bluetooth, mobil-master, WiFi netværk, opkaldte (men hashede/anonymiserede) telefonnumre og opkaldstid (intet indhold), afsendte SMS og tidspunkt (intet indhold; numre hashet som ovenfor), kontakter i telefonens telefonbog (ligeledes hashede informationer). Derudover indsamles oplysninger om forbindelser på online sociale networks (fx Facebook).  
+</br>
+</br>
+at jeg vil blive anmodet om at deltage i en række spørgeskemaundersøgelser. Hvis jeg vælger at deltage i disse, er jeg indforstået med, at resultaterne fra disse anvendes i anonymiseret form i forskningsprojektet på lige fod med den data indsamlet via min telefonbrug under Projektet.
+</br>
+</br>
+at jeg er indforstået med, at den indhentede og registrerede data anvendes i det forskningsprojekt som Projektet er en del af med henblik på publicering af forskningsprojektets konklusioner.
+</br>
+</br>
+at DTU ikke er ansvarlig for min brug af mobiltelefonen under Projektet. Det betyder, at hvis jeg eksempelvis via mobiltelefonen uploader, downloader eller videreformidler ophavsretligt beskyttet materiale på ulovlig vis, uploader, downloader eller videreformidler andet ulovlig materiale eller får eller spreder vira via mobiltelefonen, kan jeg ikke holde DTU ansvarlig for disse handlinger. 
+</br>
+</br>
+at mobiltelefonen jeg har fået udleveret til brug for Projektet er til låns og DTU vil kræve telefonen retur når forskningsprojektet afsluttes. DTU vil dog give mig et rimeligt varsel om tilbagelevering af telefonen på mindst 2 måneder, medmindre DTU’s krav om tilbagelevering er begrundet i mit brug af eller behandling af telefonen.
+</br>
+</br>
+at DTU kan rejse krav om erstatning overfor mig, hvis jeg med vilje eller ved grov uagtsomhed ødelægger eller beskadiger mobiltelefonen eller eksempelvis anvender mobiltelefonen til ulovlige aktiviteter eller andet, som påfører DTU et tab.
+</br>
+</br>
+at DTU ikke kan holdes ansvarlig for eventuelle skattemæssige konsekvenser i forbindelse med mit lån og brug af mobiltelefonen under Forsøget.
+</br>
+</br>
+Ved min godkende godkendelse tiltræder jeg hermed denne Tiltrædelseserklæring. 
