@@ -183,7 +183,7 @@ INSTALLED_APPS = (
     'documents',
     'render',
     'backup',
-	'djcelery',
+    'djcelery',
 )
 
 # A sample logging configuration. The only tangible logging
