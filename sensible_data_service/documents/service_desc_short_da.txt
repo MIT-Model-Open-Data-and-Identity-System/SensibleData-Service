@@ -1,1 +1,2 @@
-Smartphones møder forskning i sociale systemer!
+This is the dummy text from service_desc_short_da.txt -
+This text should be replaced before deployment.
