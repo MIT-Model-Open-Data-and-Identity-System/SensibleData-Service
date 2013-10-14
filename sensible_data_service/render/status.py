@@ -17,7 +17,7 @@ def status(request):
 		return HttpResponse(json.dumps({'error':'sorry, %s you are not authorized :('%request.user.username}))
 	query = request.REQUEST.get('query', '')
 	if query == '':
-		return render_to_response('status.html', {'api_uri':settings.BASE_URL+'status/', 'service_name':service_settings.SERVICE_NAME}, context_instance=RequestContext(request))
+		return render_to_response('status.html', {'api_uri':settings.BASE_URL+'status/'}, context_instance=RequestContext(request))
 	if query =='users':
 		return users_request(request)
 	if query =='database':

@@ -37,6 +37,6 @@ def researcher(request):
 
 
 	if not 'researcher' in roles:
-		return render_to_response('researcher.html', {'authorized': False, 'service_name':service_settings.SERVICE_NAME}, context_instance=RequestContext(request))
-	return render_to_response('researcher.html', {'authorized': True, 'application_values': values, 'service_name':service_settings.SERVICE_NAME}, context_instance=RequestContext(request))
+		return render_to_response('researcher.html', {'authorized': False}, context_instance=RequestContext(request))
+	return render_to_response('researcher.html', {'authorized': True, 'application_values': values}, context_instance=RequestContext(request))
 

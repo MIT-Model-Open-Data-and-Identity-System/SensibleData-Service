@@ -141,6 +141,7 @@ MIDDLEWARE_CLASSES = (
 TEMPLATE_CONTEXT_PROCESSORS = (
         'django.core.context_processors.static',
         'django.contrib.auth.context_processors.auth',
+        'sensible_data_service.context_processors.service',
 )
 
 ROOT_URLCONF = 'sensible_data_service.urls'
