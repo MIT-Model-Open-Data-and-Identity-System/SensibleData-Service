@@ -10,7 +10,7 @@
 	type="image/png"
 	href="{% static "img/favicon.png" %}">
     <meta charset="utf-8">
-    <title>SensibleDTU</title>
+    <title>{{ service_name }}</title>
     <meta name="description" content="">
     <meta name="author" content="Arkadiusz Stopczynski">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -44,7 +44,7 @@
     <div class="navbar-inner">
         <div class="container">
 			<div class="nav"><img src="{% static "img/red_logo5_40px.png" %}"></div>
-            <a class="brand">SensibleDTU</a>
+            <a class="brand">{{ service_name }}</a>
             <ul class="nav">
             </ul>
 			<ul class="nav pull-right">
@@ -78,7 +78,7 @@
 
 <footer class="row">
 <div class="span6">
-	<p>This is <a href="https://github.com/organizations/MIT-Model-Open-Data-and-Identity-System">SensibleDTU</a>, an <a href="http://openpds.media.mit.edu/">openPDS system</a>
+	<p>This is <a href="https://github.com/organizations/MIT-Model-Open-Data-and-Identity-System">{{ service_name }}</a>, an <a href="http://openpds.media.mit.edu/">openPDS system</a>
 
 	<span class="label label-important">0.1.16-devel</span></p>
 </div>
