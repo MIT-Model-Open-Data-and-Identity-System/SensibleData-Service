@@ -8,7 +8,6 @@ from django.contrib.auth.models import User
 from documents.models import InformedConsent
 from django.conf import settings
 import pymongo
-from sensible_data_service import settings as service_settings
 
 @login_required
 def status(request):

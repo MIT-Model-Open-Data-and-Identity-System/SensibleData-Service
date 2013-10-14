@@ -5,7 +5,6 @@ from accounts.models import UserRole
 from application_manager import application_manager
 import authorization_manager.authorization_manager
 import time
-from sensible_data_service import settings as service_settings
 
 @login_required
 def researcher(request):
