@@ -5,6 +5,7 @@ from accounts.models import UserRole
 from application_manager import application_manager
 import authorization_manager.authorization_manager
 import time
+from sensible_data_service import settings as service_settings
 
 @login_required
 def researcher(request):
@@ -28,7 +29,7 @@ def researcher(request):
 
 			values[application.name]['scopes'][scope.scope] = {}
 			values[application.name]['scopes'][scope.scope]['authorized'] = 1 if len(auth)>0 else 0
-			values[application.name]['scopes'][scope.scope]['authorization'] = auth 
+			values[application.name]['scopes'][scope.scope]['authorization'] = auth
 			values[application.name]['scopes'][scope.scope]['description'] = scope.description
 			values[application.name]['scopes'][scope.scope]['description_extra'] = scope.description_extra
 			values[application.name]['scopes'][scope.scope]['auth_url'] = authorization_manager.authorization_manager.buildAuthUrl(scope.connector, application)
@@ -36,6 +37,6 @@ def researcher(request):
 
 
 	if not 'researcher' in roles:
-		return render_to_response('researcher.html', {'authorized': False}, context_instance=RequestContext(request))
-	return render_to_response('researcher.html', {'authorized': True, 'application_values': values}, context_instance=RequestContext(request))
+		return render_to_response('researcher.html', {'authorized': False, 'service_name':service_settings.SERVICE_NAME}, context_instance=RequestContext(request))
+	return render_to_response('researcher.html', {'authorized': True, 'application_values': values, 'service_name':service_settings.SERVICE_NAME}, context_instance=RequestContext(request))
 
