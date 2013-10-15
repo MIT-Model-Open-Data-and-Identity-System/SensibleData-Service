@@ -29,6 +29,12 @@ SERVICE_NAME = LOCAL_SETTINGS.SERVICE_NAME
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = LOCAL_SETTINGS.SECRET_KEY
 
+import djcelery
+djcelery.setup_loader()
+
+from connectors.connector_answer import schedule
+
+CELERYBEAT_SCHEDULE = schedule.CELERYBEAT_SCHEDULE
 
 LOGIN_URL = ROOT_URL+'openid/login/'
 LOGIN_REDIRECT_URL = ROOT_URL
@@ -135,6 +141,7 @@ MIDDLEWARE_CLASSES = (
 TEMPLATE_CONTEXT_PROCESSORS = (
         'django.core.context_processors.static',
         'django.contrib.auth.context_processors.auth',
+        'sensible_data_service.context_processors.service',
 )
 
 ROOT_URLCONF = 'sensible_data_service.urls'
@@ -172,11 +179,13 @@ INSTALLED_APPS = (
     'connectors.connector_questionnaire',
     'connectors.connector_facebook',
     'connectors.connector_raw',
+    'connectors.connector_answer',
     'anonymizer',
     'oauth2app',
     'documents',
     'render',
     'backup',
+	'djcelery',
 )
 
 # A sample logging configuration. The only tangible logging

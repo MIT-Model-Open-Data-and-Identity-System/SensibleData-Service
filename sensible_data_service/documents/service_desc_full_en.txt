@@ -1,5 +1,4 @@
-This is a really great study!
-</br>
-I mean, like the best one!
-</br>
-Totally!
+This is the dummy text from service_desc_full_en.txt
+<br/>
+<br/>
+This text should be replaced before deployment.

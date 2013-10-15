@@ -28,7 +28,7 @@ def researcher(request):
 
 			values[application.name]['scopes'][scope.scope] = {}
 			values[application.name]['scopes'][scope.scope]['authorized'] = 1 if len(auth)>0 else 0
-			values[application.name]['scopes'][scope.scope]['authorization'] = auth 
+			values[application.name]['scopes'][scope.scope]['authorization'] = auth
 			values[application.name]['scopes'][scope.scope]['description'] = scope.description
 			values[application.name]['scopes'][scope.scope]['description_extra'] = scope.description_extra
 			values[application.name]['scopes'][scope.scope]['auth_url'] = authorization_manager.authorization_manager.buildAuthUrl(scope.connector, application)
