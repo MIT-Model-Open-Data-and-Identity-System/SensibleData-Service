@@ -15,6 +15,7 @@ import connectors.connector_questionnaire.auth
 import connectors.connector_funf.auth
 import connectors.connector_facebook.auth
 import connectors.connector_raw.auth
+import connectors.connector_economics.auth
 
 def buildAuthUrl(connector, application=None):
 	if connector.connector_type == 'connector_funf':
@@ -27,12 +28,14 @@ def buildAuthUrl(connector, application=None):
 		return connectors.connector_facebook.auth.buildAuthUrl(application)
 	if connector.connector_type == 'connector_raw':
 		return connectors.connector_raw.auth.buildAuthUrl(application)
+	if connector.connector_type == 'connector_economics':
+		return connectors.connector_economics.auth.buildAuthUrl(application)
 	return {'error':'no valid connector provided', 'url':'', 'message': 'error: no valid connector provided'}
 
 def getAuthorization(user, scope, application):
 	authorizations = Authorization.objects.filter(active=True, user=user, scope=scope, application=application)
 	return authorizations
-	
+
 def getAuthorizationForToken(scope, token):
 	try:
 		auth = Authorization.objects.get(scope=Scope.objects.get(scope = scope),\
@@ -55,11 +58,11 @@ def getAuthorizationForDevice(scope, device_id, timestamp):
 				user = auth.user
 				if t > timestamp: continue
 				delta = timestamp - t
-				if delta > lowest_delta: continue	
+				if delta > lowest_delta: continue
 				lowest_delta = delta
 				final_auth = auth
-		
-		
+
+
 
 	except: pass
 	return final_auth
@@ -71,8 +74,8 @@ def createAuthorization(response, device_id = None):
 	roles = []
 	try: roles = [x.role for x in UserRole.objects.get(user=access_token.user).roles.all()]
 	except: pass
-	
-	if (not 'researcher' in roles) and (len(InformedConsent.objects.filter(user=access_token.user).all()) == 0):        
+
+	if (not 'researcher' in roles) and (len(InformedConsent.objects.filter(user=access_token.user).all()) == 0):
 		return {'error':'user is not enrolled in the study'}
 
 

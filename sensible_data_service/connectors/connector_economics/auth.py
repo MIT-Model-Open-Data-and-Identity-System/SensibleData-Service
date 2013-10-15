@@ -32,8 +32,8 @@ def grant(request):
 	gcm_id = request.REQUEST.get('gcm_id', '')
 
 	try: Application.objects.get(client=Client.objects.get(key=client_id))
-	except Application.DoesNotExist: return HttpResponse(json.dumps({'error':'client_id does not exist'}))
-	except Client.DoesNotExist: return HttpResponse(json.dumps({'error':'client_id does not exist'}))
+	except Application.DoesNotExist: return HttpResponse(json.dumps({'error':'client_id (Application) does not exist'}))
+	except Client.DoesNotExist: return HttpResponse(json.dumps({'error':'client_id (Client) does not exist'}))
 
 	try: gcm_registration = GcmRegistration.objects.get(user=user, device=Device.objects.get(user=user, device_id=device_id), application=Application.objects.get(client=Client.objects.get(key=client_id)))
 	except: gcm_registration = None
