@@ -2,6 +2,7 @@
 
 import os
 import LOCAL_SETTINGS
+from questions import LOCAL_installed_questions
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -32,9 +33,9 @@ SECRET_KEY = LOCAL_SETTINGS.SECRET_KEY
 import djcelery
 djcelery.setup_loader()
 
-from connectors.connector_answer import schedule
 
-CELERYBEAT_SCHEDULE = schedule.CELERYBEAT_SCHEDULE
+CELERYBEAT_SCHEDULE = LOCAL_installed_questions.INSTALLED_QUESTIONS
+INSTALLED_ANSWERS = LOCAL_installed_questions.INSTALLED_ANSWERS
 
 LOGIN_URL = ROOT_URL+'openid/login/'
 LOGIN_REDIRECT_URL = ROOT_URL
@@ -185,6 +186,7 @@ INSTALLED_APPS = (
     'render',
     'backup',
 	'djcelery',
+	'questions',
 )
 
 # A sample logging configuration. The only tangible logging
