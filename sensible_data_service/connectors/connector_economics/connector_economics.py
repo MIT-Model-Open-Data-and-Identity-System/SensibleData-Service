@@ -1,21 +1,14 @@
-import os.path
-import datetime
-import time
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from backup import backup
-import pdb;
-from django.core.servers.basehttp import FileWrapper
-import mimetypes
-from utils import log
 from django.conf import settings
 
+from authorization_manager import authorization_manager
+from accounts.models import UserRole
 from connectors.connector import connector
 import bson.json_util as json
 
 #from connectors.connector_funf.models import ConnectorFunf
 import connectors.connectors_config;
-import authorization_manager
 
 
 # bug fix
@@ -25,23 +18,35 @@ import authorization_manager
 # end of bug fix
 
 
-import random
-import re
 
 myConnector = connectors.connectors_config.CONNECTORS['ConnectorEconomics']['config']
 
+
 @csrf_exempt
 def answer(request):
-	#pdb.set_trace();
-	#log.log('Debug', 'GET for config')
-	access_token = request.REQUEST.get('access_token', '')
-	#authorization = self.pipe.getAuthorization(access_token)
+    auth = authorization_manager.authenticate_token(request, 'connector_economics.submit_data')
+    if 'error' in auth:
+        return HttpResponse(json.dumps(auth), status=401)
 
-	#TODO: do stuff
+    user = auth['user']
 
-	if access_token:
-		return HttpResponse(status='200')
-	else:
-		return HttpResponse(status='500')
+    roles = None
+    try:
+        roles = [x.role for x in UserRole.objects.get(user=user).roles.all()]
+    except:
+        pass
+
+	return HttpResponse(status='200')
 
 
+
+@csrf_exempt
+def list(request):
+    #TODO: different scope?
+    auth = authorization_manager.authenticate_token(request, 'connector_economics.submit_data')
+    if 'error' in auth:
+        return HttpResponse(json.dumps(auth), status=401)
+
+    user = auth['user']
+
+    return HttpResponse(json.dumps({'current':[{'type':'pgg', 'participants':4}, {'type':'pgg', 'participants':1337}]}))
