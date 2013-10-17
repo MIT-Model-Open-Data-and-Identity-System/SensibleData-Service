@@ -2,19 +2,27 @@ from django.http import HttpResponse
 import json
 from django.shortcuts import render_to_response
 from django.conf import settings
+from .models import *
 
 from authorization_manager import authorization_manager
 
 def endpoint(request, answer):
-	response = {"error":"no such answer installed"}
+
+	accepted_scopes = []
 
 	try:
-		for a in settings.INSTALLED_ANSWERS:
-			if answer.split('/')[0] == a:
-				for endpoint in settings.INSTALLED_ANSWERS[a]:
-					method = settings.INSTALLED_ANSWERS[a][answer.split('/')[1]]['method']
-					accepted_scopes = settings.INSTALLED_ANSWERS[a][answer.split('/')[1]]['accepted_scopes']
-	except: return HttpResponse(json.dumps(response), status=401, content_type="application/json")
+		for a in ConnectorAnswerEndpoint.objects.filter(active=True): 
+			if answer.split('/')[0] == a.question and answer.split('/')[1] == a.answer:
+				accepted_scopes = [x.scope for x in a.scopes.all()]
+				exec('from questions.available_questions import '+a.question)
+				method = eval(a.question+'.'+a.answer)
+	except:
+		response = {"error":"no such answer installed"}
+		return HttpResponse(json.dumps(response), status=401, content_type="application/json")
+
+	if len(accepted_scopes) == 0:
+		response = {"error":"no such answer installed or is not configured properly"}
+		return HttpResponse(json.dumps(response), status=401, content_type="application/json")
 
 
 	auth = authorization_manager.authenticate_token(request)
