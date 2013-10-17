@@ -4,6 +4,7 @@ from bson.code import Code
 import json
 import time
 
+
 NAME = 'statistics_question'
 
 COLLECTIONS = ['edu_mit_media_funf_probe_builtin_BluetoothProbe', 'edu_mit_media_funf_probe_builtin_CallLogProbe', 'edu_mit_media_funf_probe_builtin_CellProbe', 'edu_mit_media_funf_probe_builtin_ContactProbe', 'edu_mit_media_funf_probe_builtin_HardwareInfoProbe', 'edu_mit_media_funf_probe_builtin_LocationProbe', 'edu_mit_media_funf_probe_builtin_SMSProbe', 'edu_mit_media_funf_probe_builtin_ScreenProbe', 'edu_mit_media_funf_probe_builtin_TimeOffsetProbe', 'edu_mit_media_funf_probe_builtin_WifiProbe']
@@ -61,7 +62,7 @@ def findPreviousMax(db, collection):
 	except IndexError: pass
 	return previous_max
 
-def stats(request, user, scopes, users_to_return, user_roles, own_data):
+def data_stats(request, user, scopes, users_to_return, user_roles, own_data):
 	db = database.Database()
 
 	query = {'$query':{}}
