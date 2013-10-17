@@ -3,6 +3,7 @@ import json
 from django.shortcuts import render_to_response
 from django.conf import settings
 from .models import *
+from accounts.models import UserRole
 
 from authorization_manager import authorization_manager
 
@@ -49,7 +50,7 @@ def endpoint(request, answer):
 	user_roles = []
 	try: user_roles = [x.role for x in UserRole.objects.get(user=auth['user']).roles.all()]
 	except: pass
-
+	
 	own_data = False
 	if len(users_to_return) == 1 and users_to_return[0] == auth['user'].username: own_data = True
 
