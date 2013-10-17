@@ -2,7 +2,6 @@
 
 import os
 import LOCAL_SETTINGS
-from questions import LOCAL_installed_questions
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -30,12 +29,6 @@ SERVICE_NAME = LOCAL_SETTINGS.SERVICE_NAME
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = LOCAL_SETTINGS.SECRET_KEY
 
-import djcelery
-djcelery.setup_loader()
-
-
-CELERYBEAT_SCHEDULE = LOCAL_installed_questions.INSTALLED_QUESTIONS
-INSTALLED_ANSWERS = LOCAL_installed_questions.INSTALLED_ANSWERS
 
 LOGIN_URL = ROOT_URL+'openid/login/'
 LOGIN_REDIRECT_URL = ROOT_URL
@@ -218,5 +211,18 @@ LOGGING = {
     }
 }
 
+CACHES = {
+	'default': {
+		'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+		'LOCATION': '/var/tmp/django_cache',
+	}
+}
+
 import hashlib
 SESSION_COOKIE_NAME = str(hashlib.sha1(SECRET_KEY).hexdigest())
+
+import djcelery
+import djcelery.schedulers
+djcelery.setup_loader()
+
+CELERYBEAT_SCHEDULER = djcelery.schedulers.DatabaseScheduler
