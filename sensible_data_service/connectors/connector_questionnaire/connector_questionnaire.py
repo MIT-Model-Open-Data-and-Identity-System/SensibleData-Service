@@ -1,10 +1,13 @@
 from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
 from authorization_manager import authorization_manager
 import json
 from utils.database import Database
 import urllib
 from accounts.models import UserRole
 from backup import backup
+import time
+from django.utils.http import urlunquote
 
 def upload(request):
 
@@ -30,3 +33,14 @@ def upload(request):
 	doc_id = database.insert(doc, collection=probe, roles=roles)
 
 	return HttpResponse(json.dumps({'ok':str(doc_id)}), status=200)
+
+@csrf_exempt
+def install(request):
+	#return HttpResponse(urlunquote(request.POST))
+	#return HttpResponse(request.POST.dict())	
+	doc = json.loads(request.POST.get('data'))
+	doc['timestamp_added'] = int(time.time())
+	database = Database()
+	probe = 'dk_dtu_compute_questionnaire_survey'
+	doc_id = database.insert(doc, collection = probe)
+	return HttpResponse(json.dumps({'ok':str(doc_id)}), status = 200)
