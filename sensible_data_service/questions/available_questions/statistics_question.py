@@ -4,13 +4,12 @@ from bson.code import Code
 import json
 import time
 
-NAME = 'statistics_question'
-SCHEDULE = { 'schedule': timedelta(seconds=60*10) }
-COLLECTIONS = ['edu_mit_media_funf_probe_builtin_BluetoothProbe', 'edu_mit_media_funf_probe_builtin_CallLogProbe', 'edu_mit_media_funf_probe_builtin_CellProbe', 'edu_mit_media_funf_probe_builtin_ContactProbe', 'edu_mit_media_funf_probe_builtin_HardwareInfoProbe', 'edu_mit_media_funf_probe_builtin_LocationProbe', 'edu_mit_media_funf_probe_builtin_SMSProbe', 'edu_mit_media_funf_probe_builtin_ScreenProbe', 'edu_mit_media_funf_probe_builtin_TimeOffsetProbe', 'edu_mit_media_funf_probe_builtin_WifiProbe']
-LOCK_EXPIRE = 60*60 #max time in sec after which the task will be considered zombie
 
-def run(collection):
-	print collection
+NAME = 'statistics_question'
+
+COLLECTIONS = ['edu_mit_media_funf_probe_builtin_BluetoothProbe', 'edu_mit_media_funf_probe_builtin_CallLogProbe', 'edu_mit_media_funf_probe_builtin_CellProbe', 'edu_mit_media_funf_probe_builtin_ContactProbe', 'edu_mit_media_funf_probe_builtin_HardwareInfoProbe', 'edu_mit_media_funf_probe_builtin_LocationProbe', 'edu_mit_media_funf_probe_builtin_SMSProbe', 'edu_mit_media_funf_probe_builtin_ScreenProbe', 'edu_mit_media_funf_probe_builtin_TimeOffsetProbe', 'edu_mit_media_funf_probe_builtin_WifiProbe']
+
+def run():
 	db = database.Database()
 	mapper = Code("""
 					function() {
@@ -40,15 +39,20 @@ def run(collection):
 				""")
 
 
+	for collection in COLLECTIONS:
+		print collection
 
-	output_collection = NAME+'_'+collection
-	min_v = findPreviousMax(db, output_collection)
-	max_v = time.time()-5*60
-	print min_v, max_v
-	if min_v > max_v: return False
 
-	r = db.db[collection].map_reduce(mapper, reducer, out={'reduce':output_collection}, query={'timestamp_added':{'$gt': min_v, '$lt': max_v}})
-	db.db[output_collection].ensure_index('timestamp_added')
+		output_collection = NAME+'_'+collection
+		min_v = findPreviousMax(db, output_collection)
+		max_v = time.time()-5*60
+		print min_v, max_v
+		if min_v > max_v: continue
+		print db.db
+		r = db.db[collection].map_reduce(mapper, reducer, out={'reduce':output_collection}, query={'timestamp_added':{'$gt': min_v, '$lt': max_v}})
+		db.db[output_collection].ensure_index('timestamp_added')
+	return
+
 
 	return True
 
@@ -58,5 +62,19 @@ def findPreviousMax(db, collection):
 	except IndexError: pass
 	return previous_max
 
-def endpoint():
-	return {'hello':'world'}
+def data_stats(request, user, scopes, users_to_return, user_roles, own_data):
+	db = database.Database()
+
+	query = {'$query':{}}
+	if not 'all' in users_to_return:
+		query['$query']['_id'] = {'$in':users_to_return}
+
+	results = {}
+	for collection in COLLECTIONS:
+		results[collection] = {}
+		for x in db.getDocuments(query=query, collection=NAME+'_'+collection, roles=user_roles): 
+			results[collection][x['_id']] = int(x['value']['count'])
+
+
+
+	return results

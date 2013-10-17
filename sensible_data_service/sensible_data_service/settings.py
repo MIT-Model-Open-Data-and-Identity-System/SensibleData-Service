@@ -29,12 +29,6 @@ SERVICE_NAME = LOCAL_SETTINGS.SERVICE_NAME
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = LOCAL_SETTINGS.SECRET_KEY
 
-import djcelery
-djcelery.setup_loader()
-
-from connectors.connector_answer import schedule
-
-CELERYBEAT_SCHEDULE = schedule.CELERYBEAT_SCHEDULE
 
 LOGIN_URL = ROOT_URL+'openid/login/'
 LOGIN_REDIRECT_URL = ROOT_URL
@@ -184,7 +178,8 @@ INSTALLED_APPS = (
     'documents',
     'render',
     'backup',
-    'djcelery',
+	'djcelery',
+	'questions',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -216,5 +211,18 @@ LOGGING = {
     }
 }
 
+CACHES = {
+	'default': {
+		'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+		'LOCATION': '/var/tmp/django_cache',
+	}
+}
+
 import hashlib
 SESSION_COOKIE_NAME = str(hashlib.sha1(SECRET_KEY).hexdigest())
+
+import djcelery
+import djcelery.schedulers
+djcelery.setup_loader()
+
+CELERYBEAT_SCHEDULER = djcelery.schedulers.DatabaseScheduler
