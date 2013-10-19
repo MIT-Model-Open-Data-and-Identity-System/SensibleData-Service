@@ -1,1 +1,2 @@
-This is the bestest study ever!
+This is the dummy text from service_desc_short_en.txt -
+This text should be replaced before deployment.

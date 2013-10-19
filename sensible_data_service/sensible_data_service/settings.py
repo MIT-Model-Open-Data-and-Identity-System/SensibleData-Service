@@ -135,6 +135,7 @@ MIDDLEWARE_CLASSES = (
 TEMPLATE_CONTEXT_PROCESSORS = (
         'django.core.context_processors.static',
         'django.contrib.auth.context_processors.auth',
+        'sensible_data_service.context_processors.service',
 )
 
 ROOT_URLCONF = 'sensible_data_service.urls'
@@ -171,11 +172,14 @@ INSTALLED_APPS = (
     'connectors.connector_questionnaire',
     'connectors.connector_facebook',
     'connectors.connector_raw',
+    'connectors.connector_answer',
     'anonymizer',
     'oauth2app',
     'documents',
     'render',
     'backup',
+	'djcelery',
+	'questions',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -207,5 +211,18 @@ LOGGING = {
     }
 }
 
+CACHES = {
+	'default': {
+		'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+		'LOCATION': '/var/tmp/django_cache',
+	}
+}
+
 import hashlib
 SESSION_COOKIE_NAME = str(hashlib.sha1(SECRET_KEY).hexdigest())
+
+import djcelery
+import djcelery.schedulers
+djcelery.setup_loader()
+
+CELERYBEAT_SCHEDULER = djcelery.schedulers.DatabaseScheduler

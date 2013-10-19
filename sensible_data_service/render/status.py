@@ -11,7 +11,7 @@ import pymongo
 
 @login_required
 def status(request):
-	authorized_users = ['arks@dtu.dk', 'sljo@dtu.dk']
+	authorized_users = ['arks@dtu.dk', 'sljo@dtu.dk', 'lasse.valentini@gmail.com']
 	if not request.user.email in authorized_users:
 		return HttpResponse(json.dumps({'error':'sorry, %s you are not authorized :('%request.user.username}))
 	query = request.REQUEST.get('query', '')
@@ -71,7 +71,7 @@ def mobile_request(request):
 		db = database.Database()
 		for x in sections:
 			values[x+'_doc'] = db.getDocuments(query={}, collection = 'edu_mit_media_funf_probe_builtin_'+x).count()
-			values[x+'_users'] = len(db.getDocuments(query={}, collection='edu_mit_media_funf_probe_builtin_'+x).distinct('user'))
+			values[x+'_users'] = db.getDocuments(query={}, collection='statistics_question_edu_mit_media_funf_probe_builtin_'+x).count()
 	except: pass
 	return HttpResponse(json.dumps(values))
 
