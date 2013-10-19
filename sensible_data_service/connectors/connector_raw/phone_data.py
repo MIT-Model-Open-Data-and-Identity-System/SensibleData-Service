@@ -2,7 +2,6 @@ from django.http import HttpResponse
 import bson.json_util as json
 from authorization_manager import authorization_manager
 from utils import database
-from utils import audit
 from django.shortcuts import render_to_response
 from accounts.models import UserRole
 from django.contrib.auth.models import User
@@ -142,15 +141,11 @@ def dataBuild(request, probe_settings, users_to_return, decrypted = False, own_d
 		pass
 	
 
-	auditdb= audit.Audit()
-	doc_audit=response['meta']
 	users_return=[]
 	users_results = cursorToArray(results, decrypted = decrypted, probe=probe_settings['collection'])
 	for data_users in users_results:
 		if data_users['user'] not in users_return:
 			users_return.append(data_users['user'])
-	doc_audit['users']=users_return
-	doc_audit=transform.transform(doc_audit)
 	
 	if proc_req['pretty']:
 		return render_to_response('pretty_json.html', {'response': json.dumps(response, indent=2)})
