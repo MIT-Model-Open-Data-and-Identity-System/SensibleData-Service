@@ -11,7 +11,7 @@ import pymongo
 
 @login_required
 def status(request):
-	authorized_users = ['arks@dtu.dk', 'sljo@dtu.dk']
+	authorized_users = ['arks@dtu.dk', 'sljo@dtu.dk', 'lasse.valentini@gmail.com']
 	if not request.user.email in authorized_users:
 		return HttpResponse(json.dumps({'error':'sorry, %s you are not authorized :('%request.user.username}))
 	query = request.REQUEST.get('query', '')
@@ -38,18 +38,18 @@ def database_request(request):
 	values = {}
 	values['database_status'] = getDatabaseStatus()
 	values['database_stats'] = getDatabaseStats()
-	values['database_uri'] = settings.DATA_DATABASE['params']['url'].replace('%s:%s@','')
+	values['database_config'] = json.dumps(settings.DATA_DATABASE)
 	return HttpResponse(json.dumps(values))
 
 def questionnaires_request(request):
 	values = {}
 	try:
 		db = database.Database()
-		values['documents_no'] = db.db['dk_dtu_compute_questionnaire'].count()
-		values['users'] = len(db.db['dk_dtu_compute_questionnaire'].distinct('user'))
-		values['finished'] = db.db['dk_dtu_compute_questionnaire'].find({'variable_name':'_submitted'}).count()
-		values['male'] = db.db['dk_dtu_compute_questionnaire'].find({'variable_name':'sex', 'response': 'mand'}).count()
-		values['female'] = db.db['dk_dtu_compute_questionnaire'].find({'variable_name':'sex', 'response': 'kvinde'}).count()
+		values['documents_no'] = db.getDocuments(query={}, collection='dk_dtu_compute_questionnaire').count()
+		values['users'] = len(db.getDocuments(query={}, collection='dk_dtu_compute_questionnaire').distinct('user'))
+		values['finished'] = db.getDocuments(query={'variable_name':'_submitted'}, collection='dk_dtu_compute_questionnaire').count()
+		values['male'] = db.getDocuments(query={'variable_name':'sex', 'response':'mand'}, collection='dk_dtu_compute_questionnaire').count()
+		values['female'] = db.getDocuments(query={'variable_name':'sex', 'response':'kvinde'}, collection='dk_dtu_compute_questionnaire').count()
 	except: pass
 	return HttpResponse(json.dumps(values))
 
@@ -59,8 +59,8 @@ def facebook_request(request):
 	try:
 		db = database.Database()
 		for x in sections:
-			values[x+'_doc'] = db.db['dk_dtu_compute_facebook_'+x].count()
-			values[x+'_users'] = len(db.db['dk_dtu_compute_facebook_'+x].distinct('user'))
+			values[x+'_doc'] = db.getDocuments(query={}, collection='dk_dtu_compute_facebook_'+x).count()
+			values[x+'_users'] = len(db.getDocuments(query={}, collection='dk_dtu_compute_facebook_'+x).distinct('user'))
 	except: pass
 	return HttpResponse(json.dumps(values))
 
@@ -70,8 +70,8 @@ def mobile_request(request):
 	try:
 		db = database.Database()
 		for x in sections:
-			values[x+'_doc'] = db.db['edu_mit_media_funf_probe_builtin_'+x].count()
-			values[x+'_users'] = len(db.db['edu_mit_media_funf_probe_builtin_'+x].distinct('user'))
+			values[x+'_doc'] = db.getDocuments(query={}, collection = 'edu_mit_media_funf_probe_builtin_'+x).count()
+			values[x+'_users'] = db.getDocuments(query={}, collection='statistics_question_edu_mit_media_funf_probe_builtin_'+x).count()
 	except: pass
 	return HttpResponse(json.dumps(values))
 

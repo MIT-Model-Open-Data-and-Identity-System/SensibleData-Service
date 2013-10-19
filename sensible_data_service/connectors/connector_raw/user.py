@@ -65,7 +65,7 @@ def userBuild(request, users_to_return, decrypted = False, own_data = False, rol
 	if own_data and 'researcher' in roles: collection += '_researcher'
 
 
-	response['results'] = [x for x in db.db[collection].distinct('user') if x in users_to_return or 'all' in users_to_return]
+	response['results'] = [x for x in db.getDocuments(query={}, collection=collection).distinct('user') if x in users_to_return or 'all' in users_to_return]
 
 	response['meta']['execution_time_seconds'] = time.time()-_start_time
 	response['meta']['status'] = {'status':'OK','code':200, 'desc':''}

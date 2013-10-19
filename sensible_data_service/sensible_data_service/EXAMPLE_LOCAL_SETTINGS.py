@@ -14,35 +14,35 @@ BASE_URL = 'https://nowhere/sensible-dtu/'
 
 #Databses
 DATABASES = {
-	'default': {
-		'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-		'OPTIONS': {
-			'read_default_file': os.path.join(BASE_DIR,'SECURE_my.cnf'),
-		},
-	}
+    'default': {
+        'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+        'OPTIONS': {
+            'read_default_file': os.path.join(BASE_DIR,'SECURE_my.cnf'),
+        },
+    }
 }
 
 
 PLATFORM = {
-		"platform_uri": "https://54.229.13.160/sensible-data/", 
-		"platform_uri_token": "https://54.229.13.160/sensible-data/"+"oauth2/oauth2/token/",
-		"redirect_uri": "https://54.229.13.160/sensible-dtu/"+"platform_api/redirect_uri/",
-		"required_scopes": ["enroll"],
-		"ip_addr": ["54.229.13.160"] #list of ip addresses of the platform authorized to make calls
+        "platform_uri": "https://54.229.13.160/sensible-data/",
+        "platform_uri_token": "https://54.229.13.160/sensible-data/"+"oauth2/oauth2/token/",
+        "redirect_uri": "https://54.229.13.160/sensible-dtu/"+"platform_api/redirect_uri/",
+        "required_scopes": ["enroll"],
+        "ip_addr": ["54.229.13.160"] #list of ip addresses of the platform authorized to make calls
 }
 
 DATA_DATABASE = {
-	"backend":"mongodb",
-	"params": {
-		"url":"mongodb://%s:%s@ds035368.mongolab.com:35368/sensibledtu_1k_milosz",
-		"database":"sensibledtu_1k_milosz"
-		}
+    "backend":"mongodb",
+    "params": {
+        "url":"mongodb://%s:%s@ds035368.mongolab.com:35368/sensibledtu_1k_milosz",
+        "database":"sensibledtu_1k_milosz"
+        }
 }
 
 CONNECTORS = {
-	"ConnectorFunf": True,
-	"ConnectorQuestionnaire": True,
-	"ConnectorFacebook": False,
+    "ConnectorFunf": True,
+    "ConnectorQuestionnaire": True,
+    "ConnectorFacebook": False,
 }
 
 SERVICE_NAME = "SensibleDTU-1k"

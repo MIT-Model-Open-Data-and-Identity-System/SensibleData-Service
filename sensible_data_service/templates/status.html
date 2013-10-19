@@ -28,7 +28,7 @@
 		<h2>Database</h2>
 		<hr>
 		<p class="lead">Status: <span id="database_status"></span></p>
-		<p class="lead">URI: <span id="database_uri"></span></p>
+		<p class="lead">Config: <span id="database_config"></span></p>
 		<p class="lead">Data Size: <span id="database_data_size"></span></p>
 		<p class="lead">Storage Size: <span id="database_storage_size"></span></p>
 		<p class="lead">Objects: <span id="database_objects"></span></p>
@@ -368,7 +368,7 @@
 		var t=d.toLocaleTimeString();
 		document.getElementById('database_last_refreshed').innerHTML = t;
 		document.getElementById('database_status').innerHTML = database['database_status'];
-		document.getElementById('database_uri').innerHTML = database['database_uri'];
+		document.getElementById('database_config').innerHTML = database['database_config'];
 		document.getElementById('database_data_size').innerHTML = Math.round(database['database_stats']['dataSize']/1048576.0)+'MB';
 		document.getElementById('database_storage_size').innerHTML = Math.round(database['database_stats']['storageSize']/1048576.0)+'MB';
 		document.getElementById('database_indexes').innerHTML = database['database_stats']['indexes'];
