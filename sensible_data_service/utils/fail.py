@@ -2,17 +2,15 @@ import os
 import datetime
 import time
 import shutil
-from utils import log
+from sensible_audit import audit
 
-#import pdb
 #TODO: split or rename this
 
 def fail(filename, failed_directory_path, message):
-	log.log('Error', message)
+	audit.Audit().e('file_op', 'fail', {'message': message})
 	safe_move(filename, failed_directory_path)
 
 def safe_move(filename, move_to_path):
-	#pdb.set_trace()
 	if not os.path.exists(move_to_path):
 		os.makedirs(move_to_path)
 	try:
