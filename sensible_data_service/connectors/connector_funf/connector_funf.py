@@ -38,7 +38,7 @@ def rescue(request):
 @csrf_exempt
 def upload(request):
 	random.seed(time.time())
-	audit.Audit().d('connector_fuf', 'post', {message: 'Received POST'})
+	audit.Audit().d('connector_funf', 'post', {'message': 'Received POST'})
 	scope = 'all_probes'
 
 

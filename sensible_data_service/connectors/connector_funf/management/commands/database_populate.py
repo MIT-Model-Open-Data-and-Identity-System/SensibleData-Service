@@ -1,5 +1,5 @@
 from connectors.connector_funf.database_single_population import *
-from sensible_auditor import audit
+from sensible_audit import audit
 
 from django.core.management.base import NoArgsCommand
 
