@@ -2,29 +2,42 @@ from django.http import HttpResponse
 import bson.json_util as json
 from authorization_manager import authorization_manager
 from utils import database
+#from utils import audit
 from django.shortcuts import render_to_response
 from accounts.models import UserRole
 from django.contrib.auth.models import User
 import re
 import urllib
 import time
-import transform
+#import transform
 from connector_utils import *
 from anonymizer.anonymizer import Anonymizer
 
-def calllog(request):
-	return get_data(request, PHONE_DATA_SETTINGS['calllog'])
+def birthday(request):
+	return get_data(request, FACEBOOK_DATA_SETTINGS['birthday'])
+def education(request):
+	return get_data(request, FACEBOOK_DATA_SETTINGS['education'])
+def likes(request):
+	return get_data(request, FACEBOOK_DATA_SETTINGS['likes'])
+def friends(request):
+	return get_data(request, FACEBOOK_DATA_SETTINGS['friends'])
+def friendlists(request):
+	return get_data(request, FACEBOOK_DATA_SETTINGS['friendlists'])
+def groups(request):
+	return get_data(request, FACEBOOK_DATA_SETTINGS['groups'])
+def hometown(request):
+	return get_data(request, FACEBOOK_DATA_SETTINGS['hometown'])
+def interests(request):
+	return get_data(request, FACEBOOK_DATA_SETTINGS['interests'])
+def locationfacebook(request):
+	return get_data(request, FACEBOOK_DATA_SETTINGS['locationfacebook'])
+def political(request):
+	return get_data(request, FACEBOOK_DATA_SETTINGS['political'])
+def religion(request):
+	return get_data(request, FACEBOOK_DATA_SETTINGS['religion'])
+def work(request):
+	return get_data(request, FACEBOOK_DATA_SETTINGS['work'])
 
-def sms(request):
-	return get_data(request, PHONE_DATA_SETTINGS['sms'])
-def bluetooth(request):
-	return get_data(request, PHONE_DATA_SETTINGS['bluetooth'])
-
-def location(request):
-	return get_data(request, PHONE_DATA_SETTINGS['location'])
-
-def wifi(request):
-	return get_data(request, PHONE_DATA_SETTINGS['wifi'])
 def get_data(request, probe_settings):
 	decrypted = booleanize(request.REQUEST.get('decrypted', False))
 
@@ -78,22 +91,20 @@ def dataBuild(request, probe_settings, users_to_return, decrypted = False, own_d
 		proc_req = processApiCall(request, probe_settings, users_to_return)
 		query = buildQuery(users_to_return, proc_req)	
 		collection = probe_settings['collection']
-		roles_to_use = []
-                if own_data and 'researcher' in roles: roles_to_use = ['researcher']
-                if own_data and 'developer' in roles: roles_to_use = ['developer']
+		if own_data and 'researcher' in roles: collection += '_researcher'
 
 		db = database.Database()
 		
 		docs = db.getDocumentsCustom(query=query, collection=collection,\
-				fields = proc_req['fields'], roles=roles_to_use)
+				fields = proc_req['fields'])
 
 		### hinting
 		# if the users are specified, we use the hint with users
 		if proc_req['users'] is not None:
-			docs = docs.hint([('data.TIMESTAMP',proc_req['order']), ('_id',1), ('user',1)])
+			docs = docs.hint([('timestamp',proc_req['order']), ('facebook_id',1), ('user',1)])
 		# else, we use only id and timestamp
 		else:
-			docs = docs.hint([('data.TIMESTAMP',proc_req['order']), ('_id',1)])
+			docs = docs.hint([('timestamp',proc_req['order']), ('facebook_id',1)])
 		#pagination (skipping)
 		if proc_req['after'] is not None:
 			docs = docs.skip(1)
@@ -118,7 +129,7 @@ def dataBuild(request, probe_settings, users_to_return, decrypted = False, own_d
 			response['meta']['paging']['cursors'] = {}
 			response['meta']['paging']['cursors']['after'] =\
 					{proc_req['sortby']:getValueOfFullKey(results[-1], proc_req['sortby']),\
-					'_id':results[-1]['_id'],
+					'facebook_id':results[-1]['facebook_id'],
 					'user':results[-1]['user']}
 			if results_count == proc_req['limit']:
 				if proc_req['after'] is not None:	
@@ -140,12 +151,16 @@ def dataBuild(request, probe_settings, users_to_return, decrypted = False, own_d
 	if decrypted:
 		pass
 	
-
-	users_return=[]
-	users_results = cursorToArray(results, decrypted = decrypted, probe=probe_settings['collection'])
-	for data_users in users_results:
-		if data_users['user'] not in users_return:
-			users_return.append(data_users['user'])
+	#auditdb= audit.Audit()
+	#doc_audit=response['meta']
+	#users_return=[]
+	#users_results = cursorToArray(results, decrypted = decrypted, probe=probe_settings['collection'])
+	#for data_users in users_results:
+	#	if data_users['user'] not in users_return:
+	#		users_return.append(data_users['user'])
+	#doc_audit['users']=users_return
+	#doc_audit=transform.transform(doc_audit)
+	#auditdb.d(typ='prueba',tag='prueba2',doc=doc_audit,onlyfile=False)
 	
 	if proc_req['pretty']:
 		return render_to_response('pretty_json.html', {'response': json.dumps(response, indent=2)})
@@ -206,7 +221,7 @@ def processApiCall(request, probe_settings, users_to_return):
 
 	### deal with sorting
 	# sorting will be supported later. Now, we can only sort by data.TIMESTAMP, either asc or desc
-	response['sortby'] = 'data.TIMESTAMP'
+	response['sortby'] = 'timestamp'
 	if request.REQUEST.get('order', None) is not None:
 		if request.REQUEST.get('order',None) not in ['-1','1']:
 			raise BadRequestException('error',400,str(request.REQUEST.get('order')) + ' is not a valid value for order parameter. Use 1 for ascending or -1 for descending')
@@ -220,8 +235,8 @@ def processApiCall(request, probe_settings, users_to_return):
 	if len(fields_string) > 0:
 		response['fields'] = {\
                                 'user':1,\
-                                'data.TIMESTAMP':1,\
-                                '_id':1}
+                                'timestamp':1,\
+                                'facebook_id':1}
 		for field in fields_string.split(','):
 			if len(field) > 0 and field != 'sensible_token':
 				response['fields'][field] = 1
@@ -289,11 +304,11 @@ def buildQuery(users_to_return, request):
 
 	
 	if request['end_date'] is not None or request['start_date'] is not None:
-		query['$query']['data.TIMESTAMP'] = {}
+		query['$query']['timestamp'] = {}
 		if request['end_date'] is not None:
-			query['$query']['data.TIMESTAMP']['$lte'] = request['end_date']
+			query['$query']['timestamp']['$lte'] = request['end_date']
 		if request['start_date'] is not None:
-			query['$query']['data.TIMESTAMP']['$gte'] = request['start_date']
+			query['$query']['timestamp']['$gte'] = request['start_date']
 		
 	return query
 

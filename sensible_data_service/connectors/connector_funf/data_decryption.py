@@ -5,7 +5,7 @@ import fnmatch
 from dbdecrypt import decrypt_if_not_db_file
 from decrypt import key_from_password
 from utils import SECURE_settings
-from utils import log, fail
+from utils import fail
 from django.conf import settings
 from connectors.connector_funf.models import ConnectorFunf 
 import connectors.connector_funf.database_single_population as database_single_population
@@ -62,18 +62,13 @@ def decrypt_file(directory_to_decrypt, f):
 			# decrypt
 			decryption_start = time.time();
 			if decrypt_if_not_db_file(proc_filename, key, extension=None):
-				log.log('Debug','Decryption time: ' + str(time.time()-decryption_start) + ' ms')
+				audit.Audit().d('connector_funf', 'decryption_time', {'dtime': time.time()-decryption_start})
 				decryption_success = True;
 				fail.safe_move(proc_filename, myConnector['decrypted_path'])
-				#log.log('Debug','Still here #1')
 				curr_filename = decrypted_filename
 				orig_filename = proc_filename + '.orig'
 				if os.path.exists(orig_filename):
 					os.remove(orig_filename)
-				#log.log('Debug','Still here #2')
-				#population_start = time.time()	
-				#database_single_population.load_file(f)
-				#log.log('Debug','Population time: ' + str(time.time()-population_start) + ' ms')
 			else:
 				fail.fail(curr_filename, myConnector['decryption_failed_path'], 'Could not decrypt file: ' + f)
 				return False
@@ -94,9 +89,8 @@ def decrypt_file(directory_to_decrypt, f):
 		try:
 			if 'already exists' not in str(e):
 				fail.fail(curr_filename, myConnector['decryption_failed_path'], 'Exception thrown: ' + str(e) + '. While ' + action + ' file: ' + f)
-				log.log('error', 'README ^^^^^^^^^^^^^')
 			else:
-				log.log('error','Exception thrown: ' + str(e) + '. While ' + action + ' file: ' + f);
+				audit.Audit().e('connector_funf', 'decryption_error', {'error': str(e), 'action': str(action), 'file': str(f)})
 		
 		except Exception as e1:
 			pass

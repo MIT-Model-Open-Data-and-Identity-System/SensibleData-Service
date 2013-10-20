@@ -5,16 +5,23 @@ import json
 import time
 
 
-NAME = 'statistics_question'
+NAME = 'daily_statistics_question'
 
 COLLECTIONS = ['edu_mit_media_funf_probe_builtin_BluetoothProbe', 'edu_mit_media_funf_probe_builtin_CallLogProbe', 'edu_mit_media_funf_probe_builtin_CellProbe', 'edu_mit_media_funf_probe_builtin_ContactProbe', 'edu_mit_media_funf_probe_builtin_HardwareInfoProbe', 'edu_mit_media_funf_probe_builtin_LocationProbe', 'edu_mit_media_funf_probe_builtin_SMSProbe', 'edu_mit_media_funf_probe_builtin_ScreenProbe', 'edu_mit_media_funf_probe_builtin_TimeOffsetProbe', 'edu_mit_media_funf_probe_builtin_WifiProbe']
+#COLLECTIONS = ['edu_mit_media_funf_probe_builtin_SMSProbe']
 
 def run():
 	db = database.Database()
 	mapper = Code("""
 					function() {
-						var key = this.user;
+						var date = new Date(this.timestamp*1000);
+						var month = ('0'+(date.getMonth()+1)).substr(-2);
+						var day = ('0'+date.getDate()).substr(-2);
+						var dateString = date.getFullYear() + '-' + month + '-' + day;
+						var key = this.user + '_' + dateString; 
 						var value = {
+							user: this.user,
+							date: dateString,
 							count: 1,
 							timestamp_added: this.timestamp_added
 						};
@@ -25,6 +32,8 @@ def run():
 	reducer = Code("""
 	 				function(key, values) {
 						var reducedObject = {
+							user: key.split('_')[0],
+							date: key.split('_')[1],
 							count: 0,
 							timestamp_added: 0
 						};
@@ -40,7 +49,7 @@ def run():
 
 
 	for collection in COLLECTIONS:
-		print collection
+		print "%s %s"%(NAME, collection)
 
 
 		output_collection = NAME+'_'+collection
@@ -48,7 +57,6 @@ def run():
 		max_v = time.time()-5*60
 		print min_v, max_v
 		if min_v > max_v: continue
-		print db.db
 		r = db.db[collection].map_reduce(mapper, reducer, out={'reduce':output_collection}, query={'timestamp_added':{'$gt': min_v, '$lt': max_v}})
 		db.db[output_collection].ensure_index('timestamp_added')
 	return
@@ -62,12 +70,13 @@ def findPreviousMax(db, collection):
 	except IndexError: pass
 	return previous_max
 
-def data_stats(request, user, scopes, users_to_return, user_roles, own_data):
+def daily_data_stats(request, user, scopes, users_to_return, user_roles, own_data):
 	db = database.Database()
 
 	roles_to_use = []
 	if own_data and 'researcher' in user_roles: roles_to_use = ['researcher']
 	if own_data and 'developer' in user_roles: roles_to_use = ['developer']
+
 
 	collections_to_use = request.GET.get('collections','')
 	if collections_to_use == '': collections_to_use = [x for x in COLLECTIONS]
@@ -77,13 +86,16 @@ def data_stats(request, user, scopes, users_to_return, user_roles, own_data):
 
 	query = {'$query':{}}
 	if not 'all' in users_to_return:
-		query['$query']['_id'] = {'$in':users_to_return}
+		query['$query']['value.user'] = {'$in':users_to_return}
 
 	results = {}
 	for collection in collections_to_use:
 		results[collection] = {}
 		for x in db.getDocuments(query=query, collection=NAME+'_'+collection, roles=roles_to_use): 
-			results[collection][x['_id']] = int(x['value']['count'])
+			try: results[collection][x['value']['user']][x['value']['date']] = int(x['value']['count'])
+			except KeyError: 
+				results[collection][x['value']['user']] = {}
+				results[collection][x['value']['user']][x['value']['date']] = int(x['value']['count'])
 
 
 

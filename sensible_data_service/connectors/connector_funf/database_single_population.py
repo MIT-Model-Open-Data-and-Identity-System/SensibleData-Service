@@ -5,7 +5,6 @@ import random
 import time
 from models import *
 from utils import fail
-from utils import log
 import sqlite3
 import shutil
 import bson.json_util as json
@@ -23,6 +22,7 @@ import traceback
 
 import time
 from accounts.models import UserRole
+from sensible_audit import audit
 
 myConnector = connectors.connectors_config.CONNECTORS['ConnectorFunf']['config']
 
@@ -38,13 +38,10 @@ def load_files(directory_to_load=myConnector['decrypted_path']):
 	for f in raw_filenames:
 		population_start = time.time()	
 		inserted_counter = load_file(f)
-		log.log('Debug','ptime: %.4f'%(time.time()-population_start) + ';documents: '+str(inserted_counter))
+		audit.Audit().d('connector_funf', 'population_time', {'ptime': '%.4f'%(time.time()-population_start), 'documents': inserted_counter})
 		
 
 def load_file(filename):
-	#log.log('Debug', 'Trying to populate db with ' + filename);
-	#connection_time = time.time()
-	#log.log('Debug', 'Connection to db: ' + str(time.time() - connection_time) + ' s');
 	anonymizerObject = Anonymizer()
 	
 	documents_to_insert = defaultdict(list)
@@ -53,7 +50,6 @@ def load_file(filename):
 	if not os.path.exists(proc_dir):
 		os.makedirs(proc_dir)
 		
-	log.log('Debug', 'file '+filename)
 	decrypted_filepath = os.path.join(myConnector['decrypted_path'], filename)
 	processing_filepath = os.path.join(proc_dir,filename)
 	current_filepath = decrypted_filepath
@@ -81,7 +77,6 @@ def load_file(filename):
 				(user, token) = get_user_name(meta['sensible_token'], meta['device_id'], meta['timestamp'])
 				meta['user'] = user.username
 				meta['sensible_token'] = token
-				log.log('Debug', 'user '+meta['user']+' token '+str(token))
 				roles = roles = [x.role for x in UserRole.objects.get(user=user).roles.all()]
 			except: pass
 
@@ -114,7 +109,7 @@ def load_file(filename):
 			os.remove(current_filepath);
 			
 		except Exception as e:
-			log.log('Error', str(e));
+			audit.Audit().e('connector_funf', 'population_error', {'error':str(e)})
 			if not 'already exists' in str(e):
 				top = traceback.extract_stack()[-1]
 				fail.fail(current_filepath, load_failed_path, 'Exception with file: ' + filename\
@@ -147,7 +142,7 @@ def row_to_doc(row, user, anonymizerObject):
 		else:
 			return None
 	except Exception as e:
-		log.log('ERROR',str(e) + ' in ' + json.dumps(data))
+		audit.Audit().e('connector_funf', 'population_error', {'error': str(e), 'data': data})
 		return None
 		
 		
