@@ -5,7 +5,7 @@ import json
 import time
 
 
-NAME = 'statistics_question'
+NAME = 'statistics_question' #have to end with question in the name or be explicitly added to databases in settings
 
 COLLECTIONS = ['edu_mit_media_funf_probe_builtin_BluetoothProbe', 'edu_mit_media_funf_probe_builtin_CallLogProbe', 'edu_mit_media_funf_probe_builtin_CellProbe', 'edu_mit_media_funf_probe_builtin_ContactProbe', 'edu_mit_media_funf_probe_builtin_HardwareInfoProbe', 'edu_mit_media_funf_probe_builtin_LocationProbe', 'edu_mit_media_funf_probe_builtin_SMSProbe', 'edu_mit_media_funf_probe_builtin_ScreenProbe', 'edu_mit_media_funf_probe_builtin_TimeOffsetProbe', 'edu_mit_media_funf_probe_builtin_WifiProbe']
 
@@ -48,9 +48,8 @@ def run():
 		max_v = time.time()-5*60
 		print min_v, max_v
 		if min_v > max_v: continue
-		print db.db
-		r = db.db[collection].map_reduce(mapper, reducer, out={'reduce':output_collection}, query={'timestamp_added':{'$gt': min_v, '$lt': max_v}})
-		db.db[output_collection].ensure_index('timestamp_added')
+		r = (db.getDatabase(collection))[collection].map_reduce(mapper, reducer, out={'reduce':output_collection}, query={'timestamp_added':{'$gt': min_v, '$lt': max_v}})
+		(db.getDatabase(output_collection))[output_collection].ensure_index('timestamp_added')
 	return
 
 
@@ -58,7 +57,7 @@ def run():
 
 def findPreviousMax(db, collection):
 	previous_max = 0
-	try: previous_max = db.getDocuments({}, collection, from_secondary=False).sort('value.timestamp_added', -1).limit(1)[0]['value']['timestamp_added']
+	try: previous_max = db.getDocuments({}, collection=collection, from_secondary=False).sort('value.timestamp_added', -1).limit(1)[0]['value']['timestamp_added']
 	except IndexError: pass
 	return previous_max
 

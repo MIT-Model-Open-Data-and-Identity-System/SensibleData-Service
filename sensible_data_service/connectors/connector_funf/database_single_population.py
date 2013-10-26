@@ -30,22 +30,49 @@ db = database.Database()
 
 valid_tokens = {};
 
+def populate(documents_to_insert):
+	inserted_counter = 0
+	for probe in documents_to_insert:
+		for role in documents_to_insert[probe]:
+			population_start = time.time()	
+			roles = role.split('@')
+
+			inserted_counter += len(documents_to_insert[probe][role])
+			try: db.insert(documents_to_insert[probe][role], probe, roles)
+			except: pass
+
+			audit.Audit().d('connector_funf', 'population_time', {'ptime': '%.4f'%(time.time()-population_start), 'documents': inserted_counter, 'collection': probe, 'roles': role})
+			inserted_counter = 0
+
 def load_files(directory_to_load=myConnector['decrypted_path']):
 	raw_filenames = [filename for filename in os.listdir(directory_to_load) if 	fnmatch.fnmatch(filename, '*.db')]
 	
 	failed_filenames = []
 	
+	jj = 0 
+	documents_to_insert = defaultdict(lambda: defaultdict(list))
 	for f in raw_filenames:
-		population_start = time.time()	
-		inserted_counter = load_file(f)
-		audit.Audit().d('connector_funf', 'population_time', {'ptime': '%.4f'%(time.time()-population_start), 'documents': inserted_counter})
+		#try:
+		current_documents_to_insert, current_roles = load_file(f)
+		if current_documents_to_insert == 0: 
+			continue
+		jj += 1
+		for probe in current_documents_to_insert:
+			documents_to_insert[probe]['@'.join(current_roles)] += current_documents_to_insert[probe]
 		
+		if jj == 20:
+			jj = 0
+			populate(documents_to_insert)
+			documents_to_insert = defaultdict(lambda: defaultdict(list))
+		#except: pass
+
+	populate(documents_to_insert)
 
 def load_file(filename):
 	anonymizerObject = Anonymizer()
 	
 	documents_to_insert = defaultdict(list)
-	inserted_counter = 0
+	#inserted_counter = 0
 	proc_dir = os.path.join(myConnector['decrypted_path'], 'processing')
 	if not os.path.exists(proc_dir):
 		os.makedirs(proc_dir)
@@ -54,6 +81,7 @@ def load_file(filename):
 	processing_filepath = os.path.join(proc_dir,filename)
 	current_filepath = decrypted_filepath
 	load_failed_path = myConnector['load_failed_path']
+	roles = []
 
 	if os.path.exists(decrypted_filepath) and not os.path.exists(processing_filepath):
 		try:
@@ -72,12 +100,11 @@ def load_file(filename):
 			(meta['device'], meta['uuid'], meta['device_id'], meta['sensible_token'], meta['device_bt_mac'], meta['timestamp']) = cursor.execute('select device, uuid, device_id, sensible_token, device_bt_mac, created from file_info').fetchone()
 			
 			meta['user'] = None
-			roles = []
 			try: 
 				(user, token) = get_user_name(meta['sensible_token'], meta['device_id'], meta['timestamp'])
 				meta['user'] = user.username
 				meta['sensible_token'] = token
-				roles = roles = [x.role for x in UserRole.objects.get(user=user).roles.all()]
+				roles = [x.role for x in UserRole.objects.get(user=user).roles.all()]
 			except: pass
 
 
@@ -85,7 +112,7 @@ def load_file(filename):
 				if not os.path.exists(myConnector['decrypted_not_authorized']):
 					os.makedirs(myConnector['decrypted_not_authorized'])
 				shutil.move(current_filepath, myConnector['decrypted_not_authorized'])
-				return 
+				return (0,0)
 			
 			meta['device_id'] = anonymizerObject.anonymizeValue('device_id',meta['device_id'])
 			
@@ -99,13 +126,12 @@ def load_file(filename):
 				documents_to_insert[doc['probe']].append(dict(doc.items() + meta.items()))
 			
 			cursor.close();
-			upload_start = time.time()
-			for probe in documents_to_insert:
-				inserted_counter += len(documents_to_insert[probe])
-				try:
-					db.insert(documents_to_insert[probe], probe, roles)
-				except Exception as e:
-					pass
+#			for probe in documents_to_insert:
+#				inserted_counter += len(documents_to_insert[probe])
+#				try:
+#					db.insert(documents_to_insert[probe], probe, roles)
+#				except Exception as e:
+#					pass
 			os.remove(current_filepath);
 			
 		except Exception as e:
@@ -117,8 +143,9 @@ def load_file(filename):
 			else:
 				pass
 			
-			return 0
-	return inserted_counter
+			return (0,0)
+#	return inserted_counter
+	return (documents_to_insert, roles)
 
 def row_to_doc(row, user, anonymizerObject):
 	random.seed(time.time())

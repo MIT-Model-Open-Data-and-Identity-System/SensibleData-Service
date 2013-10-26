@@ -132,22 +132,35 @@ class Anonymizer(object):
 		addresses = {}
 		names = {}
 		if type(documents) == dict:
-			douments = [documents]
+			documents = [documents]
 		for document in documents:
+			#document['originals'] = []
 			for device in document['data']['DEVICES']:
+				#document['originals'].append(str(device['android_bluetooth_device_extra_DEVICE']['mAddress']))
+				#device['android_bluetooth_device_extra_DEVICE']['mAddress'] = self.decrypt(str(device['android_bluetooth_device_extra_DEVICE']['mAddress']))
+				#continue
+				#document['originals'].append(device)
+				enc_mac = str(device['android_bluetooth_device_extra_DEVICE']['mAddress'])
 				try:
-					device['android_bluetooth_device_extra_DEVICE']['mAddress'] = addresses[device['android_bluetooth_device_extra_DEVICE']['mAddress']]
+					device['android_bluetooth_device_extra_DEVICE']['mAddress'] = addresses[enc_mac]
 				except KeyError:
-					addresses[device['android_bluetooth_device_extra_DEVICE']['mAddress']] = self.decrypt(device['android_bluetooth_device_extra_DEVICE']['mAddress'])
-					device['android_bluetooth_device_extra_DEVICE']['mAddress'] = addresses[device['android_bluetooth_device_extra_DEVICE']['mAddress']]
-
+					dec_mac = self.decrypt(enc_mac)
+					addresses[enc_mac] = dec_mac
+					device['android_bluetooth_device_extra_DEVICE']['mAddress'] = dec_mac
 				try:
-					device['android_bluetooth_device_extra_NAME'] = names[device['android_bluetooth_device_extra_NAME']]
+					enc_name = ''	
+					try:	
+						enc_name = str(device['android_bluetooth_device_extra_NAME'])
+					except KeyError: continue
+					device['android_bluetooth_device_extra_NAME'] = names[enc_name]
 				except KeyError:
-					try:
-						names[device['android_bluetooth_device_extra_NAME']] = self.decrypt(device['android_bluetooth_device_extra_NAME'])		
-						device['android_bluetooth_device_extra_NAME'] = names[device['android_bluetooth_device_extra_NAME']]
-					except KeyError: pass
+					dec_name = self.decrypt(enc_name)
+					names[enc_name] = dec_name		
+					device['android_bluetooth_device_extra_NAME'] = dec_name
+		
+		#if len(documents) > 0:
+		#	documents[0]['addresses'] = addresses
+		#	documents[0]['names'] = names
 		return documents
 
 	def anonymizeLocation(self, document):
@@ -341,8 +354,10 @@ class Anonymizer(object):
 		return (cipher.encrypt(raw)).encode("hex")
 
 	def decrypt(self, enc):
-		enc = enc.decode("hex")
-		iv = SECURE_settings.IV['iv']
-		cipher = AES.new(self.key, AES.MODE_CBC, iv)
-		return self.unpad(cipher.decrypt(enc))
-		
+		try: 
+			temp = enc.strip().decode("hex")
+			iv = SECURE_settings.IV['iv']
+			cipher = AES.new(self.key, AES.MODE_CBC, iv)
+			return self.unpad(cipher.decrypt(temp))
+		except Exception: #the data might already be decrypted, just return the original
+			return '+' + enc

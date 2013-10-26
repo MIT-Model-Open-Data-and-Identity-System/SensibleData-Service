@@ -6,9 +6,11 @@ from utils import database
 from anonymizer.anonymizer import Anonymizer
 from backup import backup
 from accounts.models import UserRole
+from sensible_audit import audit
 
 db = None
 anonymizer = None
+ad = audit.Audit()
 
 def collect_facebook():
 	authorizations = auth.getAllInboundAuth()
@@ -41,13 +43,19 @@ def collectData(user, facebook_id, facebook_scope, access_token, resources):
 		url += 'access_token=%s'%access_token
 
 		print url
-		try: getData(url, resource, user, facebook_id)
+		try: getData(url, resource, user, facebook_id, access_token)
 		except: continue
-		#getData(url, resource, user, facebook_id)
 
 
-def getData(url, resource, user, facebook_id, depth=0):
+def getData(url, resource, user, facebook_id, access_token, depth=0):
 		response = json.loads(urllib2.urlopen(url).read())
+		
+		try: 
+			if 'error' in response: 
+				#auth.tokenExpired(user, access_token)
+				ad.e(type='connector_facebook', tag='get_data_error', doc={'error':response})
+		except: pass
+
 		try: data = response[resource]['data']
 		except TypeError:
 			try: data = response[resource] #just a string response
@@ -61,7 +69,7 @@ def getData(url, resource, user, facebook_id, depth=0):
 		except KeyError: next = None
 		next_depth = depth + 1
 		if len(data) > 0 and next and next_depth < 6: 
-			getData(next, resource, user, facebook_id, next_depth)
+			getData(next, resource, user, facebook_id, access_token, next_depth)
 
 
 def saveData(data, resource, user, facebook_id):

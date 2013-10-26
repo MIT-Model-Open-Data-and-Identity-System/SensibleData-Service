@@ -141,11 +141,11 @@ def dataBuild(request, probe_settings, users_to_return, decrypted = False, own_d
 		pass
 	
 
-	users_return=[]
-	users_results = cursorToArray(results, decrypted = decrypted, probe=probe_settings['collection'])
-	for data_users in users_results:
-		if data_users['user'] not in users_return:
-			users_return.append(data_users['user'])
+	#users_return=[]
+	#users_results = cursorToArray(results, decrypted = decrypted, probe=probe_settings['collection'])
+	#for data_users in users_results:
+	#	if data_users['user'] not in users_return:
+	#		users_return.append(data_users['user'])
 	
 	if proc_req['pretty']:
 		return render_to_response('pretty_json.html', {'response': json.dumps(response, indent=2)})

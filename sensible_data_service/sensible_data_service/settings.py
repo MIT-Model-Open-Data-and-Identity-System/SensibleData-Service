@@ -5,7 +5,7 @@ import LOCAL_SETTINGS
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
-
+MAINTENANCE_MODE = False
 
 
 ADMINS = (
@@ -52,6 +52,10 @@ def failure_handler_function(request, message, status=None, template_name=None, 
 	return redirect('openid_failed')
 
 OPENID_RENDER_FAILURE = failure_handler_function
+
+MAINTENANCE_IGNORE_URLS = (
+		    r'^.*/admin/$',
+)
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
@@ -129,6 +133,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+	'maintenancemode.middleware.MaintenanceModeMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
