@@ -16,7 +16,6 @@ class Command(NoArgsCommand):
 		for a in authorizations:
 			devices[a.device.device_id][a.activated_at] = a.user.username
 
-
 		mapping = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: 9999999999999)))
 		for d in devices:
 			users = defaultdict(lambda: 9999999999999)
@@ -54,5 +53,5 @@ class Command(NoArgsCommand):
 				doc['a_wifi_mac'] = hardware_info['data']['WIFI_MAC']
 
 				collection = 'device_inventory'
-				db.db[collection].update(spec={'_id':doc['_id']}, document=doc, upsert=True)
+				(db.getDatabase(collection))[collection].update(spec={'_id':doc['_id']}, document=doc, upsert=True)
 
