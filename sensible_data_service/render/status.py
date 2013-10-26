@@ -79,7 +79,7 @@ def getDatabaseStatus():
 	try:
 		db = database.Database()
 		doc_id = db.insert({'test':'test'}, 'test')
-		response = db.db['test'].remove({'_id':doc_id})
+		response = db.getDatabase('test')['test'].remove({'_id':doc_id})
 		if response['ok'] == 1:
 			return 'OK'
 		else:
@@ -90,5 +90,9 @@ def getDatabaseStatus():
 def getDatabaseStats():
 	try:
 		db = database.Database()
-		return db.db.command('dbstats')
+		return_value = {}
+		return_value[db.default_database] = db.getDatabase(db.default_database).command('dbstats')
+		for d in db.available_databases:
+			return_value[db.available_databases[d]] = db.getDatabase(d).command('dbstats')
+		return return_value
 	except pymongo.errors.PyMongoError: return {'error': 'something went terribly wrong'}

@@ -29,11 +29,7 @@
 		<hr>
 		<p class="lead">Status: <span id="database_status"></span></p>
 		<p class="lead">Config: <span id="database_config"></span></p>
-		<p class="lead">Data Size: <span id="database_data_size"></span></p>
-		<p class="lead">Storage Size: <span id="database_storage_size"></span></p>
-		<p class="lead">Objects: <span id="database_objects"></span></p>
-		<p class="lead">Indexes: <span id="database_indexes"></span></p>
-		<p class="lead">Collections: <span id="database_collections"></span></p>
+		<p class="lead">Databases: <span id="database_databases"></span></p>
 		<p>Last refreshed: <span id="database_last_refreshed"></span></p>
 	</div>
 </div>
@@ -369,11 +365,21 @@
 		document.getElementById('database_last_refreshed').innerHTML = t;
 		document.getElementById('database_status').innerHTML = database['database_status'];
 		document.getElementById('database_config').innerHTML = database['database_config'];
-		document.getElementById('database_data_size').innerHTML = Math.round(database['database_stats']['dataSize']/1048576.0)+'MB';
-		document.getElementById('database_storage_size').innerHTML = Math.round(database['database_stats']['storageSize']/1048576.0)+'MB';
-		document.getElementById('database_indexes').innerHTML = database['database_stats']['indexes'];
-		document.getElementById('database_objects').innerHTML = database['database_stats']['objects'];
-		document.getElementById('database_collections').innerHTML = database['database_stats']['collections'];
+		document.getElementById('database_databases').innerHTML = '</br>';
+		for (var d in database['database_stats']) {
+			if (d == 'test') continue;
+			document.getElementById('database_databases').innerHTML += '<h4>'+d+'</h4>';
+			document.getElementById('database_databases').innerHTML += 'Data Size: '+Math.round(database['database_stats'][d]['dataSize']/1048576.0)+'MB';
+			document.getElementById('database_databases').innerHTML += '</br>'
+			document.getElementById('database_databases').innerHTML += 'Storage Size: '+Math.round(database['database_stats'][d]['storageSize']/1048576.0)+'MB';
+			document.getElementById('database_databases').innerHTML += '</br>'
+			document.getElementById('database_databases').innerHTML += 'Indexes: '+database['database_stats'][d]['indexes'];
+			document.getElementById('database_databases').innerHTML += '</br>'
+			document.getElementById('database_databases').innerHTML += 'Objects: '+database['database_stats'][d]['objects'];
+			document.getElementById('database_databases').innerHTML += '</br>'
+			document.getElementById('database_databases').innerHTML += 'Collections: '+database['database_stats'][d]['collections'];
+			document.getElementById('database_databases').innerHTML += '</br>'
+		}
 	}
 	
 	function refreshQuestionnaires() {
