@@ -8,21 +8,23 @@ import time
 NAME = 'daily_statistics_question'
 
 COLLECTIONS = ['edu_mit_media_funf_probe_builtin_BluetoothProbe', 'edu_mit_media_funf_probe_builtin_CallLogProbe', 'edu_mit_media_funf_probe_builtin_CellProbe', 'edu_mit_media_funf_probe_builtin_ContactProbe', 'edu_mit_media_funf_probe_builtin_HardwareInfoProbe', 'edu_mit_media_funf_probe_builtin_LocationProbe', 'edu_mit_media_funf_probe_builtin_SMSProbe', 'edu_mit_media_funf_probe_builtin_ScreenProbe', 'edu_mit_media_funf_probe_builtin_TimeOffsetProbe', 'edu_mit_media_funf_probe_builtin_WifiProbe']
-#COLLECTIONS = ['edu_mit_media_funf_probe_builtin_SMSProbe']
 
 def run():
 	db = database.Database()
 	mapper = Code("""
 					function() {
-						var date = new Date(this.timestamp*1000);
+						var date = new Date(this.data.TIMESTAMP*1000);
 						var month = ('0'+(date.getMonth()+1)).substr(-2);
 						var day = ('0'+date.getDate()).substr(-2);
 						var dateString = date.getFullYear() + '-' + month + '-' + day;
 						var key = this.user + '_' + dateString; 
+						var dayCount = 0;
+						if (date.getHours() > 1) dayCount = 1;
 						var value = {
 							user: this.user,
 							date: dateString,
 							count: 1,
+							day_count: dayCount,
 							timestamp_added: this.timestamp_added
 						};
 						emit(key, value);
@@ -35,10 +37,12 @@ def run():
 							user: key.split('_')[0],
 							date: key.split('_')[1],
 							count: 0,
+							day_count: 0,
 							timestamp_added: 0
 						};
 						values.forEach( function(value) {
 							reducedObject.count += value.count;
+							reducedObject.day_count += value.day_count;
 							if (reducedObject.timestamp_added < value.timestamp_added) {
 								reducedObject.timestamp_added = value.timestamp_added;
 							}
@@ -57,8 +61,8 @@ def run():
 		max_v = time.time()-5*60
 		print min_v, max_v
 		if min_v > max_v: continue
-		r = db.db[collection].map_reduce(mapper, reducer, out={'reduce':output_collection}, query={'timestamp_added':{'$gt': min_v, '$lt': max_v}})
-		db.db[output_collection].ensure_index('timestamp_added')
+		r = (db.getDatabase(collection))[collection].map_reduce(mapper, reducer, out={'reduce':output_collection}, query={'timestamp_added':{'$gt': min_v, '$lt': max_v}})
+		(db.getDatabase(output_collection))[output_collection].ensure_index('timestamp_added')
 	return
 
 
