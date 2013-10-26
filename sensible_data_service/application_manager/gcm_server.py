@@ -10,9 +10,8 @@ def sendNotification(gcm_id, data, type):
 	try: 
 		response = gcm_obj.plaintext_request(registration_id=gcm_id, data=data)
 		return response
-	except gcm.gcm.GCMInvalidRegistrationException: pass
-	except gcm.gcm.GCMNotRegisteredException: pass
-	except: pass
-	return {'error':'oooops'}
+	except gcm.gcm.GCMInvalidRegistrationException: return {'error':'gcm.gcm.GCMInvalidRegistrationException'}
+	except gcm.gcm.GCMNotRegisteredException: return {'error':'gcm.gcm.GCMNotRegisteredException'}
+	except: return {'error':'oooops'}
 
 
