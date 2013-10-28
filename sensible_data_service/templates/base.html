@@ -10,7 +10,7 @@
 	type="image/png"
 	href="{% static "img/favicon.png" %}">
     <meta charset="utf-8">
-    <title>SensibleDTU</title>
+    <title>{{ service.name }}</title>
     <meta name="description" content="">
     <meta name="author" content="Arkadiusz Stopczynski">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -43,8 +43,8 @@
 <div class="navbar navbar-inverse navbar-fixed-top">
     <div class="navbar-inner">
         <div class="container">
-			<div class="nav"><img src="{% static "img/red_logo5_40px.png" %}"></div>
-            <a class="brand">SensibleDTU</a>
+			<div class="nav"><img src="{% static "img/logo_40px.png" %}"></div>
+            <a class="brand">{{ service.name }}</a>
             <ul class="nav">
             </ul>
 			<ul class="nav pull-right">
@@ -78,9 +78,9 @@
 
 <footer class="row">
 <div class="span6">
-	<p>This is <a href="https://github.com/organizations/MIT-Model-Open-Data-and-Identity-System">SensibleDTU</a>, an <a href="http://openpds.media.mit.edu/">openPDS system</a>
+	<p>This is <a href="https://github.com/organizations/MIT-Model-Open-Data-and-Identity-System">{{ service.name }}</a>, an <a href="http://openpds.media.mit.edu/">openPDS system</a>
 
-	<span class="label label-important">0.1.15-devel</span></p>
+	<span class="label label-{% if service.is_devel %}important{% else %}info{% endif %}">{{ service.version }}</span></p>
 </div>
 
 <div class="span6" style="text-align:right">

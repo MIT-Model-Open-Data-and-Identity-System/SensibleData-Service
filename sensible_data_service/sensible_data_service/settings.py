@@ -5,7 +5,7 @@ import LOCAL_SETTINGS
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
-
+MAINTENANCE_MODE = False
 
 
 ADMINS = (
@@ -18,6 +18,7 @@ ROOT_DIR = LOCAL_SETTINGS.ROOT_DIR
 ROOT_URL = LOCAL_SETTINGS.ROOT_URL
 BASE_URL = LOCAL_SETTINGS.BASE_URL
 DATA_DATABASE = LOCAL_SETTINGS.DATA_DATABASE
+AUDIT_DATABASE = LOCAL_SETTINGS.AUDIT_DATABASE
 DATA_BASE_DIR = LOCAL_SETTINGS.DATA_BASE_DIR
 DATA_LOG_DIR = LOCAL_SETTINGS.DATA_LOG_DIR
 DATA_BACKUP_DIR = LOCAL_SETTINGS.DATA_BACKUP_DIR
@@ -51,6 +52,10 @@ def failure_handler_function(request, message, status=None, template_name=None, 
 	return redirect('openid_failed')
 
 OPENID_RENDER_FAILURE = failure_handler_function
+
+MAINTENANCE_IGNORE_URLS = (
+		    r'^.*/admin/$',
+)
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
@@ -128,6 +133,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+	'maintenancemode.middleware.MaintenanceModeMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
@@ -135,6 +141,7 @@ MIDDLEWARE_CLASSES = (
 TEMPLATE_CONTEXT_PROCESSORS = (
         'django.core.context_processors.static',
         'django.contrib.auth.context_processors.auth',
+        'sensible_data_service.context_processors.service',
 )
 
 ROOT_URLCONF = 'sensible_data_service.urls'
@@ -171,11 +178,15 @@ INSTALLED_APPS = (
     'connectors.connector_questionnaire',
     'connectors.connector_facebook',
     'connectors.connector_raw',
+    'connectors.connector_answer',
     'anonymizer',
     'oauth2app',
     'documents',
     'render',
     'backup',
+	'djcelery',
+	'questions',
+	'sensible_audit',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -207,5 +218,18 @@ LOGGING = {
     }
 }
 
+CACHES = {
+	'default': {
+		'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+		'LOCATION': '/var/tmp/django_cache',
+	}
+}
+
 import hashlib
 SESSION_COOKIE_NAME = str(hashlib.sha1(SECRET_KEY).hexdigest())
+
+import djcelery
+import djcelery.schedulers
+djcelery.setup_loader()
+
+CELERYBEAT_SCHEDULER = djcelery.schedulers.DatabaseScheduler

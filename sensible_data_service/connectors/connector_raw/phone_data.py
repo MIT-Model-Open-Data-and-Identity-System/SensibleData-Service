@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 import re
 import urllib
 import time
+import transform
 from connector_utils import *
 from anonymizer.anonymizer import Anonymizer
 from collections import OrderedDict
@@ -22,7 +23,8 @@ def calllog(request):
 	return get_data(request, PHONE_DATA_SETTINGS['calllog'])
 def sms(request):
 	return get_data(request, PHONE_DATA_SETTINGS['sms'])
-
+def wifi(request):
+	return get_data(request, PHONE_DATA_SETTINGS['wifi'])
 def get_data(request, probe_settings):
 	decrypted = booleanize(request.REQUEST.get('decrypted', False))
 
@@ -138,8 +140,15 @@ def dataBuild(request, probe_settings, users_to_return, decrypted = False, own_d
 
 	if decrypted:
 		pass
+	
 
-	if proc_req['format'] == 'pretty':
+	#users_return=[]
+	#users_results = cursorToArray(results, decrypted = decrypted, probe=probe_settings['collection'])
+	#for data_users in users_results:
+	#	if data_users['user'] not in users_return:
+	#		users_return.append(data_users['user'])
+	
+	if proc_req['pretty']:
 		return render_to_response('pretty_json.html', {'response': json.dumps(response, indent=2)})
         elif proc_req['format'] == 'csv':
 		output = '#' + json.dumps(response['meta'], indent=2).replace('\n','\n#') + '\n'

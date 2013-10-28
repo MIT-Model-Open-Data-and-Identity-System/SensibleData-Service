@@ -12,6 +12,9 @@ class Database:
 	allow_secondary_reads = False
 	nodes = []
 	database = ""
+	default_database = ""
+    	open_databases = {}
+    	available_databases = {}
 
 	def __init__(self):
 		try: self.is_replica_set = settings.DATA_DATABASE['is_replica_set']
@@ -25,18 +28,42 @@ class Database:
 		
 		try: self.allow_secondary_reads = settings.DATA_DATABASE['allow_secondary_reads']
 		except KeyError: pass
+		
+		try: self.available_databases = settings.DATA_DATABASE['available_databases']
+		except KeyError: pass
+
+		self.default_database = settings.DATA_DATABASE['default_database']
+		
 
 		self.nodes = settings.DATA_DATABASE['nodes']
 		self.database = settings.DATA_DATABASE['database']
 
+
 		if self.is_replica_set:
-			self.client = MongoReplicaSetClient('mongodb://%s/%s'%(','.join(self.nodes), self.database), ssl=self.ssl, replicaSet=self.replica_set)
-			self.db = self.client[settings.DATA_DATABASE['database']]
+			self.client = MongoReplicaSetClient('mongodb://%s'%(','.join(self.nodes)), ssl=self.ssl, replicaSet=self.replica_set)
 		else:
-			self.client = MongoClient('mongodb://%s/%s'%(','.join(self.nodes), self.database), ssl=self.ssl)
-			self.db = self.client[settings.DATA_DATABASE['database']]
-	
-		self.db.authenticate(SECURE_settings.DATA_DATABASE['username'],SECURE_settings.DATA_DATABASE['password'])
+			self.client = MongoClient('mongodb://%s/%s'%(','.join(self.nodes)), ssl=self.ssl)
+
+
+
+	def getDatabase(self, collection):
+		base_name = collection
+		if 'question_' in collection: base_name = collection.split('question_')[1]
+		if base_name in self.available_databases:
+			if base_name in self.open_databases:
+				db = self.open_databases[base_name]
+			else:
+				db = self.client[self.available_databases[base_name]]
+				db.authenticate(SECURE_settings.DATA_DATABASE['username'],SECURE_settings.DATA_DATABASE['password'])
+				self.open_databases[base_name] = db
+		else:
+			if self.default_database in self.open_databases:
+				db = self.open_databases[self.default_database]
+			else:
+				db = self.client[self.default_database]
+				db.authenticate(SECURE_settings.DATA_DATABASE['username'],SECURE_settings.DATA_DATABASE['password'])
+				self.open_databases[self.default_database] = db
+		return db
 
 
 	def insert(self, documents, collection, roles = None):
@@ -44,7 +71,10 @@ class Database:
 			collection += '_developer'
 		elif roles and 'researcher' in roles:
 			collection += '_researcher'
-		coll = self.db[collection]
+
+		db = self.getDatabase(collection)
+
+		coll = db[collection]
 		doc_id = coll.insert(documents, continue_on_error=True)
 		return doc_id
 
@@ -54,10 +84,12 @@ class Database:
 		elif roles and 'researcher' in roles:
 			collection += '_researcher'
 
-		if from_secondary and self.allow_secondary_reads:
-			self.db.read_preference = pymongo.ReadPreference.SECONDARY_PREFERRED
+		db = self.getDatabase(collection)
 
-		coll = self.db[collection]
+		if from_secondary and self.allow_secondary_reads:
+			db.read_preference = pymongo.ReadPreference.SECONDARY_PREFERRED
+
+		coll = db[collection]
 		return coll.find(query)
 
 	def getDocumentsCustom(self, query, collection, fields, roles = None, from_secondary = True):
@@ -65,9 +97,11 @@ class Database:
 			collection += '_developer'
 		elif roles and 'researcher' in roles:
 			collection += '_researcher'
-		
+
+		db = self.getDatabase(collection)
+
 		if from_secondary and self.allow_secondary_reads:
-			self.db.read_preference = pymongo.ReadPreference.SECONDARY_PREFERRED
-		
-		coll = self.db[collection]
+			db.read_preference = pymongo.ReadPreference.SECONDARY_PREFERRED
+
+		coll = db[collection]
 		return coll.find(query, fields)
