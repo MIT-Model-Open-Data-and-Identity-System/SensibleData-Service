@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
@@ -6,8 +7,8 @@ from authorization_manager import authorization_manager
 from accounts.models import UserRole
 from connectors.connector import connector
 import bson.json_util as json
+import time
 
-#from connectors.connector_funf.models import ConnectorFunf
 import connectors.connectors_config;
 
 
@@ -49,4 +50,13 @@ def list(request):
 
     user = auth['user']
 
-    return HttpResponse(json.dumps({'current':[{'type':'pgg', 'participants':4}, {'type':'pgg', 'participants':1337}]}))
+    return HttpResponse(json.dumps({
+        'current':[
+            {'id': 123, 'type':'game-pgg', 'participants':3, 'started':(int)(time.time()-60)},
+            {'id': 12345, 'type':'game-dg-proposer', 'participants':2, 'started':(int)(time.time()-6000)},
+            {'id': 1234, 'type':'game-dg-responder', 'participants':2, 'started':1382558020}
+        ],
+        'codes':[
+            {'code': 'hmngifoækhfgoøh', 'timestamp': 1382558020},
+            {'code': '68u59000jh', 'timestamp': (int)(time.time())}
+        ]}))

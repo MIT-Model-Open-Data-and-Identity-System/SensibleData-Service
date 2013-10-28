@@ -91,10 +91,9 @@ def grant(request):
 def granted(request):
 
 	code = request.REQUEST.get('code', '')
-	#gcm_id = request.REQUEST.get('state', '')
-	gcm_id = 'XXX'
+	gcm_id = request.REQUEST.get('state', '')
 
-	#response = gcm_server.sendNotification(gcm_id, data={'message': '', 'code': code}, type='auth_code')
+	# response = gcm_server.sendNotification(gcm_id, data={'title': 'Authenticated', 'timestamp': time.time(), 'body':'Successfully authenticated', 'code': code}, type='auth_code')
 
 	return render_to_response('authorization_in_progress.html', {}, RequestContext(request))
 
@@ -168,8 +167,18 @@ def confirm(request):
 
 
 def gcm(request):
-	return HttpResponse(json.dumps(authorization_manager.authorization_manager.registerGcm(request, scope = 'connector_economics.submit_data')))
+	return HttpResponse(json.dumps(authorization_manager.authorization_manager.registerGcm(request, scope = 'connector_economics.push_notifications')))
 
 def buildAuthUrl():
-	#TODO  provide auth link when device is already registered, provide deauth option
-	return {'url':'', 'message':'Please start registration from your phone'}
+	grant_url = ''
+	message = 'Auhtorize url'
+	if not application == None:
+		try:
+			grant_url = application.grant_url
+			try:
+				message = json.loads(application.extra_params)['auth_message']
+			except: pass
+		except:
+			return {'url': grant_url, 'message': 'The application is not available at the moment'}
+
+	return {'url': grant_url, 'message': message}

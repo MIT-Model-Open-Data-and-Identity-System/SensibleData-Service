@@ -15,7 +15,8 @@ urlpatterns = patterns('',
 
 	url(r'^changebrowser', 'render.views.changebrowser', name='changebrowser'),
 	url(r'^noscript', 'render.views.noscript', name='noscript'),
-	 
+
 	url(r'^test/', include('testing.urls')),
 	url(r'^', include('render.urls')),
 )
+
