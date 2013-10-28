@@ -199,7 +199,7 @@ def buildUsersToReturn(auth_user, request, is_researcher = False):
 def processApiCall(request, probe_settings, users_to_return):
 	
 	response = {}
-	api_params = ['bearer_token','decrypted','order','fields','start_date','end_date','limit','users','after','callback', 'format']
+	api_params = ['bearer_token','sortby','decrypted','order','fields','start_date','end_date','limit','users','after','callback', 'format']
 	for k in request.REQUEST.keys():
 		if k not in api_params:
 			raise BadRequestException('error',400, str(k) + ' is not a legal API parameter.'\
