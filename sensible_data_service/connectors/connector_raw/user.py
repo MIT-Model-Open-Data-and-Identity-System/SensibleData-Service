@@ -61,9 +61,7 @@ def userBuild(request, users_to_return, decrypted = False, own_data = False, rol
 
 	db = database.Database()
 
-	collection = 'edu_mit_media_funf_probe_builtin_LocationProbe'
-	if own_data and 'researcher' in roles: collection += '_researcher'
-
+	collection= 'device_inventory'
 
 	response['results'] = [x for x in db.getDocuments(query={}, collection=collection).distinct('user') if x in users_to_return or 'all' in users_to_return]
 
