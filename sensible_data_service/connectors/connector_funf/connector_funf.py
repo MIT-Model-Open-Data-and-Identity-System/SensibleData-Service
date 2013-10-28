@@ -5,17 +5,15 @@ import time
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from backup import backup
-import pdb;
 from django.core.servers.basehttp import FileWrapper
 import mimetypes
-from utils import log
 from django.conf import settings
+from sensible_audit import audit
 
 from connectors.connector import connector
 import bson.json_util as json
 
-#from connectors.connector_funf.models import ConnectorFunf
-import connectors.connectors_config;
+import connectors.connectors_config
 import authorization_manager
 
 from subprocess import Popen, PIPE
@@ -34,13 +32,13 @@ myConnector = connectors.connectors_config.CONNECTORS['ConnectorFunf']['config']
 
 @csrf_exempt
 def rescue(request):
-	log.log('Debug','Rescue ' + request.POST['imei'] + ' @ ' + request.POST['lat'] + ',' + request.POST['lon'] + ' ~' + request.POST['acc'] + ' on ' + request.POST['timestamp'] + ' from ' + request.POST['provider'] + ' due to ' + request.POST['action'])
+	audit.Audit().e('phone_rescue','call_home',doc={'message': 'Rescue ' + request.POST['imei'] + ' @ ' + request.POST['lat'] + ',' + request.POST['lon'] + ' ~' + request.POST['acc'] + ' on ' + request.POST['timestamp'] + ' from ' + request.POST['provider'] + ' due to ' + request.POST['action']})
 	return HttpResponse('got it','text/javascript', status=200)
 
 @csrf_exempt
 def upload(request):
 	random.seed(time.time())
-	log.log('Debug', 'Received POST')
+	audit.Audit().d('connector_funf', 'post', {'message': 'Received POST'})
 	scope = 'all_probes'
 
 
@@ -49,14 +47,6 @@ def upload(request):
 		try:
 			uploaded_file = request.FILES['uploadedfile']
 			if uploaded_file:
-				#try:
-					
-					#authorization = authorization_manager.getAuthorizationForToken(scope, access_token)
-					#mConnector = ConnectorFunf.objects.all()[0];
-					#if ('error' in authorization) or (authorization == None):
-					#	upload_path = mConnector.upload_not_authorized_path;
-					#else:
-					#	upload_path = mConnector.upload_path
 					upload_path = myConnector['upload_path']	
 					backup_path = myConnector['backup_path']
 
@@ -76,21 +66,11 @@ def upload(request):
 
 					write_file(filepath, uploaded_file)
 					backup.backupFile(filepath, "connector_funf")
-					#shutil.copy(filepath, os.path.join(backup_path, filename))
 					
-					# run decryption in the background
-					#log.log('Debug', settings.ROOT_DIR + './manage.py funf_single_decrypt' + filename)
-					#p = Popen([settings.ROOT_DIR + './manage.py','funf_single_decrypt',filename], stdout=PIPE, stderr=PIPE)
-
-				#except Exception as e:
-				#	log.log('Error', 'Could not write: ' + str(e))
-				#	return HttpResponse(status='500')
-				#else:
 					return HttpResponse(json.dumps({'ok':'success'}))
 			else:
-				log.log('Error', 'failed to read')
+				audit.Audit().e('connector_funf', 'upload_fail', {})
 		except KeyError as e:
-			log.log('Error', 'Key error: ' + str(e))
 			pass
 	# bad request
 	return HttpResponse(status='500')
@@ -105,11 +85,7 @@ def write_file(filepath, file):
 
 
 def config(request):
-	#pdb.set_trace();
-	#log.log('Debug', 'GET for config')
 	access_token = request.REQUEST.get('access_token', '')
-	#authorization = self.pipe.getAuthorization(access_token)
-	#config = self.readConfig(authorization['user'])
 	config = readConfig('dummy')
 	if config:
 		return HttpResponse(config)
