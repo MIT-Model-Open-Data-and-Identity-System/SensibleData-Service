@@ -154,7 +154,7 @@ def education_to_csv(array, output):
 
 def friends_to_csv(array, output):
 	#print header
-	fields = ['user','timestamp','data.name','data.id','facebook_id']
+	fields = ['user','timestamp','data.id','facebook_id']
 	for i, field in enumerate(fields):
 		output += field
 		if i < len(fields)-1:
@@ -167,9 +167,6 @@ def friends_to_csv(array, output):
 			if len(row['data']) > 0:
 				for result in row['data']:
 					temp = '"' + row['user'] + '",' + str(row['timestamp']) + ',' 
-					try:
-						temp += '"' + result['name'] + '",'
-					except KeyError: temp += '"",'
 					try:
 						temp += '"' + str(result['id']) + '",'
 					except KeyError: temp += '"",'
@@ -332,13 +329,12 @@ def locationfacebook_to_csv(array, output):
 	for row in array:
 		try:
 			if len(row['data']) > 0:
-				for result in row['data']:
 					temp = '"' + row['user'] + '",' + str(row['timestamp']) + ',' 
 					try:
-						temp += '"' + str(result['id']) + '",'
+						temp += '"' + row['data']['id'] + '",'
 					except KeyError: temp += '"",'
 					try:
-						temp += '"' + result['name'] + '",'
+						temp += '"' + row['data']['name'] + '",'
 					except KeyError: temp += '"",'
 					try:
 						temp += '"' + str(row['facebook_id']) + '"'
@@ -621,7 +617,7 @@ def sms_to_csv(array, output):
 		
 def questionnaire_to_csv(array, output):
 	#print header
-	fields = ['user', 'variable_name','form_version','response','last_answered']
+	fields = ['user', 'variable_name','form_version','human_readable_response','last_answered']
 	for i, field in enumerate(fields):
 		output += field
 		if i < len(fields)-1:
@@ -639,8 +635,8 @@ def questionnaire_to_csv(array, output):
 				temp += '"' + row['form_version'] + '"' + ','
 			except KeyError: temp += '"",'
 			try:
-				temp+= '"' + row['response']+ '"' + ','
-			except KeyError: temp += '""'
+				temp+= '"' + row['human_readable_response']+ '"' + ','
+			except KeyError: temp += '"",'
 			try:
 				temp+= '"' + row['last_answered']+ '"' + ','
 			except KeyError: temp += '""'

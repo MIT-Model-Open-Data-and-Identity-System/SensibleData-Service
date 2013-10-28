@@ -341,7 +341,7 @@ class Anonymizer(object):
 		return (cipher.encrypt(raw)).encode("hex")
 
 	def decrypt(self, enc):
-		enc = enc.decode("hex")
+		enc = enc.strip().decode("hex")
 		iv = SECURE_settings.IV['iv']
 		cipher = AES.new(self.key, AES.MODE_CBC, iv)
 		return self.unpad(cipher.decrypt(enc))
