@@ -45,6 +45,7 @@ def get_data(request, probe_settings):
 		if s == 'connector_raw.all_data_researcher': is_researcher = True
 	
 	users_to_return = buildUsersToReturn(auth['user'], request, is_researcher = is_researcher)
+	questions_to_return = buildQuestionsToReturn(auth['user'], request, is_researcher = is_researcher)
 	roles = []
 	try: roles = [x.role for x in UserRole.objects.get(user=auth['user']).roles.all()]
 	except: pass
@@ -53,9 +54,9 @@ def get_data(request, probe_settings):
 	if len(users_to_return) == 1 and users_to_return[0] == auth['user'].username: own_data = True
 
 
-	return dataBuild(request, probe_settings, users_to_return, decrypted = decrypted, own_data = own_data, roles = roles)
+	return dataBuild(request, probe_settings, users_to_return, questions_to_return, decrypted = decrypted, own_data = own_data, roles = roles)
 
-def dataBuild(request, probe_settings, users_to_return, decrypted = False, own_data = False, roles = []):
+def dataBuild(request, probe_settings, users_to_return, questions_to_return, decrypted = False, own_data = False, roles = []):
 	_start_time = time.time()
 	
 	results = None
@@ -67,8 +68,8 @@ def dataBuild(request, probe_settings, users_to_return, decrypted = False, own_d
 	try:
 		if len(users_to_return) == 0:
 			raise BadRequestException('error',403,'The current token does not allow to view data from any users')
-		proc_req = processApiCall(request, probe_settings, users_to_return)
-		query = buildQuery(users_to_return, proc_req)	
+		proc_req = processApiCall(request, probe_settings, users_to_return, questions_to_return)
+		query = buildQuery(users_to_return,questions_to_return, proc_req)	
 		collection = probe_settings['collection']
 		if own_data and 'researcher' in roles: collection += '_researcher'
 
@@ -105,8 +106,7 @@ def dataBuild(request, probe_settings, users_to_return, decrypted = False, own_d
 			response['meta']['paging'] = {}
 			response['meta']['paging']['cursors'] = {}
 			response['meta']['paging']['cursors']['after'] =OrderedDict([\
-					('form_version',results[-1]['form_version']),\
-					('last_answered',results[-1]['last_answered']),\
+					('form_version',results[-1]['form_version']),('last_answered', results[-1]['last_answered']),\
 					('variable_name',results[-1]['variable_name']),
 					('user',results[-1]['user'])])
 			if results_count == proc_req['limit']:
@@ -175,6 +175,20 @@ def cursorToArray(cursor, decrypted = False, probe = ''):
 	else:
 		return array
 
+def buildQuestionsToReturn(auth_user, request, is_researcher = False):
+	questions_to_return = []
+	if not is_researcher:
+		#questions_to_return.append(auth_user.username)
+		return questions_to_return
+	
+	if is_researcher:
+		requested_questions = [question for question in request.REQUEST.get('questions','').split(',') if len(question) > 0]
+		if len(requested_questions) > 0:
+			questions_to_return = requested_questions
+		else: questions_to_return.append('all')
+		return questions_to_return
+	return questions_to_return
+
 def buildUsersToReturn(auth_user, request, is_researcher = False):
 	users_to_return = []
 	if not is_researcher:
@@ -189,10 +203,10 @@ def buildUsersToReturn(auth_user, request, is_researcher = False):
 		return users_to_return
 	return users_to_return
 
-def processApiCall(request, probe_settings, users_to_return):
+def processApiCall(request, probe_settings, users_to_return, questions_to_return):
 	
 	response = {}
-	api_params = ['bearer_token','decrypted','order','fields','start_date','end_date','limit','users','after','callback', 'format']
+	api_params = ['bearer_token','sortby','decrypted','order','fields','questions','start_date','end_date','limit','users','after','callback', 'format']
 	for k in request.REQUEST.keys():
 		if k not in api_params:
 			raise BadRequestException('error',400, str(k) + ' is not a legal API parameter.'\
@@ -200,6 +214,7 @@ def processApiCall(request, probe_settings, users_to_return):
 
 	response['status'] = {'status':'OK','code':200, 'desc':''}
 	response['fields'] = None
+	response['questions'] = None
 	response['sortby'] = None
 	response['order'] = None
 	response['start_date'] = None
@@ -218,7 +233,10 @@ def processApiCall(request, probe_settings, users_to_return):
 			response['order'] = int(request.REQUEST.get('order'))
 	else:
 		response['order'] = -1
-	
+
+	### deal with questions
+	response['questions'] = questions_to_return
+					
 	### deal with fields
 	fields_string = request.REQUEST.get('fields', '')
 	if len(fields_string) > 0:
@@ -276,11 +294,13 @@ def processApiCall(request, probe_settings, users_to_return):
 	return response
 
 
-def buildQuery(users_to_return, request):
+def buildQuery(users_to_return,questions_to_return, request):
 	query = {'$query':{}}
 	if not 'all' in users_to_return:
 		query['$query']['user'] = {'$in':users_to_return}
 	
+	if not 'all' in questions_to_return:
+		query['$query']['variable_name'] = {'$in':questions_to_return}	
 
 	
 	if request['after'] is not None: # there is paging involved

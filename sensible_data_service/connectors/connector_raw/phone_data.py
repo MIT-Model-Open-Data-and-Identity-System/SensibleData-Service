@@ -148,7 +148,7 @@ def dataBuild(request, probe_settings, users_to_return, decrypted = False, own_d
 	#	if data_users['user'] not in users_return:
 	#		users_return.append(data_users['user'])
 	
-	if proc_req['pretty']:
+	if proc_req['format'] == 'pretty':
 		return render_to_response('pretty_json.html', {'response': json.dumps(response, indent=2)})
         elif proc_req['format'] == 'csv':
 		output = '#' + json.dumps(response['meta'], indent=2).replace('\n','\n#') + '\n'

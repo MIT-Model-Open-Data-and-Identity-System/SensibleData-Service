@@ -168,7 +168,11 @@ def dataBuild(request, probe_settings, users_to_return, decrypted = False, own_d
 		return render_to_response('pretty_json.html', {'response': json.dumps(response, indent=2)})
         elif proc_req['format'] == 'csv':
 		output = '#' + json.dumps(response['meta'], indent=2).replace('\n','\n#') + '\n'
-		output += array_to_csv(results,probe_settings['collection'])
+		if probe_settings['scope']=='connector_raw.locationfacebook':
+			output2 = ''
+			output += locationfacebook_to_csv(results,output2)
+		else:
+			output += array_to_csv(results,probe_settings['collection'])
 		return HttpResponse(output, content_type="text/plain", status=response['meta']['status']['code'])
 	else:
 		return HttpResponse(json.dumps(response), content_type="application/json", status=response['meta']['status']['code'])
@@ -215,7 +219,7 @@ def buildUsersToReturn(auth_user, request, is_researcher = False):
 def processApiCall(request, probe_settings, users_to_return):
 	
 	response = {}
-	api_params = ['bearer_token','decrypted','order','fields','start_date','end_date','limit','users','after','callback', 'format']
+	api_params = ['bearer_token','sortby','decrypted','order','fields','start_date','end_date','limit','users','after','callback', 'format']
 	for k in request.REQUEST.keys():
 		if k not in api_params:
 			raise BadRequestException('error',400, str(k) + ' is not a legal API parameter.'\
