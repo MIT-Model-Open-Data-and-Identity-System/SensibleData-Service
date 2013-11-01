@@ -505,8 +505,8 @@ def wifi_to_csv(array, output):
 
 def bluetooth_to_csv(array, output):
 	#print header
-	deviceInventory = device_inventory.DeviceInventory()
-	fields = ['user','data.TIMESTAMP','address','class','RSSI','name'] 
+#	deviceInventory = device_inventory.DeviceInventory()
+	fields = ['user','data.TIMESTAMP','address','class','RSSI','name','device_holder'] 
 	for i, field in enumerate(fields):
 		output += field
 		if i < len(fields)-1:
@@ -520,8 +520,7 @@ def bluetooth_to_csv(array, output):
 				for device in row['data']['DEVICES']:
 					temp = '"' + row['user'] + '",' + str(row['data']['TIMESTAMP']) + ','
 					try:
-						#temp += '"' + device['android_bluetooth_device_extra_DEVICE']['mAddress'] + '",'
-						temp += '"' + deviceInventory.mapBtToUser(device['android_bluetooth_device_extra_DEVICE']['mAddress'], row['data']['TIMESTAMP']) + '",'
+						temp += '"' + device['android_bluetooth_device_extra_DEVICE']['mAddress'] + '",'
 					except KeyError: temp+= '"",'
 					try: 
 						temp += str(device['android_bluetooth_device_extra_CLASS']['mClass']) + ','
@@ -530,13 +529,16 @@ def bluetooth_to_csv(array, output):
 						temp += str(device['android_bluetooth_device_extra_RSSI']) + ','
 					except KeyError: temp += ','
 					try:
-						temp += '"' + device['android_bluetooth_device_extra_NAME'] + '"'
+						temp += '"' + device['android_bluetooth_device_extra_NAME'] + '",'
+					except KeyError: temp += '"",'
+					try:
+						temp += '"' + device['user'] + '"'
 					except KeyError: temp += '""'
 					output_lines.append(temp)
 			else:
-				output_lines.append('"' + row['user'] + '",' + str(row['data']['TIMESTAMP']) + ',,,,')
+				output_lines.append('"' + row['user'] + '",' + str(row['data']['TIMESTAMP']) + ',"",,,"",""')
 		except KeyError:
-			output_lines.append('"' + row['user'] + '",' + str(row['data']['TIMESTAMP']) + ',,,,')
+			output_lines.append('"' + row['user'] + '",' + str(row['data']['TIMESTAMP']) + ',"",,,"",""')
 			
 	#return output
 	return output + '\n'.join(output_lines)

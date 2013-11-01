@@ -12,6 +12,7 @@ import transform
 from connector_utils import *
 from anonymizer.anonymizer import Anonymizer
 from collections import OrderedDict
+from connectors.connector_funf import device_inventory
 
 def wifi(request):
 	return get_data(request, PHONE_DATA_SETTINGS['wifi'])
@@ -102,7 +103,10 @@ def dataBuild(request, probe_settings, users_to_return, decrypted = False, own_d
 		docs.limit(proc_req['limit'])
 
 		try:
-			results = cursorToArray(docs, decrypted = decrypted, probe=probe_settings['collection'])
+			results = cursorToArray(docs, decrypted = decrypted,\
+					probe=probe_settings['collection'],\
+					is_researcher = ('researcher' in roles),\
+					map_to_users=proc_req['map_to_users'])
 		except Exception as e:
 			raise BadRequestException('error',500,'The request caused a DB malfunction: ' + str(e))
 		results_count = len(results)
@@ -183,13 +187,26 @@ def mydumps(dictionary):
 def urlize_dict(dictionary):
 	return urllib.quote(mydumps(dictionary))
 
-def cursorToArray(cursor, decrypted = False, probe = ''):
+def cursorToArray(cursor, decrypted = False, probe = '', is_researcher=False, map_to_users=False):
 	array = [doc for doc in cursor]
-	if decrypted and 'BluetoothProbe' in probe:
-		anonymizer = Anonymizer()
-		return anonymizer.deanonymizeDocument(array, probe)
-	else:
-		return array
+	if 'BluetoothProbe' in probe:
+		if decrypted:
+			anonymizer = Anonymizer()
+			return anonymizer.deanonymizeDocument(array, probe)
+		elif is_researcher and map_to_users:
+			deviceInventory = device_inventory.DeviceInventory()
+			for doc in array:
+				for device in doc['data']['DEVICES']:
+					try:
+						user_temp = deviceInventory.mapBtToUser(device['android_bluetooth_device_extra_DEVICE']['mAddress'], doc['data']['TIMESTAMP'], use_mac_if_empty=False)
+						if user_temp is not None:
+							device['user'] = user_temp
+						else:
+							device['user'] = ''
+					except KeyError: device['user'] = ''
+			return array
+		else: return array
+	else: return array
 
 def buildUsersToReturn(auth_user, request, is_researcher = False):
 	users_to_return = []
@@ -208,7 +225,7 @@ def buildUsersToReturn(auth_user, request, is_researcher = False):
 def processApiCall(request, probe_settings, users_to_return):
 	
 	response = {}
-	api_params = ['bearer_token','sortby','decrypted','order','fields','start_date','end_date','limit','users','after','callback', 'format']
+	api_params = ['bearer_token','sortby','decrypted','order','fields','start_date','end_date','limit','users','after','callback', 'format', 'map_to_users']
 	for k in request.REQUEST.keys():
 		if k not in api_params:
 			raise BadRequestException('error',400, str(k) + ' is not a legal API parameter.'\
@@ -224,6 +241,7 @@ def processApiCall(request, probe_settings, users_to_return):
 	response['users'] = None
 	response['after'] = None
 	response['format'] = 'json'
+	response['map_to_users'] = False
 
 	### deal with sorting
 	# sorting will be supported later. Now, we can only sort by data.TIMESTAMP, either asc or desc
@@ -289,6 +307,15 @@ def processApiCall(request, probe_settings, users_to_return):
 			raise BadRequestException('error',400,str(request.REQUEST.get('format',None)) + ' is not a valid format. Valid formats are: pretty, json, csv')
 		else:
 			response['format'] = request.REQUEST.get('format',None)
+	
+	### deal with map_to_users
+	if request.REQUEST.get('map_to_users',None) is not None:
+		if request.REQUEST.get('map_to_users', None) not in ['1','0']: 
+			raise BadRequestException('error',400,str(request.REQUEST.get('map_to_users',None)) + ' is not a valid value for map_to_users. Valid values are \'0\' and \'1\'')
+		else:
+			if request.REQUEST.get('map_to_users',None) == '1':
+				response['map_to_users'] = True
+
 	### return
 	return response
 
