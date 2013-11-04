@@ -11,8 +11,8 @@ import pymongo
 
 @login_required
 def status(request):
-	authorized_users = ['arks@dtu.dk', 'sljo@dtu.dk', 'lasse.valentini@gmail.com']
-	if not request.user.email in authorized_users:
+	authorized_users = ['arks@dtu.dk', 'sljo@dtu.dk', 'lasse.valentini@gmail.com', 'pisa@dtu.dk']
+	if not request.user.email in authorized_users and not request.user.username in authorized_users:
 		return HttpResponse(json.dumps({'error':'sorry, %s you are not authorized :('%request.user.username}))
 	query = request.REQUEST.get('query', '')
 	if query == '':
