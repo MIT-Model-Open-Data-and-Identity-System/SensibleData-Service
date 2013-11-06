@@ -38,11 +38,10 @@ class Database:
 		self.nodes = settings.DATA_DATABASE['nodes']
 		self.database = settings.DATA_DATABASE['database']
 
-
 		if self.is_replica_set:
 			self.client = MongoReplicaSetClient('mongodb://%s'%(','.join(self.nodes)), ssl=self.ssl, replicaSet=self.replica_set)
 		else:
-			self.client = MongoClient('mongodb://%s/%s'%(','.join(self.nodes)), ssl=self.ssl)
+			self.client = MongoClient('mongodb://%s/%s'%(','.join(self.nodes), self.database), ssl=self.ssl)
 
 
 
