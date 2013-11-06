@@ -115,17 +115,10 @@ class Database:
 		elif roles and 'researcher' in roles:
 			collection += '_researcher'
 
-<<<<<<< HEAD
-		if from_secondary and self.allow_secondary_reads:
-			self.db.read_preference = pymongo.ReadPreference.SECONDARY_PREFERRED
-
-		coll = self.db[collection]
-=======
 		db = self.getDatabase(collection)
 
 		if from_secondary and self.allow_secondary_reads:
 			db.read_preference = pymongo.ReadPreference.SECONDARY_PREFERRED
 
 		coll = db[collection]
->>>>>>> c2153076fbefe80ca22ee1f3a869d654cd9938ef
 		return coll.find(query, fields)
