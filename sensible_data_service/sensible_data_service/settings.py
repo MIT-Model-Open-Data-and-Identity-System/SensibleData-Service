@@ -5,7 +5,7 @@ import LOCAL_SETTINGS
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
-
+MAINTENANCE_MODE = False
 
 
 ADMINS = (
@@ -18,6 +18,7 @@ ROOT_DIR = LOCAL_SETTINGS.ROOT_DIR
 ROOT_URL = LOCAL_SETTINGS.ROOT_URL
 BASE_URL = LOCAL_SETTINGS.BASE_URL
 DATA_DATABASE = LOCAL_SETTINGS.DATA_DATABASE
+AUDIT_DATABASE = LOCAL_SETTINGS.AUDIT_DATABASE
 DATA_BASE_DIR = LOCAL_SETTINGS.DATA_BASE_DIR
 DATA_LOG_DIR = LOCAL_SETTINGS.DATA_LOG_DIR
 DATA_BACKUP_DIR = LOCAL_SETTINGS.DATA_BACKUP_DIR
@@ -29,12 +30,6 @@ SERVICE_NAME = LOCAL_SETTINGS.SERVICE_NAME
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = LOCAL_SETTINGS.SECRET_KEY
 
-import djcelery
-djcelery.setup_loader()
-
-from connectors.connector_answer import schedule
-
-CELERYBEAT_SCHEDULE = schedule.CELERYBEAT_SCHEDULE
 
 LOGIN_URL = ROOT_URL+'openid/login/'
 LOGIN_REDIRECT_URL = ROOT_URL
@@ -57,6 +52,10 @@ def failure_handler_function(request, message, status=None, template_name=None, 
 	return redirect('openid_failed')
 
 OPENID_RENDER_FAILURE = failure_handler_function
+
+MAINTENANCE_IGNORE_URLS = (
+		    r'^.*/admin/$',
+)
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
@@ -187,6 +186,8 @@ INSTALLED_APPS = (
     'render',
     'backup',
 	'djcelery',
+	'questions',
+	'sensible_audit',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -218,5 +219,18 @@ LOGGING = {
     }
 }
 
+CACHES = {
+	'default': {
+		'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+		'LOCATION': '/var/tmp/django_cache',
+	}
+}
+
 import hashlib
 SESSION_COOKIE_NAME = str(hashlib.sha1(SECRET_KEY).hexdigest())
+
+import djcelery
+import djcelery.schedulers
+djcelery.setup_loader()
+
+CELERYBEAT_SCHEDULER = djcelery.schedulers.DatabaseScheduler
