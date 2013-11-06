@@ -38,29 +38,49 @@ def answer(request):
 
     user = auth['user']
 
-    roles = None
     try:    roles = [x.role for x in UserRole.objects.get(user=user).roles.all()]
-    except: pass
+    except: roles = None
 
     database = Database()
+    # Disallow secondary reads, as we need to be sure if the game has ended or not
+    database.allow_secondary_reads = False
 
-    game = json.loads(
-            database.getDocuments({'_id': urllib.unquote(request.REQUEST.get('_id'))},
-                                collection='dk_dtu_compute_economics_games', roles=roles))
+    game = database.getDocuments({'_id': urllib.unquote(request.REQUEST.get('_id'))},
+                                collection='dk_dtu_compute_economics_games_current',
+                                roles=roles)[0]
+
+    if game is None:
+        return HttpResponse(json.dumps({'error': 'The game is either ended or doesn\'t exist.'}), status=404)
 
     if not user.username in game.participants:
         return HttpResponse(json.dumps({'error': 'You are not a participant in this game.'}), status=401)
+
+    if user.username in game.answers:
+        return HttpResponse()
+
+    # can use length here as we have made sure that the user is in participants and not in answers
+    if len(game.participants) == (len(game.answers)+1):
+        # delete current and insert into finished
+        game.answers.push(user.username)
+        database.insert(game, collection='dk_dtu_compute_economics_games_finished', roles=roles)
+        database.remove(game._id, collection='dk_dtu_compute_economics_games_current', roles=roles)
+    else:
+        database.update({'_id': game['_id']},
+                        {'$addToSet': {'answers': user.username}},
+                        collection='dk_dtu_compute_economics_games_current',
+                        roles=roles)
 
     answer = {}
     answer['answer'] = urllib.unquote(request.REQUEST.get('answer'))
     answer['type'] = game['type']
     answer['game_id'] = game['_id']
+    answer['opened'] = urllib.unquote(request.REQUEST.get('opened'))
     answer['_id'] = game['_id']+user.username # Add username so that there can be multiple answers to one game.
     answer['user'] = user.username
 
     doc_id = database.insert(answer, collection='dk_dtu_compute_economics_answers', roles=roles)
 
-    return HttpResponse(status=200)
+    return HttpResponse(json.dumps(game), status=200)
 
 
 #TODO: Get codes from a real codes collection
@@ -73,15 +93,14 @@ def list(request):
 
     user = auth['user']
 
-    roles = None
     try:    roles = [x.role for x in UserRole.objects.get(user=user).roles.all()]
-    except: pass
+    except: roles = None
 
     database = Database()
 
     query = {'participants': {'$all': [user.username]}}
 
-    games = database.getDocuments(query, collection='dk_dtu_compute_economics_games', roles=roles)
+    games = database.getDocuments(query, collection='dk_dtu_compute_economics_games_current', roles=roles)
 
     # Clean up
     games = [{'_id': game['_id'],
@@ -98,7 +117,7 @@ def list(request):
 
     return HttpResponse(json.dumps({
         'current':[
-            {'_id': '19157053-70f2-4ef0-968c-da6bf44a24d2', 'type':'game-pgg', 'participants':3, 'started':(int)(time.time()-60)},
+            {'_id': '19157053-70f2-4ef0-968c-da6bf44a24d2', 'type':'game-pdg', 'participants':3, 'started':(int)(time.time()-60)},
             {'_id': 'ff43036b-1df0-4228-a76c-e8bfca3cb878', 'type':'game-dg-proposer', 'participants':2, 'started':(int)(time.time()-6000)},
             {'_id': 'ae566676-eb5b-494c-a843-8e41f8ad84fd', 'type':'game-dg-responder', 'participants':2, 'started':1382558020}
         ],
@@ -129,14 +148,15 @@ def create_game(request):
     # if roles and ('researcher' in roles or 'developer' in roles):
     if True:
         database = Database()
-        game = {'_id': str(uuid.uuid4()), 'started': int(time.time())}
+        game = {'started': int(time.time())}
         game['type'] = urllib.unquote(request.REQUEST.get('type'))
         game['participants'] = [user.username]
 
         participant_roles = request.REQUEST.getlist('roles')
 
-        doc_id = database.insert(game, collection='dk_dtu_compute_economics_games', roles=participant_roles)
+        doc_id = database.insert(game, collection='dk_dtu_compute_economics_games_current', roles=participant_roles)
 
+	    #TODO: put id into game.
         return HttpResponse(json.dumps(game))
 
     return HttpResponse(json.dumps({'error': 'You do not have sufficient permissions to add a game.'}), status=401)
