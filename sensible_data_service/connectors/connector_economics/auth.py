@@ -77,8 +77,8 @@ def grant(request):
 	if len(final_scopes) == 0:
 		return HttpResponse(json.dumps({'error':'no valid scope provided'}))
 
-
-	redirect_uri = settings.ROOT_URL+'authorization_manager/oauth2/authorize/?'
+	# TODO: figure out why /authorize/ is not working properly (seems to be the one that should be used)
+	redirect_uri = settings.ROOT_URL+'authorization_manager/oauth2/authorize_refreshed/?'
 	redirect_uri += 'client_id='+client_id
 	redirect_uri += '&response_type=code'
 	redirect_uri += '&scope='+','.join(final_scopes)
@@ -169,7 +169,7 @@ def confirm(request):
 def gcm(request):
 	return HttpResponse(json.dumps(authorization_manager.authorization_manager.registerGcm(request, scope = 'connector_economics.push_notifications')))
 
-def buildAuthUrl():
+def buildAuthUrl(application = None):
 	grant_url = ''
 	message = 'Auhtorize url'
 	if not application == None:

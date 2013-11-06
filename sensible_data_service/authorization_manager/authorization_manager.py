@@ -29,7 +29,7 @@ def buildAuthUrl(connector, application=None):
 	if connector.connector_type == 'connector_raw':
 		return connectors.connector_raw.auth.buildAuthUrl(application)
 	if connector.connector_type == 'connector_economics':
-		return connectors.connector_economics.auth.buildAuthUrl()
+		return connectors.connector_economics.auth.buildAuthUrl(application)
 	return {'error':'no valid connector provided', 'url':'', 'message': 'error: no valid connector provided'}
 
 def getAuthorization(user, scope, application):

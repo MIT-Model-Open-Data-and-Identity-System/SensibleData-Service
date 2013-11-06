@@ -20,7 +20,6 @@ from datetime import datetime
 from django.shortcuts import redirect
 from urlparse import urlparse, parse_qs
 from accounts.models import UserRole
-
 @login_required
 def missing_redirect_uri(request):
     return render_to_response(
