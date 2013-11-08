@@ -1,5 +1,20 @@
 from collections import OrderedDict
 from connectors.connector_funf import device_inventory
+from bson import ObjectId
+
+def stringify_object_ids(obj):
+	if type(obj) == list:
+		for elt in obj: elt = _stringify_object_ids(elt)
+		return obj
+	else:
+		return _stringify_object_ids(obj)
+
+def _stringify_object_ids(elt):
+	try:
+		if type(elt['_id']) == ObjectId:
+			elt['_id'] = str(elt['_id'])
+	except KeyError: pass
+	return elt
 
 class BadRequestException(Exception):
 	def __init__(self, value):
@@ -637,7 +652,7 @@ def questionnaire_to_csv(array, output):
 				temp += '"' + row['form_version'] + '"' + ','
 			except KeyError: temp += '"",'
 			try:
-				temp+= '"' + row['human_readable_response']+ '"' + ','
+				temp+= '"' + row['human_readable_response'].replace('"','\\"').replace('\n','\\n').replace('\r','\\n') +  '"' + ','	
 			except KeyError: temp += '"",'
 			try:
 				temp+= '"' + row['last_answered']+ '"' + ','
