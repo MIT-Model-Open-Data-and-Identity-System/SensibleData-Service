@@ -1,5 +1,4 @@
 from collections import OrderedDict
-from connectors.connector_funf import device_inventory
 from bson import ObjectId
 
 def stringify_object_ids(obj):
@@ -519,8 +518,6 @@ def wifi_to_csv(array, output):
 					
 
 def bluetooth_to_csv(array, output):
-	#print header
-#	deviceInventory = device_inventory.DeviceInventory()
 	fields = ['user','data.TIMESTAMP','address','class','RSSI','name','device_holder'] 
 	for i, field in enumerate(fields):
 		output += field
