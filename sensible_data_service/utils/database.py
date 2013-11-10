@@ -13,8 +13,8 @@ class Database:
 	nodes = []
 	database = ""
 	default_database = ""
-    	open_databases = {}
-    	available_databases = {}
+	open_databases = {}
+	available_databases = {}
 
 	def __init__(self):
 		try: self.is_replica_set = settings.DATA_DATABASE['is_replica_set']
