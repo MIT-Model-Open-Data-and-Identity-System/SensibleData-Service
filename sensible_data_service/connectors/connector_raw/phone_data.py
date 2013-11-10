@@ -11,18 +11,19 @@ import time
 import transform
 from connector_utils import *
 from anonymizer.anonymizer import Anonymizer
+from collections import OrderedDict
+from connectors.connector_funf import device_inventory
 
-def calllog(request):
-	return get_data(request, PHONE_DATA_SETTINGS['calllog'])
-
-def sms(request):
-	return get_data(request, PHONE_DATA_SETTINGS['sms'])
+def wifi(request):
+	return get_data(request, PHONE_DATA_SETTINGS['wifi'])
 def bluetooth(request):
 	return get_data(request, PHONE_DATA_SETTINGS['bluetooth'])
-
 def location(request):
 	return get_data(request, PHONE_DATA_SETTINGS['location'])
-
+def calllog(request):
+	return get_data(request, PHONE_DATA_SETTINGS['calllog'])
+def sms(request):
+	return get_data(request, PHONE_DATA_SETTINGS['sms'])
 def wifi(request):
 	return get_data(request, PHONE_DATA_SETTINGS['wifi'])
 def get_data(request, probe_settings):
@@ -102,7 +103,10 @@ def dataBuild(request, probe_settings, users_to_return, decrypted = False, own_d
 		docs.limit(proc_req['limit'])
 
 		try:
-			results = cursorToArray(docs, decrypted = decrypted, probe=probe_settings['collection'])
+			results = cursorToArray(docs, decrypted = decrypted,\
+					probe=probe_settings['collection'],\
+					is_researcher = ('researcher' in roles),\
+					map_to_users=proc_req['map_to_users'])
 		except Exception as e:
 			raise BadRequestException('error',500,'The request caused a DB malfunction: ' + str(e))
 		results_count = len(results)
@@ -116,10 +120,10 @@ def dataBuild(request, probe_settings, users_to_return, decrypted = False, own_d
 		if len(results) > 0:
 			response['meta']['paging'] = {}
 			response['meta']['paging']['cursors'] = {}
-			response['meta']['paging']['cursors']['after'] =\
-					{proc_req['sortby']:getValueOfFullKey(results[-1], proc_req['sortby']),\
-					'_id':results[-1]['_id'],
-					'user':results[-1]['user']}
+			response['meta']['paging']['cursors']['after'] =OrderedDict([\
+					(proc_req['sortby'],getValueOfFullKey(results[-1], proc_req['sortby'])),\
+					('_id',results[-1]['_id']),
+					('user',results[-1]['user'])])
 			if results_count == proc_req['limit']:
 				if proc_req['after'] is not None:	
 					response['meta']['paging']['links'] =\
@@ -129,6 +133,7 @@ def dataBuild(request, probe_settings, users_to_return, decrypted = False, own_d
 						{'next':request.build_absolute_uri() + '&after=' + urlize_dict(response['meta']['paging']['cursors']['after'])}
 	except BadRequestException as e:
 		response['meta']['status'] = e.value
+		proc_req = {'format':'json'}
 	
 	response['meta']['execution_time_seconds'] = time.time()-_start_time
 	callback = request.REQUEST.get('callback','')
@@ -147,27 +152,61 @@ def dataBuild(request, probe_settings, users_to_return, decrypted = False, own_d
 	#	if data_users['user'] not in users_return:
 	#		users_return.append(data_users['user'])
 	
-	if proc_req['pretty']:
+	if proc_req['format'] == 'pretty':
 		return render_to_response('pretty_json.html', {'response': json.dumps(response, indent=2)})
         elif proc_req['format'] == 'csv':
 		output = '#' + json.dumps(response['meta'], indent=2).replace('\n','\n#') + '\n'
 		output += array_to_csv(results,probe_settings['collection'])
-		return HttpResponse(output, content_type="text/javascript", status=response['meta']['status']['code'])
+		return HttpResponse(output, content_type="text/plain", status=response['meta']['status']['code'])
 	else:
 		return HttpResponse(json.dumps(response), content_type="application/json", status=response['meta']['status']['code'])
 	return HttpResponse('hello decrypted')
 
-def urlize_dict(dictionary):
-	return urllib.quote(json.dumps(dictionary, indent=None, separators=(',',':')))
+def is_number(elt):
+	try:
+		_ = float(elt)
+		return True
+	except Exception:
+		return False
 
-
-def cursorToArray(cursor, decrypted = False, probe = ''):
-	array = [doc for doc in cursor]
-	if decrypted and 'BluetoothProbe' in probe:
-		anonymizer = Anonymizer()
-		return anonymizer.deanonymizeDocument(array, probe)
+def mydumps(dictionary):
+	if type(dictionary) == type(OrderedDict()):
+		response = '{'
+		for k in dictionary.keys():
+			response+='"' + k + '":'
+			if type(dictionary[k]) == type(u'asdf') or type(dictionary[k]) == type('asdf'):
+				response += '"' + dictionary[k] + '",'
+			else:
+				response += str(dictionary[k]) + ','
+			
+		response = response[:-1] + '}'
+		return response
 	else:
-		return array
+		return json.dumps(dictionary, indent=None, separators=(',',':'))
+
+def urlize_dict(dictionary):
+	return urllib.quote(mydumps(dictionary))
+
+def cursorToArray(cursor, decrypted = False, probe = '', is_researcher=False, map_to_users=False):
+	array = [doc for doc in cursor]
+	if 'BluetoothProbe' in probe:
+		if decrypted:
+			anonymizer = Anonymizer()
+			return anonymizer.deanonymizeDocument(array, probe)
+		elif is_researcher and map_to_users:
+			deviceInventory = device_inventory.DeviceInventory()
+			for doc in array:
+				for device in doc['data']['DEVICES']:
+					try:
+						user_temp = deviceInventory.mapBtToUser(device['android_bluetooth_device_extra_DEVICE']['mAddress'], doc['data']['TIMESTAMP'], use_mac_if_empty=False)
+						if user_temp is not None:
+							device['user'] = user_temp
+						else:
+							device['user'] = ''
+					except KeyError: device['user'] = ''
+			return array
+		else: return array
+	else: return array
 
 def buildUsersToReturn(auth_user, request, is_researcher = False):
 	users_to_return = []
@@ -186,7 +225,7 @@ def buildUsersToReturn(auth_user, request, is_researcher = False):
 def processApiCall(request, probe_settings, users_to_return):
 	
 	response = {}
-	api_params = ['bearer_token','pretty','decrypted','order','fields','start_date','end_date','limit','users','after','callback', 'format']
+	api_params = ['bearer_token','sortby','decrypted','order','fields','start_date','end_date','limit','users','after','callback', 'format', 'map_to_users']
 	for k in request.REQUEST.keys():
 		if k not in api_params:
 			raise BadRequestException('error',400, str(k) + ' is not a legal API parameter.'\
@@ -202,7 +241,7 @@ def processApiCall(request, probe_settings, users_to_return):
 	response['users'] = None
 	response['after'] = None
 	response['format'] = 'json'
-	response['pretty'] = booleanize(request.REQUEST.get('pretty',False))
+	response['map_to_users'] = False
 
 	### deal with sorting
 	# sorting will be supported later. Now, we can only sort by data.TIMESTAMP, either asc or desc
@@ -258,7 +297,7 @@ def processApiCall(request, probe_settings, users_to_return):
 	### deal with after (paging)
 	if request.REQUEST.get('after', None) is not None:
 		try:
-			response['after'] = json.loads(request.REQUEST.get('after', None))
+			response['after'] = json.loads(request.REQUEST.get('after', None), object_pairs_hook=OrderedDict)
 		except ValueError:
 			raise BadRequestException('error',400,'Specified after parameter is not a valid JSON string')
 	
@@ -268,8 +307,15 @@ def processApiCall(request, probe_settings, users_to_return):
 			raise BadRequestException('error',400,str(request.REQUEST.get('format',None)) + ' is not a valid format. Valid formats are: pretty, json, csv')
 		else:
 			response['format'] = request.REQUEST.get('format',None)
-			if response['format'] == 'pretty':
-				response['pretty'] = True
+	
+	### deal with map_to_users
+	if request.REQUEST.get('map_to_users',None) is not None:
+		if request.REQUEST.get('map_to_users', None) not in ['1','0']: 
+			raise BadRequestException('error',400,str(request.REQUEST.get('map_to_users',None)) + ' is not a valid value for map_to_users. Valid values are \'0\' and \'1\'')
+		else:
+			if request.REQUEST.get('map_to_users',None) == '1':
+				response['map_to_users'] = True
+
 	### return
 	return response
 
