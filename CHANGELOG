@@ -1,0 +1,5 @@
+SensibleData-Service 0.1.21
+
+* Added CHANGELOG
+* Support for languages in informed consent
+* Questionnaires endpoint, including human-redeable questions and answers
