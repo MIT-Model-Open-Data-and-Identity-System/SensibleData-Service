@@ -81,7 +81,10 @@ class Database:
  				collection += '_developer'
 		elif roles and 'researcher' in roles:
 			collection += '_researcher'
-		coll = self.db[collection]
+
+		db = self.getDatabase(collection)
+
+		coll = db[collection]
 		effect = coll.update(query, documents, multi=multi)
 		return effect
 
@@ -90,7 +93,10 @@ class Database:
  				collection += '_developer'
 		elif roles and 'researcher' in roles:
 			collection += '_researcher'
-		coll = self.db[collection]
+
+		db = self.getDatabase(collection)
+
+		coll = db[collection]
 		effect = coll.remove(query)
 		return effect
 
