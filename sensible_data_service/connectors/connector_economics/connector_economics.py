@@ -45,25 +45,28 @@ def answer(request):
     # Disallow secondary reads, as we need to be sure if the game has ended or not
     database.allow_secondary_reads = False
 
-    game = database.getDocuments({'_id': urllib.unquote(request.REQUEST.get('_id'))},
+    game = database.getDocuments({'_id': urllib.unquote(request.REQUEST.get('game_id'))},
                                 collection='dk_dtu_compute_economics_games_current',
                                 roles=roles)[0]
 
     if game is None:
         return HttpResponse(json.dumps({'error': 'The game is either ended or doesn\'t exist.'}), status=404)
 
-    if not user.username in game.participants:
+    if not user.username in game['participants']:
         return HttpResponse(json.dumps({'error': 'You are not a participant in this game.'}), status=401)
 
-    if user.username in game.answers:
-        return HttpResponse()
+    # This is not defined in insert
+    game['answers'] = game.get('answers',[])
+
+    if user.username in game['answers']:
+        return HttpResponse(json.dumps({'status': 'already_answered'}))
 
     # can use length here as we have made sure that the user is in participants and not in answers
-    if len(game.participants) == (len(game.answers)+1):
+    if len(game['participants']) == (len(game['answers'])+1):
         # delete current and insert into finished
-        game.answers.push(user.username)
+        game['answers'].append(user.username)
         database.insert(game, collection='dk_dtu_compute_economics_games_finished', roles=roles)
-        database.remove(game._id, collection='dk_dtu_compute_economics_games_current', roles=roles)
+        database.remove(game['_id'], collection='dk_dtu_compute_economics_games_current', roles=roles)
     else:
         database.update({'_id': game['_id']},
                         {'$addToSet': {'answers': user.username}},
@@ -103,24 +106,13 @@ def list(request):
     games = database.getDocuments(query, collection='dk_dtu_compute_economics_games_current', roles=roles)
 
     # Clean up
-    games = [{'_id': game['_id'],
+    games = [{'_id': str(game['_id']),
               'type': game['type'],
               'participants': len(game['participants']),
               'started': game['started']} for game in games]
 
     return HttpResponse(json.dumps({
         'current':games,
-        'codes':[
-            {'code': 'hmngifoækhfgoøh', 'timestamp': 1382558020},
-            {'code': '68u59000jh', 'timestamp': (int)(time.time())}
-        ]}))
-
-    return HttpResponse(json.dumps({
-        'current':[
-            {'_id': '19157053-70f2-4ef0-968c-da6bf44a24d2', 'type':'game-pdg', 'participants':3, 'started':(int)(time.time()-60)},
-            {'_id': 'ff43036b-1df0-4228-a76c-e8bfca3cb878', 'type':'game-dg-proposer', 'participants':2, 'started':(int)(time.time()-6000)},
-            {'_id': 'ae566676-eb5b-494c-a843-8e41f8ad84fd', 'type':'game-dg-responder', 'participants':2, 'started':1382558020}
-        ],
         'codes':[
             {'code': 'hmngifoækhfgoøh', 'timestamp': 1382558020},
             {'code': '68u59000jh', 'timestamp': (int)(time.time())}
