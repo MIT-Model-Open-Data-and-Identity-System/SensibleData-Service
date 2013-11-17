@@ -1,4 +1,19 @@
 from collections import OrderedDict
+from bson import ObjectId
+
+def stringify_object_ids(obj):
+	if type(obj) == list:
+		for elt in obj: elt = _stringify_object_ids(elt)
+		return obj
+	else:
+		return _stringify_object_ids(obj)
+
+def _stringify_object_ids(elt):
+	try:
+		if type(elt['_id']) == ObjectId:
+			elt['_id'] = str(elt['_id'])
+	except KeyError: pass
+	return elt
 
 class BadRequestException(Exception):
 	def __init__(self, value):
@@ -56,6 +71,8 @@ def array_to_csv(array, collection):
 		return religion_to_csv(array,output)
 	elif 'work' in collection.lower():
 		return work_to_csv(array,output)
+	elif 'questionnaire' in collection.lower():
+		return questionnaire_to_csv(array,output)
 	else:
 		return 'We do not yet support csv output for ' + collection + ' data. Sorry!'
 
@@ -104,22 +121,44 @@ def education_to_csv(array, output):
 				for result in row['data']:
 					temp = '"' + row['user'] + '",' + str(row['timestamp']) + ',' 
 					try:
-						for school in result['school']:
-							temp += '"' + school['name'] + '",'
+						temp += '"' + result['school']['name'] + '",'
+						
 					except KeyError: temp += '"",'
 					try:
-						for classe in result['classes']:
-							temp += '"' + classe['name'] + '",'
-					except KeyError: temp += '"",'
-					try:
-						temp += '"' + result['type'] + '",'
-					except KeyError: temp += '"",'
-					try:
-						temp += '"' + str(row['facebook_id']) + '"'
-					except KeyError: temp += '""'
-					output_lines.append(temp)
+						if len(result['classes']) >= 1:
+							temp=''
+							for classe in result['classes']:
+								temp = '"' + row['user'] + '",' + str(row['timestamp']) + ','+ '"' + result['school']['name'] + '",'+'"' + classe['name'] + '",'
+								try:
+									temp += '"' + result['type'] + '",'
+								except KeyError: temp += '"",'
+								try:
+									temp += '"' + str(row['facebook_id']) + '"'
+								except KeyError: temp += '""'
+								output_lines.append(temp)
+								
+						else: 
+							temp += '"",'
+							try:
+								temp += '"' + result['type'] + '",'
+							except KeyError: temp += '"",'
+							try:
+								temp += '"' + str(row['facebook_id']) + '"'
+							except KeyError: temp += '""'
+							output_lines.append(temp)
+					except KeyError: 
+							temp += '"",'
+							try:
+								temp += '"' + result['type'] + '",'
+							except KeyError: temp += '"",'
+							try:
+								temp += '"' + str(row['facebook_id']) + '"'
+							except KeyError: temp += '""'
+							output_lines.append(temp)
+	
+					
 			else:
-				output_lines.append('"' + row['user'] + '",' + str(row['timestamp']) + ',,,')
+				output_lines.append('"' + row['user'] + '",' + str(row['timestamp']) + ',,,,')
 
 		except KeyError: output_lines.append('"' + row['user'] + '",' + str(row['timestamp']) + ',,,,')
 
@@ -129,7 +168,7 @@ def education_to_csv(array, output):
 
 def friends_to_csv(array, output):
 	#print header
-	fields = ['user','timestamp','data.name','data.id','facebook_id']
+	fields = ['user','timestamp','data.id','facebook_id']
 	for i, field in enumerate(fields):
 		output += field
 		if i < len(fields)-1:
@@ -142,9 +181,6 @@ def friends_to_csv(array, output):
 			if len(row['data']) > 0:
 				for result in row['data']:
 					temp = '"' + row['user'] + '",' + str(row['timestamp']) + ',' 
-					try:
-						temp += '"' + result['name'] + '",'
-					except KeyError: temp += '"",'
 					try:
 						temp += '"' + str(result['id']) + '",'
 					except KeyError: temp += '"",'
@@ -239,18 +275,17 @@ def hometown_to_csv(array, output):
 	for row in array:
 		try:
 			if len(row['data']) > 0:
-				for result in row['data']:
-					temp = '"' + row['user'] + '",' + str(row['timestamp']) + ',' 
-					try:
-						temp += '"' + result['id'] + '",'
-					except KeyError: temp += '"",'
-					try:
-						temp += '"' + result['name'] + '",'
-					except KeyError: temp += '"",'
-					try:
-						temp += '"' + str(row['facebook_id']) + '"'
-					except KeyError: temp += '""'
-					output_lines.append(temp)
+				temp = '"' + row['user'] + '",' + str(row['timestamp']) + ',' 
+				try:
+					temp += '"' + row['data']['id'] + '",'
+				except KeyError: temp += '"",'
+				try:
+					temp += '"' + row['data']['name'] + '",'
+				except KeyError: temp += '"",'
+				try:
+					temp += '"' + str(row['facebook_id']) + '"'
+				except KeyError: temp += '""'
+				output_lines.append(temp)
 			else:
 				output_lines.append('"' + row['user'] + '",' + str(row['timestamp']) + ',,,')
 
@@ -308,13 +343,12 @@ def locationfacebook_to_csv(array, output):
 	for row in array:
 		try:
 			if len(row['data']) > 0:
-				for result in row['data']:
 					temp = '"' + row['user'] + '",' + str(row['timestamp']) + ',' 
 					try:
-						temp += '"' + str(result['id']) + '",'
+						temp += '"' + row['data']['id'] + '",'
 					except KeyError: temp += '"",'
 					try:
-						temp += '"' + result['name'] + '",'
+						temp += '"' + row['data']['name'] + '",'
 					except KeyError: temp += '"",'
 					try:
 						temp += '"' + str(row['facebook_id']) + '"'
@@ -402,8 +436,9 @@ def work_to_csv(array, output):
 				for result in row['data']:
 					temp = '"' + row['user'] + '",' + str(row['timestamp']) + ',' 
 					try:
-						for employer in result['employer']:
-							temp += '"' + employer['name'] + '",'
+						if len(result['employer']) > 0:
+							for employer in result['employer']:
+								temp += '"' + employer['name'] + '",'
 					except KeyError: temp += '"",'
 					try:
 						temp += '"' + str(row['facebook_id']) + '"'
@@ -483,8 +518,7 @@ def wifi_to_csv(array, output):
 					
 
 def bluetooth_to_csv(array, output):
-	#print header
-	fields = ['user','data.TIMESTAMP','address','class','RSSI','name'] 
+	fields = ['user','data.TIMESTAMP','address','class','RSSI','name','device_holder'] 
 	for i, field in enumerate(fields):
 		output += field
 		if i < len(fields)-1:
@@ -507,13 +541,16 @@ def bluetooth_to_csv(array, output):
 						temp += str(device['android_bluetooth_device_extra_RSSI']) + ','
 					except KeyError: temp += ','
 					try:
-						temp += '"' + device['android_bluetooth_device_extra_NAME'] + '"'
+						temp += '"' + device['android_bluetooth_device_extra_NAME'] + '",'
+					except KeyError: temp += '"",'
+					try:
+						temp += '"' + device['user'] + '"'
 					except KeyError: temp += '""'
 					output_lines.append(temp)
 			else:
-				output_lines.append('"' + row['user'] + '",' + str(row['data']['TIMESTAMP']) + ',,,,')
+				output_lines.append('"' + row['user'] + '",' + str(row['data']['TIMESTAMP']) + ',"",,,"",""')
 		except KeyError:
-			output_lines.append('"' + row['user'] + '",' + str(row['data']['TIMESTAMP']) + ',,,,')
+			output_lines.append('"' + row['user'] + '",' + str(row['data']['TIMESTAMP']) + ',"",,,"",""')
 			
 	#return output
 	return output + '\n'.join(output_lines)
@@ -592,6 +629,34 @@ def sms_to_csv(array, output):
 		output += '\n'
 	return output 
 		
+def questionnaire_to_csv(array, output):
+	#print header
+	fields = ['user', 'variable_name','form_version','human_readable_response','last_answered']
+	for i, field in enumerate(fields):
+		output += field
+		if i < len(fields)-1:
+			output += ','
+		else:
+			output += '\n' 
+	output_lines = [] 
+	for row in array:
+		try:
+			temp ='"' + row['user'] + '"' + ',' 
+			try: 
+				temp += '"'+ row['variable_name'] + '"' +','
+			except KeyError: temp += '"",'
+			try: 
+				temp += '"' + row['form_version'] + '"' + ','
+			except KeyError: temp += '"",'
+			try:
+				temp+= '"' + row['human_readable_response'].replace('"','\\"').replace('\n','\\n').replace('\r','\\n') +  '"' + ','	
+			except KeyError: temp += '"",'
+			try:
+				temp+= '"' + row['last_answered']+ '"' + ','
+			except KeyError: temp += '""'
+			output_lines.append(temp)
+		except KeyError: output_lines.append('"' + row['user'] + '",' +',,,,')
+	return output + '\n'.join(output_lines)
 
 PHONE_DATA_SETTINGS = {\
 	'bluetooth':{\
@@ -629,7 +694,9 @@ PHONE_DATA_SETTINGS = {\
 		'scope':'connector_raw.calllog',\
 		'collection':'edu_mit_media_funf_probe_builtin_CallLogProbe',
 		'default_fields':{\
-			'user':1,'data.TIMESTAMP':1,'_id':1,\
+			'user':1,\
+			'data.TIMESTAMP':1,\
+			'_id':1,\
 			'data.name':1,\
 			'data.duration':1,\
 			'data.number':1,\
@@ -638,7 +705,9 @@ PHONE_DATA_SETTINGS = {\
 		'scope':'connector_raw.sms',\
 		'collection':'edu_mit_media_funf_probe_builtin_SMSProbe',
 		'default_fields':{\
-			'user':1,'data.TIMESTAMP':1,'_id':1,\
+			'user':1,\
+			'data.TIMESTAMP':1,\
+			'_id':1,\
 			'data.read':1,\
 			'data.address':1,\
 			'data.type':1}}
@@ -661,7 +730,6 @@ FACEBOOK_DATA_SETTINGS = {\
 		'default_fields':{\
 			'user':1,\
 			'timestamp':1,\
-			'data.name':1,\
 			'data.id':1,\
 			'facebook_id':1}},
 	'friendlists':{\
@@ -750,6 +818,19 @@ FACEBOOK_DATA_SETTINGS = {\
 		'default_fields':{\
 			'user':1,\
 			'timestamp':1,\
-			'data.employer.name':1,\
+			'data':1,\
 			'facebook_id':1}}
 	}
+
+QUESTIONNAIRE_DATA_SETTINGS = {\
+	'questionnaire':{\
+		'scope':'connector_raw.questionnaire',
+		'collection':'dk_dtu_compute_questionnaire',
+		'default_fields':{\
+			'user':1,\
+			'variable_name':1,\
+			'form_version':1,\
+			'last_answered':1,\
+			'human_readable_question':1,\
+			'human_readable_response':1}}
+}

@@ -51,6 +51,8 @@ class Command(NoArgsCommand):
 				doc['bt_mac'] = hardware_info['device_bt_mac']
 				doc['a_bt_mac'] = hardware_info['data']['BLUETOOTH_MAC']
 				doc['a_wifi_mac'] = hardware_info['data']['WIFI_MAC']
+				doc['sensible_version'] = hardware_info['uuid'].split('-')[-2]
+				doc['funf_version'] = hardware_info['uuid'].split('-')[-1]
 
 				collection = 'device_inventory'
 				(db.getDatabase(collection))[collection].update(spec={'_id':doc['_id']}, document=doc, upsert=True)

@@ -87,6 +87,17 @@ CONNECTORS = {
 				"connector_type": "resource"
 
 				}
-			}
+			},
+	"ConnectorSbs2": {
+		"name": "connector_sbs2",
+		"config": {
+			"upload_path": DATA_BASE_DIR + "/sensible-data/connector_sbs2/upload/", #must be www-data writable
+			"decompressed_path" : DATA_BASE_DIR + "/sensible-data/connector_sbs2/decompressed/", #must be www-data writable
+			"decompress_failed_path" : DATA_BASE_DIR + "/sensible-data/connector_sbs2/decompress_failed/", #must be www-data writable
+			"load_failed_path" : DATA_BASE_DIR + "/sensible-data/connector_sbs2/load_failed/", #must be www-data writable
+			"decompressed_not_authorized" : DATA_BASE_DIR + "/sensible-data/connector_sbs2/decompressed_not_authorized/",
+			},
+
+		}
 
 	}
