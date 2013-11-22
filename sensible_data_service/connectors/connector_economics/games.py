@@ -24,6 +24,12 @@ def get_game(type):
     elif type == 'dg-responder' or type == 'dg-proposer':
         return DictatorGame()
 
+def clean_game(game):
+    return {'_id': str(game['_id']),
+              'type': game['type'],
+              'participants': len(game['participants']),
+              'started': game['started']}
+
 if __name__=="__main__":
     dg = DictatorGame()
     print repr(dg.answer_allowed("give"))

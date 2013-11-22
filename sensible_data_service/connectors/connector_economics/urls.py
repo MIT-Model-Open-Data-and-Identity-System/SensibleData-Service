@@ -2,8 +2,9 @@ from django.conf.urls import patterns, include, url
 
 urlpatterns = patterns('',
      url(r'^answer/', 'connectors.connector_economics.connector_economics.answer'),
-     url(r'^list/', 'connectors.connector_economics.connector_economics.list'),
+     url(r'^list/', 'connectors.connector_economics.connector_economics.getlist'),
      url(r'^create_game/', 'connectors.connector_economics.connector_economics.create_game'),
+     url(r'^test/', 'connectors.connector_economics.connector_economics.test'),
 
 	 url(r'^auth/grant/', 'connectors.connector_economics.auth.grant'),
 	 url(r'^auth/gcm/', 'connectors.connector_economics.auth.gcm'),
