@@ -5,19 +5,22 @@ from django.conf import settings
 DATA_BASE_DIR = settings.DATA_BASE_DIR
 
 CONNECTORS = {
-	"ConnectorEconomics": {
+	"ConnectorEconomics": { #TODO: Fix urls
 		"name": "connector_economics",
 		"description": "Economics games description.",
 		"scopes": {
-			"all_probes": { #TODO: figure this out
-				"description": "",
+			"push_notifications": {
+				"description": "Contact you via push notifications",
+			},
+			"submit_data": {
+				"description": "Submit the data to the database",
 			}
 
 		},
 		"config": {
 			"connector_type": "client",
-			"grant_url" : "http://test.com",
-			"revoke_url": "http://test.com",
+			"grant_url" :  "/sensible-dtu/authorization_manager/connector_economics/auth/grant/",
+			"revoke_url": "/sensible-dtu/authorization_manager/connector_economics/auth/revoke/",
 
 			},
 		"schedule": {
