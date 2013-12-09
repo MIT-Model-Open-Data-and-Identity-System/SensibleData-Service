@@ -12,8 +12,10 @@ from connectors.connector import connector
 import bson.json_util as json
 import urllib
 from utils.database import Database
+from pymongo.errors import DuplicateKeyError
 import time
 import uuid
+from bson.objectid import ObjectId
 
 from games import clean_game, get_game
 
@@ -32,9 +34,7 @@ myConnector = connectors.connectors_config.CONNECTORS['ConnectorEconomics']['con
 
 
 #TODO: Find type (get_game) check allowed answers
-#TODO: Update the game to figure out when the game is finished
 #TODO: Get codes from somewhere (make sure not to select the same twice)
-#TODO: Send gcm notifications when games are finished (to winners)
 @csrf_exempt
 def answer(request):
     auth = authorization_manager.authenticate_token(request, 'connector_economics.submit_data')
@@ -50,12 +50,14 @@ def answer(request):
     # Disallow secondary reads, as we need to be sure if the game has ended or not
     database.allow_secondary_reads = False
 
-    game = database.getDocuments({'_id': urllib.unquote(request.REQUEST.get('game_id'))},
+    game = database.getDocuments({'_id': ObjectId(urllib.unquote(request.REQUEST.get('game_id')))},
                                 collection='dk_dtu_compute_economics_games_current',
-                                roles=roles)[0]
-
-    if game is None:
+                                roles=roles)
+    
+    if game.count()==0:
         return HttpResponse(json.dumps({'error': 'The game is either ended or doesn\'t exist.'}), status=404)
+    else:
+        game = game[0]
 
     if not user.username in game['participants']:
         return HttpResponse(json.dumps({'error': 'You are not a participant in this game.'}), status=401)
@@ -70,12 +72,14 @@ def answer(request):
     if len(game['participants']) == (len(game['answers'])+1):
         # delete current and insert into finished
         game['answers'].append(user.username)
-        database.insert(game, collection='dk_dtu_compute_economics_games_finished', roles=roles)
-        database.remove(game['_id'], collection='dk_dtu_compute_economics_games_current', roles=roles)
-
-        # Send notifications
-        for participant in game['participants']:
-            sendFinishedNotification(participant,"code"+time.time(),time.time())
+        try:
+            database.remove(game['_id'], collection='dk_dtu_compute_economics_games_current', roles=roles)
+            database.insert(game, collection='dk_dtu_compute_economics_games_finished', roles=roles)
+            # Send notifications
+            for participant in game['participants']:
+                sendFinishedNotification(participant,"code"+str(time.time()), time.time())
+        except DuplicateKeyError, e:
+            pass
     else:
         database.update({'_id': game['_id']},
                         {'$addToSet': {'answers': user.username}},
@@ -87,10 +91,11 @@ def answer(request):
     answer['type'] = game['type']
     answer['game_id'] = game['_id']
     answer['opened'] = urllib.unquote(request.REQUEST.get('opened'))
-    answer['_id'] = game['_id']+user.username # Add username so that there can be multiple answers to one game.
+    answer['answered'] = time.time()
     answer['user'] = user.username
 
     doc_id = database.insert(answer, collection='dk_dtu_compute_economics_answers', roles=roles)
+    
 
     return HttpResponse(json.dumps(game), status=200)
 
@@ -120,8 +125,8 @@ def getlist(request):
     return HttpResponse(json.dumps({
         'current':games,
         'codes':[
-            {'code': 'hmngifoækhfgoøh', 'timestamp': 1382558020},
-            {'code': '68u59000jh', 'timestamp': (int)(time.time())}
+            {'code': '167416156', 'timestamp': 1382558020},
+            {'code': '491657168', 'timestamp': (int)(time.time())}
         ]}))
 
 
@@ -140,7 +145,6 @@ def create_game(request):
     roles = None
     try:    roles = [x.role for x in UserRole.objects.get(user=user).roles.all()]
     except: pass
-
 
 
     # if roles and ('researcher' in roles or 'developer' in roles):
@@ -189,11 +193,15 @@ def sendFinishedNotification(participant, code, timestamp):
     return sendNotification(participant, {'title': 'You\'ve won a voucher', 'body':'Press to see it', 'type':'economics-game-finished', 'code': code, 'timestamp': timestamp})
 
 def sendGameStartedNotification(participant, game):
-    return sendNotification(participant, {'title': 'You\'ve been invited to a game', 'body':'You have a chance at winning movie vouchers. Press to see more.', 'type':'economics-game-init', 'game': game})
+    data = {'title': 'You\'ve been invited to a game', 'body':'You have a chance at winning movie vouchers. Press to see more.', 'type':'economics-game-init'}
+    for key,value in game.iteritems():
+        data['game-'+key] = value
+    return sendNotification(participant, data)
 
 def sendNotification(participant, data):
     gcm_registrations = GcmRegistration.objects.filter(user__username=participant, application__name='Economics Games')
 
     for gr in gcm_registrations:
-        sendFinishedNotification(gr.gcm_id, data, '')
+        gcm_server.sendNotification(gr.gcm_id, data, '')
+
     return gcm_registrations
