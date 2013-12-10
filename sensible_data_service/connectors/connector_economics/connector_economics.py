@@ -15,89 +15,18 @@ from utils.database import Database
 from pymongo.errors import DuplicateKeyError
 import time
 import uuid
-from bson.objectid import ObjectId
+import os
+from backup import backup
+import re
+import random
+import collections
 
 from games import clean_game, get_game
 
 import connectors.connectors_config
 
 
-# bug fix
-# see http://stackoverflow.com/questions/13193278/understand-python-threading-bug
-# import threading
-# threading._DummyThread._Thread__stop = lambda x: 42
-# end of bug fix
-
-
-
-myConnector = connectors.connectors_config.CONNECTORS['ConnectorEconomics']['config']
-
-
-#TODO: Find type (get_game) check allowed answers
-#TODO: Get codes from somewhere (make sure not to select the same twice)
-@csrf_exempt
-def answer(request):
-    auth = authorization_manager.authenticate_token(request, 'connector_economics.submit_data')
-    if 'error' in auth:
-        return HttpResponse(json.dumps(auth), status=401)
-
-    user = auth['user']
-
-    try:    roles = [x.role for x in UserRole.objects.get(user=user).roles.all()]
-    except: roles = None
-
-    database = Database()
-    # Disallow secondary reads, as we need to be sure if the game has ended or not
-    database.allow_secondary_reads = False
-
-    game = database.getDocuments({'_id': ObjectId(urllib.unquote(request.REQUEST.get('game_id')))},
-                                collection='dk_dtu_compute_economics_games_current',
-                                roles=roles)
-    
-    if game.count()==0:
-        return HttpResponse(json.dumps({'error': 'The game is either ended or doesn\'t exist.'}), status=404)
-    else:
-        game = game[0]
-
-    if not user.username in game['participants']:
-        return HttpResponse(json.dumps({'error': 'You are not a participant in this game.'}), status=401)
-
-    # This is not defined in insert
-    game['answers'] = game.get('answers',[])
-
-    if user.username in game['answers']:
-        return HttpResponse(json.dumps({'status': 'already_answered'}))
-
-    # can use length here as we have made sure that the user is in participants and not in answers
-    if len(game['participants']) == (len(game['answers'])+1):
-        # delete current and insert into finished
-        game['answers'].append(user.username)
-        try:
-            database.remove(game['_id'], collection='dk_dtu_compute_economics_games_current', roles=roles)
-            database.insert(game, collection='dk_dtu_compute_economics_games_finished', roles=roles)
-            # Send notifications
-            for participant in game['participants']:
-                sendFinishedNotification(participant,"code"+str(time.time()), time.time())
-        except DuplicateKeyError, e:
-            pass
-    else:
-        database.update({'_id': game['_id']},
-                        {'$addToSet': {'answers': user.username}},
-                        collection='dk_dtu_compute_economics_games_current',
-                        roles=roles)
-
-    answer = {}
-    answer['answer'] = urllib.unquote(request.REQUEST.get('answer'))
-    answer['type'] = game['type']
-    answer['game_id'] = game['_id']
-    answer['opened'] = urllib.unquote(request.REQUEST.get('opened'))
-    answer['answered'] = time.time()
-    answer['user'] = user.username
-
-    doc_id = database.insert(answer, collection='dk_dtu_compute_economics_answers', roles=roles)
-    
-
-    return HttpResponse(json.dumps(game), status=200)
+connector_conf = connectors.connectors_config.CONNECTORS['ConnectorEconomics']['config']
 
 
 #TODO: Get codes from a real codes collection
@@ -126,7 +55,7 @@ def getlist(request):
         'current':games,
         'codes':[
             {'code': '167416156', 'timestamp': 1382558020},
-            {'code': '491657168', 'timestamp': (int)(time.time())}
+            {'code': '491657168', 'timestamp': int(time.time())}
         ]}))
 
 
@@ -172,28 +101,87 @@ def test(request):
     
     user = auth['user']
     participant = user.username
-    
-    participant = user.username
 
     dump = []
 
     for reg in sendFinishedNotification(participant, 'code', time.time()):
         dump.append(reg.gcm_id)
 
-    for reg in sendGameStartedNotification(participant, {'_id': "funkyid",
+    for reg in sendGameStartedNotification(participant, {'id': "funkyid",
               'type': 'game-pdg',
               'participants': [1, 2],
               'started': time.time()}):
         dump.append(reg.gcm_id)
-    
+    import tasks
+    tasks.populate_answers()
+
     return HttpResponse(json.dumps(dump))
 
 
+
+#TODO: Find type (get_game) check allowed answers
+#TODO: Get codes from somewhere (make sure not to select the same twice)
+@csrf_exempt
+def answer(request):
+    auth = authorization_manager.authenticate_token(request, 'connector_economics.submit_data')
+    if 'error' in auth:
+        return HttpResponse(json.dumps(auth), status=401)
+
+    user = auth['user']
+
+    try:    roles = [x.role for x in UserRole.objects.get(user=user).roles.all()]
+    except: roles = None
+
+    if not request.REQUEST.get('game_id') or not request.REQUEST.get('answer') or not request.REQUEST.get('opened'):
+        return HttpResponse(json.dumps({'status': 'error', 'error': 'Must define game_id, answer and opened'}), status=200)
+
+    answer = {}
+    answer['answer'] = urllib.unquote(request.REQUEST.get('answer'))
+    answer['game_id'] = urllib.unquote(request.REQUEST.get('game_id'))
+    answer['opened'] = urllib.unquote(request.REQUEST.get('opened'))
+    answer['answered'] = time.time()
+    answer['user'] = user.username
+
+    if roles: answer['user_roles'] = roles
+
+    probe = 'dk_dtu_compute_economics_answers'
+
+    backup.backupValue(data=answer, probe=probe, user=user.username)
+
+    answers_path = connector_conf['answers_path']
+
+    if not os.path.exists(answers_path):
+        os.makedirs(answers_path)
+
+    filename = answer['game_id']+"_"+user.username+'.json'
+    filepath = os.path.join(answers_path, filename)
+
+    while os.path.exists(filepath):
+        parts = filename.split('.json');
+        counted_parts = re.split('__',parts[0]);
+        appendix = str(int(random.random()*10000))
+        filename = counted_parts[0] + '__' + appendix + '.json'
+        filepath = os.path.join(answers_path, filename)
+
+    with open(filepath, "w") as f:
+        f.write(json.dumps(answer))
+
+    return HttpResponse(json.dumps({'status': 'ok'}), status=200)
+
+
+
+
 def sendFinishedNotification(participant, code, timestamp):
-    return sendNotification(participant, {'title': 'You\'ve won a voucher', 'body':'Press to see it', 'type':'economics-game-finished', 'code': code, 'timestamp': timestamp})
+    return sendNotification(participant, {'title': 'You\'ve won a voucher', 'body':'Press to see it', 'type':'economics-game-finished', 'code': code, 'timestamp': int(timestamp)})
 
 def sendGameStartedNotification(participant, game):
     data = {'title': 'You\'ve been invited to a game', 'body':'You have a chance at winning movie vouchers. Press to see more.', 'type':'economics-game-init'}
+
+    if isinstance(game['participants'], collections.Sequence):
+         game['participants'] = len(game['participants'])
+
+    game['started'] = int(game['started'])
+
     for key,value in game.iteritems():
         data['game-'+key] = value
     return sendNotification(participant, data)
