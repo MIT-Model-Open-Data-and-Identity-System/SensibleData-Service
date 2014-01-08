@@ -21,15 +21,19 @@ import re
 import random
 import collections
 
+from models import Voucher
 from games import clean_game, get_game
 
 import connectors.connectors_config
 
+from pprint import pformat
+
 
 connector_conf = connectors.connectors_config.CONNECTORS['ConnectorEconomics']['config']
 
+# TODO: Dictator game cannot end atm, as only one participant answers. Not a big deal, as we might not use it.
 
-#TODO: Get codes from a real codes collection
+
 @csrf_exempt
 def getlist(request):
     #TODO: different scope?
@@ -51,12 +55,15 @@ def getlist(request):
     # Clean up
     games = [clean_game(game) for game in games]
 
+
+    query = {'participant': user.username}
+
+    vouchers = Voucher.objects.get(won_by = user)
+
     return HttpResponse(json.dumps({
         'current':games,
-        'codes':[
-            {'code': '167416156', 'timestamp': 1382558020},
-            {'code': '491657168', 'timestamp': int(time.time())}
-        ]}))
+        'codes': [v.voucher for v in vouchers]
+    }))
 
 
 #TODO: Make an interface to this
@@ -82,6 +89,7 @@ def create_game(request):
         game = {'started': int(time.time())}
         game['type'] = urllib.unquote(request.REQUEST.get('type'))
         game['participants'] = [user.username]
+        game['answers'] = []
 
         for participant in game['participants']:
             sendGameStartedNotification(participant, clean_game(game))
@@ -102,20 +110,10 @@ def test(request):
     user = auth['user']
     participant = user.username
 
-    dump = []
-
-    for reg in sendFinishedNotification(participant, 'code', time.time()):
-        dump.append(reg.gcm_id)
-
-    for reg in sendGameStartedNotification(participant, {'id': "funkyid",
-              'type': 'game-pdg',
-              'participants': [1, 2],
-              'started': time.time()}):
-        dump.append(reg.gcm_id)
     import tasks
-    tasks.populate_answers()
+    log = tasks.populate_answers()
 
-    return HttpResponse(json.dumps(dump))
+    return HttpResponse(pformat(log))
 
 
 
