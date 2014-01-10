@@ -58,11 +58,11 @@ def getlist(request):
 
     query = {'participant': user.username}
 
-    vouchers = Voucher.objects.get(won_by = user)
+    vouchers = Voucher.objects.filter(won_by = user)
 
     return HttpResponse(json.dumps({
         'current':games,
-        'codes': [v.voucher for v in vouchers]
+        'codes': [{"code":v.voucher, "timestamp":int(time.mktime(v.won_at.utctimetuple()))} for v in vouchers]
     }))
 
 
@@ -113,7 +113,11 @@ def test(request):
     import tasks
     log = tasks.populate_answers()
 
-    return HttpResponse(pformat(log))
+    r = ""
+    for l in log:
+        r += str(l)+"<br/>\n\n"
+
+    return HttpResponse(r)
 
 
 

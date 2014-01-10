@@ -10,6 +10,6 @@ class ConnectorEconomicsAdmin(admin.ModelAdmin):
 admin.site.register(ConnectorEconomics, ConnectorEconomicsAdmin)
 
 class VouchersAdmin(admin.ModelAdmin):
-    list_display = ('voucher', 'won_by')
+    list_display = ('voucher', 'won_by', 'won_at')
 
 admin.site.register(Voucher, VouchersAdmin)

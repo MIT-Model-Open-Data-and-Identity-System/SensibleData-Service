@@ -51,15 +51,12 @@ def populate_answers(folder=connector_conf['answers_path']):
                     else:
                         game = game[0]
                     
-                    log.append("Game "+repr(game))
+                    log.append("Game found: "+repr(game))
                     
                     if not answer['user'] in game['participants']:
                         os.remove(file_path)
                         log.append("User not in participants")
                         continue # Not a participant in this game.
-
-                    # This is not defined in insert
-                    game['answers'] = game.get('answers',[])
 
                     if answer['user'] in [ua['user'] for ua in game['answers']]:
                         log.append("Already answered")
@@ -78,6 +75,7 @@ def populate_answers(folder=connector_conf['answers_path']):
                             database.remove(game['_id'], collection='dk_dtu_compute_economics_games_current', roles=roles)
                             database.insert(game, collection='dk_dtu_compute_economics_games_finished', roles=roles)
 
+                            log.append("Game answers"+repr(game['answers']))
                             # Code allocation
                             voucher_allocation = get_outcome(game)
                             log.append("voucher_allocation: "+repr(voucher_allocation))
@@ -85,18 +83,26 @@ def populate_answers(folder=connector_conf['answers_path']):
                             log.append("num_vouchers: "+repr(num_vouchers))
                             vouchers = Voucher.objects.filter(won_by__isnull = True)[0:num_vouchers]
                             
+                            voucher_mapping = {}
                             i = 0
                             for user, num_vouchers_for_user in voucher_allocation.iteritems():
-                                voucher_ids = [v.id for v in vouchers[i:num_vouchers_for_user]]
-                                log.append("giving "+repr(voucher_ids)+" to "+user)
+                                voucher_ids = []
+                                voucher_mapping[user] = []
+                                for v in vouchers[i:i+num_vouchers_for_user]:
+                                    voucher_ids.append(v.id)
+                                    voucher_mapping[user].append(v.voucher)
+
+                                log.append("giving "+repr(voucher_mapping[user])+" to "+user)
                                 
                                 Voucher.objects.filter(id__in = voucher_ids).update(won_by = User.objects.get(username=user))
 
                                 i+=num_vouchers_for_user
 
                             # Send notifications
-                            for participant in game['participants']:
-                                sendFinishedNotification(participant,"code"+str(time.time()), time.time())
+                            for user, won_vouchers in voucher_mapping.iteritems():
+                                for voucher in won_vouchers:
+                                    sendFinishedNotification(user, voucher, time.time())
+
                         except DuplicateKeyError, e:
                             log.append("DuplicateKeyError")
                     else:
