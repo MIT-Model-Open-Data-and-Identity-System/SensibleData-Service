@@ -78,7 +78,8 @@ def grant(request):
 		return HttpResponse(json.dumps({'error':'no valid scope provided'}))
 
 	# TODO: figure out why /authorize/ is not working properly (seems to be the one that should be used)
-	redirect_uri = settings.ROOT_URL+'authorization_manager/oauth2/authorize_refreshed/?'
+	# redirect_uri = settings.ROOT_URL+'authorization_manager/oauth2/authorize_refreshed/?'
+	redirect_uri = settings.ROOT_URL+'authorization_manager/oauth2/authorize/?'
 	redirect_uri += 'client_id='+client_id
 	redirect_uri += '&response_type=code'
 	redirect_uri += '&scope='+','.join(final_scopes)
@@ -170,15 +171,16 @@ def gcm(request):
 	return HttpResponse(json.dumps(authorization_manager.authorization_manager.registerGcm(request, scope = 'connector_economics.push_notifications')))
 
 def buildAuthUrl(application = None):
-	grant_url = ''
-	message = 'Auhtorize url'
-	if not application == None:
-		try:
-			grant_url = application.grant_url
-			try:
-				message = json.loads(application.extra_params)['auth_message']
-			except: pass
-		except:
-			return {'url': grant_url, 'message': 'The application is not available at the moment'}
+	return {'url':'', 'message':'Please start registration from your phone'}
+	# grant_url = ''
+	# message = 'Auhtorize url'
+	# if not application == None:
+	# 	try:
+	# 		grant_url = application.grant_url
+	# 		try:
+	# 			message = json.loads(application.extra_params)['auth_message']
+	# 		except: pass
+	# 	except:
+	# 		return {'url': grant_url, 'message': 'The application is not available at the moment'}
 
-	return {'url': grant_url, 'message': message}
+	# return {'url': grant_url, 'message': message}
