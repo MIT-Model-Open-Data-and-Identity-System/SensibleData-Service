@@ -84,7 +84,7 @@ def grant(request):
 	redirect_uri += '&response_type=code'
 	redirect_uri += '&scope='+','.join(final_scopes)
 	redirect_uri += '&redirect_uri='+Client.objects.get(key=client_id).redirect_uri
-	redirect_uri += '&state='+gcm_id
+	# redirect_uri += '&state='+gcm_id
 
 	return redirect(redirect_uri)
 
