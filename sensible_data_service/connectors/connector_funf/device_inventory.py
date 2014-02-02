@@ -5,9 +5,9 @@ import json
 class DeviceInventory(object):
 	
 	db = None
-	mapping = defaultdict(list)
 
 	def __init__(self):
+		self.mapping = defaultdict(list)
 		self.db = database.Database()
 		for inventory in self.db.getDocuments(query={}, collection = 'device_inventory'):
 			self.mapping[inventory['a_bt_mac']].append(inventory)
@@ -23,6 +23,8 @@ class DeviceInventory(object):
 		for d in devices:
 			if d['start'] <= timestamp and d['end'] > timestamp:
 				return d['user']
-		return bt_mac	
+
+		if use_mac_if_empty: return bt_mac
+		else: return None
 
 		
