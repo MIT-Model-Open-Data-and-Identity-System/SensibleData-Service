@@ -18,7 +18,8 @@ class AccessTokenAdmin(admin.ModelAdmin):
 admin.site.register(AccessToken, AccessTokenAdmin)
 
 class AuthorizationAdmin(admin.ModelAdmin):
-	list_display = ('user', 'application', 'scope', 'active', 'created_at', 'revoked_at')
+	list_display = ('user', 'application', 'scope', 'active', 'created_at')
+	search_fields = ['user__username']
 
 admin.site.register(Authorization, AuthorizationAdmin)
 
