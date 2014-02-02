@@ -32,6 +32,10 @@ valid_tokens = {};
 
 def populate(documents_to_insert):
 	inserted_counter = 0
+#	for probe in documents_to_insert:
+#		for role in documents_to_insert[probe]:
+#			for doc in documents_to_insert[probe][role]:
+#				print json.dumps({'probe': probe, 'role': role, 'doc':doc})
 	for probe in documents_to_insert:
 		for role in documents_to_insert[probe]:
 			population_start = time.time()	
@@ -52,19 +56,21 @@ def load_files(directory_to_load=myConnector['decrypted_path']):
 	jj = 0 
 	documents_to_insert = defaultdict(lambda: defaultdict(list))
 	for f in raw_filenames:
-		#try:
-		current_documents_to_insert, current_roles = load_file(f)
-		if current_documents_to_insert == 0: 
-			continue
-		jj += 1
-		for probe in current_documents_to_insert:
-			documents_to_insert[probe]['@'.join(current_roles)] += current_documents_to_insert[probe]
+		try:
+			current_documents_to_insert, current_roles = load_file(f)
+			if current_documents_to_insert == 0: 
+				continue
+			jj += 1
+			for probe in current_documents_to_insert:
+				documents_to_insert[probe]['@'.join(current_roles)] += current_documents_to_insert[probe]
 		
-		if jj == 20:
-			jj = 0
-			populate(documents_to_insert)
-			documents_to_insert = defaultdict(lambda: defaultdict(list))
-		#except: pass
+			#print jj
+			if jj == 20:
+				jj = 0
+				populate(documents_to_insert)
+				documents_to_insert = defaultdict(lambda: defaultdict(list))
+			#break
+		except: pass
 
 	populate(documents_to_insert)
 
