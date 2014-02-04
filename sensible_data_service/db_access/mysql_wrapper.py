@@ -17,6 +17,15 @@ class Wrapper:
 	def get_write_db_connection_for_probe(self, probe):
 		return self.get_db_connection_for_probe(probe, False)
 
+	def get_connection_parameters_for_probe(self, probe):
+		params = {}
+		params['read_hostname'] = "localhost"#SECURE_settings.DATA_DATABASES[probe]['read_hostname']
+		params['write_hostname'] = "localhost"#SECURE_settings.DATA_DATABASES[probe]['write_hostname']
+		params['username'] = "radugatej"#SECURE_settings.DATA_DATABASES[probe]['username']
+		params['password'] = "Who.gon.stop.me"#SECURE_settings.DATA_DATABASES[probe]['password']
+
+		return params
+
 	def get_db_connection_for_probe(self, probe, read_connection):
 
 		database_name = probe
@@ -24,16 +33,15 @@ class Wrapper:
 		if database_name in self.open_databases:
 			return self.open_databases[database_name]
 		else:
-
+			connection_parameters = self.get_connection_parameters_for_probe(probe)
 			hostname = None
-
 			if read_connection:
-				hostname = self.read_hostname
+				hostname = connection_parameters['read_hostname']
 			else:
-				hostname = self.write_hostname
+				hostname = connection_parameters['write_hostname']
 
-			username = self.username
-			password = self.password
+			username = connection_parameters['username']
+			password = connection_parameters['password']
 
 			try:
 				connection = mdb.connect(hostname, username, password, database_name)
@@ -69,33 +77,9 @@ class Wrapper:
 		query += ','.join(["%s" for x in row.keys()])
 		query += ')'
 
-		print query
 		parameters = [row[x] for x in row.keys()]
-		print parameters
 		self.execute_query_on_db(query, connection, parameters=parameters)
 
 	def execute_query_on_db(self, query, connection, parameters=None):
 		cursor = connection.cursor()
 		cursor.execute(query, parameters)
-
-
-wrapper = Wrapper()
-row = {}
-row['facebook_id'] = '1ac8a623b24d010d42529016c4b49a8f'
-row['timestamp'] = 1376438853
-row['user'] = '6d7363df17881d4afef71897a74840'
-row['data'] = 'blablabablal'
-
-row2 = {}
-row2['facebook_id'] = '1ac8a623b24d010d42529016c4b49a8f'
-row2['timestamp'] = 1376438853
-row2['user'] = '6d7363df17881d4afef71897a74840'
-row2['data'] = 'blablabablal'
-
-rows = []
-rows.append(row)
-rows.append(row2)
-
-wrapper.insert(rows, 'facebook')
-
-
