@@ -1,5 +1,7 @@
 import MySQLdb as mdb
 import SECURE_settings
+import time
+
 
 class Wrapper:
 	def __init__(self):
@@ -57,16 +59,25 @@ class Wrapper:
 
 	def insert_row(self, row, table_name, connection):
 
-		query = "INSERT IGNORE INTO " + table_name + "("
+		if not type(row['timestamp']) == str:
+			row['timestamp'] = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(row['timestamp']))
+		if not type(row['timestamp_added']) == str:
+			row['timestamp_added'] = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(row['timestamp_added']))
+
+		query = 'INSERT IGNORE INTO' + table_name + "("
 		query += ','.join(row.keys())
 		query += ") VALUES ("
-		query += ','.join([str(row[x] for x in row.keys())])
+		query += ','.join(["%s" for x in row.keys()])
 		query += ')'
 
-		self.execute_query_on_db(query, connection)
+		parameters = [row[x] for x in row.keys()]
 
-	def execute_query_on_db(self, query, connection):
+		self.execute_query_on_db(query, connection, parameters=parameters)
+
+	def execute_query_on_db(self, query, connection, parameters=None):
 		cursor = connection.cursor()
-		cursor.execute(query)
+		cursor.execute(query, parameters)
+
+
 
 
