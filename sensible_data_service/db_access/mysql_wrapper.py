@@ -3,7 +3,7 @@ import MySQLdb as mdb
 import time
 
 
-class Wrapper:
+class DBWrapper:
 	def __init__(self):
 		self.read_hostname = "localhost"
 		self.write_hostname = "localhost"
