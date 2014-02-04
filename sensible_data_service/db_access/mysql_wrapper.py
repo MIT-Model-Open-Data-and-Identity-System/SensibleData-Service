@@ -1,5 +1,5 @@
 import MySQLdb as mdb
-import SECURE_settings
+#import SECURE_settings
 import time
 
 
@@ -7,8 +7,8 @@ class Wrapper:
 	def __init__(self):
 		self.read_hostname = "localhost"
 		self.write_hostname = "localhost"
-		self.username = SECURE_settings.DATA_DATABASE['username']
-		self.password = SECURE_settings.DATA_DATABASE['password']
+		self.username = 'radugatej'#SECURE_settings.DATA_DATABASE['username']
+		self.password = 'Who.gon.stop.me'#SECURE_settings.DATA_DATABASE['password']
 		self.open_databases = {}
 
 	def get_read_db_connection_for_probe(self, probe):
@@ -43,12 +43,11 @@ class Wrapper:
 
 		return connection
 
-	def insert(self, rows, probe, user_role):
+	def insert(self, rows, probe, user_role=None):
 		connection = self.get_read_db_connection_for_probe(probe)
 		table_name = self.get_table_name_for_db(user_role)
-		cursor = connection.cursor()
 		for row in rows:
-			self.insert_row(row, cursor, table_name)
+			self.insert_row(row, table_name, connection)
 		connection.commit()
 
 	def get_table_name_for_db(self, user_role):
@@ -61,17 +60,18 @@ class Wrapper:
 
 		if not type(row['timestamp']) == str:
 			row['timestamp'] = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(row['timestamp']))
-		if not type(row['timestamp_added']) == str:
+		if 'timestamp_added' in row and not type(row['timestamp_added']) == str:
 			row['timestamp_added'] = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(row['timestamp_added']))
 
-		query = 'INSERT IGNORE INTO' + table_name + "("
+		query = 'INSERT IGNORE INTO ' + table_name + " ("
 		query += ','.join(row.keys())
 		query += ") VALUES ("
 		query += ','.join(["%s" for x in row.keys()])
 		query += ')'
 
+		print query
 		parameters = [row[x] for x in row.keys()]
-
+		print parameters
 		self.execute_query_on_db(query, connection, parameters=parameters)
 
 	def execute_query_on_db(self, query, connection, parameters=None):
@@ -79,5 +79,23 @@ class Wrapper:
 		cursor.execute(query, parameters)
 
 
+wrapper = Wrapper()
+row = {}
+row['facebook_id'] = '1ac8a623b24d010d42529016c4b49a8f'
+row['timestamp'] = 1376438853
+row['user'] = '6d7363df17881d4afef71897a74840'
+row['data'] = 'blablabablal'
+
+row2 = {}
+row2['facebook_id'] = '1ac8a623b24d010d42529016c4b49a8f'
+row2['timestamp'] = 1376438853
+row2['user'] = '6d7363df17881d4afef71897a74840'
+row2['data'] = 'blablabablal'
+
+rows = []
+rows.append(row)
+rows.append(row2)
+
+wrapper.insert(rows, 'facebook')
 
 
