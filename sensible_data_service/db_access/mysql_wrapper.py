@@ -78,3 +78,24 @@ class Wrapper:
 		cursor = connection.cursor()
 		cursor.execute(query, parameters)
 
+
+wrapper = Wrapper()
+row = {}
+row['facebook_id'] = '1ac8a623b24d010d42529016c4b49a8f'
+row['timestamp'] = 1376438853
+row['user'] = '6d7363df17881d4afef71897a74840'
+row['data'] = 'blablabablal'
+
+row2 = {}
+row2['facebook_id'] = '1ac8a623b24d010d42529016c4b49a8f'
+row2['timestamp'] = 1376438853
+row2['user'] = '6d7363df17881d4afef71897a74840'
+row2['data'] = 'blablabablal'
+
+rows = []
+rows.append(row)
+rows.append(row2)
+
+wrapper.insert(rows, 'facebook')
+
+
