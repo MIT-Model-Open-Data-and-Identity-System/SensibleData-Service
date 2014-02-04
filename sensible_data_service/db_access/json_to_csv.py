@@ -5,66 +5,66 @@ import sys
 
 def facebook_birthday_to_csv(json_obj):
 	fields = ['data', 'facebook_id', 'timestamp', 'user']
-	return facebook_to_csv(json_obj, fields)	
+	return facebook_to_csv(json_obj, fields, 'birthday')	
 
 def facebook_education_to_csv(json_obj):
 	fields = ['data', 'facebook_id', 'timestamp', 'user']
-	return facebook_to_csv(json_obj, fields)	
+	return facebook_to_csv(json_obj, fields, 'education')	
 
 def facebook_feed_to_csv(json_obj):
 	fields = ['data', 'facebook_id', 'timestamp', 'user']
-	return facebook_to_csv(json_obj, fields)	
+	return facebook_to_csv(json_obj, fields, 'feed')	
 
 def facebook_friendlists_to_csv(json_obj):
 	fields = ['data', 'facebook_id', 'timestamp', 'user']
-	return facebook_to_csv(json_obj, fields)	
+	return facebook_to_csv(json_obj, fields, 'friendlists')	
 
 def facebook_friends_to_csv(json_obj):
 	fields = ['data', 'facebook_id', 'timestamp', 'user']
-	return facebook_to_csv(json_obj, fields)	
+	return facebook_to_csv(json_obj, fields, 'friends')	
 
 def facebook_groups_to_csv(json_obj):
 	fields = ['data', 'facebook_id', 'timestamp', 'user']
-	return facebook_to_csv(json_obj, fields)	
+	return facebook_to_csv(json_obj, fields, 'groups')	
 
 def facebook_hometown_to_csv(json_obj):
 	fields = ['data', 'facebook_id', 'timestamp', 'user']
-	return facebook_to_csv(json_obj, fields)	
+	return facebook_to_csv(json_obj, fields, 'hometown')	
 
 def facebook_interests_to_csv(json_obj):
 	fields = ['data', 'facebook_id', 'timestamp', 'user']
-	return facebook_to_csv(json_obj, fields)	
+	return facebook_to_csv(json_obj, fields, 'interests')	
 
 def facebook_likes_to_csv(json_obj):
 	fields = ['data', 'facebook_id', 'timestamp', 'user']
-	return facebook_to_csv(json_obj, fields)	
+	return facebook_to_csv(json_obj, fields, 'likes')	
 
 def facebook_location_to_csv(json_obj):
 	fields = ['data', 'facebook_id', 'timestamp', 'user']
-	return facebook_to_csv(json_obj, fields)	
+	return facebook_to_csv(json_obj, fields, 'location')	
 
 def facebook_locations_to_csv(json_obj):
 	fields = ['data', 'facebook_id', 'timestamp', 'user']
-	return facebook_to_csv(json_obj, fields)	
+	return facebook_to_csv(json_obj, fields, 'locations')	
 
 def facebook_political_to_csv(json_obj):
 	fields = ['data', 'facebook_id', 'timestamp', 'user']
-	return facebook_to_csv(json_obj, fields)	
+	return facebook_to_csv(json_obj, fields, 'political')	
 
 def facebook_religion_to_csv(json_obj):
 	fields = ['data', 'facebook_id', 'timestamp', 'user']
-	return facebook_to_csv(json_obj, fields)	
+	return facebook_to_csv(json_obj, fields, 'religion')	
 
 def facebook_statuses_to_csv(json_obj):
 	fields = ['data', 'facebook_id', 'timestamp', 'user']
-	return facebook_to_csv(json_obj, fields)	
+	return facebook_to_csv(json_obj, fields, 'statuses')	
 
 def facebook_work_to_csv(json_obj):
 	fields = ['data', 'facebook_id', 'timestamp', 'user']
-	return facebook_to_csv(json_obj, fields)	
+	return facebook_to_csv(json_obj, fields, 'work')	
 
 #Generic function for extracting fields for facebook without going into data
-def facebook_to_csv(json_obj, fields):
+def facebook_to_csv(json_obj, fields, type):
 	rows = []
 	row = {}
 	for v in json_obj:
@@ -72,7 +72,7 @@ def facebook_to_csv(json_obj, fields):
 		try: row[v] = float(json.dumps(json_obj[v]))
 		except ValueError: row[v] = json_obj[v]
 
-
+	row['type'] = type
 	rows.append(row)
 	return rows
 	
