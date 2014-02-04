@@ -130,7 +130,6 @@ def funf_calllog_to_csv(json_obj):
 
 	row = {}
 	for key in metadata: row[key] = metadata[key]
-	row['date'] = json_obj['data']['date']
 	row['duration'] = json_obj['data']['duration']
 	row['name'] = json_obj['data']['name']
 	row['number'] = json_obj['data']['number']
