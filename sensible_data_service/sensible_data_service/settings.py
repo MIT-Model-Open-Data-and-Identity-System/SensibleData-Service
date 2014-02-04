@@ -187,7 +187,7 @@ INSTALLED_APPS = (
 	'djcelery',
 	'questions',
 	'sensible_audit',
-	'dao',
+	'db_access',
 )
 
 # A sample logging configuration. The only tangible logging
