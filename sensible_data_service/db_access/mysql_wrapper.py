@@ -9,14 +9,6 @@ class Wrapper:
 		self.password = SECURE_settings.DATA_DATABASE['password']
 		self.open_databases = {}
 
-	def get_read_db_connection_for_probe(self, probe):
-		return self.get_db_connection_for_probe(probe, True)
-
-
-	def get_write_db_connection_for_probe(self, probe):
-		return self.get_db_connection_for_probe(probe, False)
-
-
 	def get_db_connection_for_probe(self, probe, read_connection):
 
 		database_name = probe
@@ -44,7 +36,7 @@ class Wrapper:
 		return connection
 
 	def insert(self, rows, probe, user_role):
-		connection = self.get_read_db_connection_for_probe(probe)
+		connection = self.get_db_connection_for_probe(probe)
 		table_name = self.get_table_name_for_db(user_role)
 		cursor = connection.cursor()
 		for row in rows:
