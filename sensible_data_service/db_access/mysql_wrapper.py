@@ -3,7 +3,7 @@ import MySQLdb as mdb
 import time
 import pdb
 
-class Wrapper:
+class DBWrapper:
 	def __init__(self):
 		self.open_databases = {}
 

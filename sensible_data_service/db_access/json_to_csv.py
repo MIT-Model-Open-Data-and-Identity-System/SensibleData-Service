@@ -17,63 +17,77 @@ def json_to_csv(json_obj, probe):
 
 def facebook_birthday_to_csv(json_obj):
 	fields = ['data', 'facebook_id', 'timestamp', 'user']
-	return facebook_to_csv(json_obj, fields, 'birthday')	
+	return facebook_to_csv(json_obj, fields, 'birthday')
+
 
 def facebook_education_to_csv(json_obj):
 	fields = ['data', 'facebook_id', 'timestamp', 'user']
-	return facebook_to_csv(json_obj, fields, 'education')	
+	return facebook_to_csv(json_obj, fields, 'education')
+
 
 def facebook_feed_to_csv(json_obj):
 	fields = ['data', 'facebook_id', 'timestamp', 'user']
-	return facebook_to_csv(json_obj, fields, 'feed')	
+	return facebook_to_csv(json_obj, fields, 'feed')
+
 
 def facebook_friendlists_to_csv(json_obj):
 	fields = ['data', 'facebook_id', 'timestamp', 'user']
-	return facebook_to_csv(json_obj, fields, 'friendlists')	
+	return facebook_to_csv(json_obj, fields, 'friendlists')
+
 
 def facebook_friends_to_csv(json_obj):
 	fields = ['data', 'facebook_id', 'timestamp', 'user']
-	return facebook_to_csv(json_obj, fields, 'friends')	
+	return facebook_to_csv(json_obj, fields, 'friends')
+
 
 def facebook_groups_to_csv(json_obj):
 	fields = ['data', 'facebook_id', 'timestamp', 'user']
-	return facebook_to_csv(json_obj, fields, 'groups')	
+	return facebook_to_csv(json_obj, fields, 'groups')
+
 
 def facebook_hometown_to_csv(json_obj):
 	fields = ['data', 'facebook_id', 'timestamp', 'user']
-	return facebook_to_csv(json_obj, fields, 'hometown')	
+	return facebook_to_csv(json_obj, fields, 'hometown')
+
 
 def facebook_interests_to_csv(json_obj):
 	fields = ['data', 'facebook_id', 'timestamp', 'user']
-	return facebook_to_csv(json_obj, fields, 'interests')	
+	return facebook_to_csv(json_obj, fields, 'interests')
+
 
 def facebook_likes_to_csv(json_obj):
 	fields = ['data', 'facebook_id', 'timestamp', 'user']
-	return facebook_to_csv(json_obj, fields, 'likes')	
+	return facebook_to_csv(json_obj, fields, 'likes')
+
 
 def facebook_location_to_csv(json_obj):
 	fields = ['data', 'facebook_id', 'timestamp', 'user']
-	return facebook_to_csv(json_obj, fields, 'location')	
+	return facebook_to_csv(json_obj, fields, 'location')
+
 
 def facebook_locations_to_csv(json_obj):
 	fields = ['data', 'facebook_id', 'timestamp', 'user']
-	return facebook_to_csv(json_obj, fields, 'locations')	
+	return facebook_to_csv(json_obj, fields, 'locations')
+
 
 def facebook_political_to_csv(json_obj):
 	fields = ['data', 'facebook_id', 'timestamp', 'user']
-	return facebook_to_csv(json_obj, fields, 'political')	
+	return facebook_to_csv(json_obj, fields, 'political')
+
 
 def facebook_religion_to_csv(json_obj):
 	fields = ['data', 'facebook_id', 'timestamp', 'user']
-	return facebook_to_csv(json_obj, fields, 'religion')	
+	return facebook_to_csv(json_obj, fields, 'religion')
+
 
 def facebook_statuses_to_csv(json_obj):
 	fields = ['data', 'facebook_id', 'timestamp', 'user']
-	return facebook_to_csv(json_obj, fields, 'statuses')	
+	return facebook_to_csv(json_obj, fields, 'statuses')
+
 
 def facebook_work_to_csv(json_obj):
 	fields = ['data', 'facebook_id', 'timestamp', 'user']
-	return facebook_to_csv(json_obj, fields, 'work')	
+	return facebook_to_csv(json_obj, fields, 'work')
 
 #Generic function for extracting fields for facebook without going into data
 def facebook_to_csv(json_obj, fields, type):
@@ -108,6 +122,9 @@ def facebook_doc_to_csv(json_obj, collection):
 	if mtype == 'education': return facebook_education_to_csv(json_obj)
 	if mtype == 'birthday': return facebook_birthday_to_csv(json_obj)
 	raise ValueError(collection + ' is not a valid Facebook collection')
+=======
+
+>>>>>>> d1deaddb5836539c5f79563219a4407da40dc0a9
 
 def funf_to_csv(json_obj, probe):
 	if probe == 'edu_mit_media_funf_probe_builtin_BluetoothProbe': return funf_bluetooth_to_csv(json_obj)
@@ -153,8 +170,9 @@ def funf_bluetooth_to_csv(json_obj):
 		row['name'] = '-1'
 		row['rssi'] = 0
 		rows.append(row)
-		
+
 	return rows
+
 
 def funf_calllog_to_csv(json_obj):
 	rows = []
@@ -168,8 +186,9 @@ def funf_calllog_to_csv(json_obj):
 	row['numbertype'] = json_obj['data']['numbertype']
 	row['type'] = json_obj['data']['type']
 	rows.append(row)
-	
+
 	return rows
+
 
 def funf_cell_to_csv(json_obj):
 	rows = []
@@ -182,8 +201,9 @@ def funf_cell_to_csv(json_obj):
 	row['psc'] = json_obj['data']['psc']
 	row['type'] = json_obj['data']['type']
 	rows.append(row)
-	
+
 	return rows
+
 
 def funf_contact_to_csv(json_obj):
 	rows = []
@@ -192,7 +212,7 @@ def funf_contact_to_csv(json_obj):
 	for contact in json_obj['data']['CONTACT_DATA']:
 		row = {}
 		for key in metadata: row[key] = metadata[key]
-		row['contact_id'] = json_obj['data']['contact_id']		
+		row['contact_id'] = json_obj['data']['contact_id']
 		row['display_name'] = json_obj['data']['display_name']
 		row['last_time_contacted'] = json_obj['data']['last_time_contacted']
 		row['lookup'] = json_obj['data']['lookup']
@@ -214,6 +234,32 @@ def funf_contact_to_csv(json_obj):
 		try: rows.append(row)
 		except: pass
 	
+		try:
+			row['_id'] = contact['_id']
+		except:
+			pass
+		try:
+			row['data1'] = contact['data1']
+		except:
+			pass
+		try:
+			row['data2'] = contact['data2']
+		except:
+			pass
+		try:
+			row['data3'] = contact['data3']
+		except:
+			pass
+		try:
+			row['data4'] = contact['data4']
+		except:
+			pass
+		try:
+			rows.append(row)
+		except:
+			pass
+
+>>>>>>> d1deaddb5836539c5f79563219a4407da40dc0a9
 	return rows
 
 
@@ -232,8 +278,9 @@ def funf_hardware_to_csv(json_obj):
 	row['device'] = json_obj['device']
 	row['device_bt_mac'] = json_obj['device_bt_mac']
 	rows.append(row)
-	
+
 	return rows
+
 
 def funf_location_to_csv(json_obj):
 	rows = []
@@ -246,8 +293,9 @@ def funf_location_to_csv(json_obj):
 	row['accuracy'] = json_obj['data']['LOCATION']['mAccuracy']
 	row['provider'] = json_obj['data']['LOCATION']['mProvider']
 	rows.append(row)
-	
+
 	return rows
+
 
 def funf_screen_to_csv(json_obj):
 	rows = []
@@ -257,8 +305,9 @@ def funf_screen_to_csv(json_obj):
 	for key in metadata: row[key] = metadata[key]
 	row['screen_on'] = json_obj['data']['SCREEN_ON']
 	rows.append(row)
-	
+
 	return rows
+
 
 def funf_sms_to_csv(json_obj):
 	rows = []
@@ -269,7 +318,6 @@ def funf_sms_to_csv(json_obj):
 	for key in metadata: row[key] = metadata[key]
 	row['address'] = json_obj['data']['address']
 	row['body'] = json_obj['data']['body']
-	#row['date'] = json_obj['data']['date']
 	row['person'] = json_obj['data']['person']
 	row['protocol'] = json_obj['data']['protocol']
 	row['message_read'] = json_obj['data']['read']
@@ -280,8 +328,9 @@ def funf_sms_to_csv(json_obj):
 	row['thread_id'] = json_obj['data']['thread_id']
 	row['type'] = json_obj['data']['type']
 	rows.append(row)
-	
+
 	return rows
+
 
 def funf_timeoffset_to_csv(json_obj):
 	rows = []
@@ -291,8 +340,9 @@ def funf_timeoffset_to_csv(json_obj):
 	for key in metadata: row[key] = metadata[key]
 	row['time_offset'] = json_obj['data']['TIME_OFFSET']
 	rows.append(row)
-	
+
 	return rows
+
 
 def funf_wifi_to_csv(json_obj):
 	rows = []
@@ -312,8 +362,9 @@ def funf_wifi_to_csv(json_obj):
 		row['ssid'] = '-1'
 		row['level'] = 0
 		rows.append(row)
-		
+
 	return rows
+
 
 def questionnaire_to_csv(json_obj):
 	rows = []
