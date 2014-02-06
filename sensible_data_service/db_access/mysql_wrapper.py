@@ -93,33 +93,50 @@ class DBWrapper:
 			params["fields"] = ["*"]
 		table_name = self.get_table_name_for_db(user_role)
 		self.check_columns_valid_for_table(params["fields"], probe, table_name)
-		order = self.get_order_from_param(params["order"])
-		users = params['users']
-		start_date = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(params['start_date']))
-		end_date = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(params['end_date']))
+		if "order" in params:
+			order = self.get_order_from_param(params["order"])
 
-		for i in range(0, len(users)):
-			users[i] = "'" + users[i] + "'"
+		start_date = None
+		if "start_date" in params:
+			start_date = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(params['start_date']))
+
+		end_date = None
+		if "end_date" in params:
+			end_date = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(params['end_date']))
+
+		users = None
+		if "users" in params:
+			users = params['users']
+			for i in range(0, len(users)):
+				users[i] = "'" + users[i] + "'"
 
 		where_clauses = []
 		#where_clauses.append("timestamp BETWEEN " + "'" + start_date + "' AND '" + end_date + "'")
-		where_clauses.append("user IN " + "(" + ",".join(users) + ")")
+		#where_clauses.append("user IN " + "(" + ",".join(users) + ")")
+		if "where" in params:
+			for clause in params["where"]:
+				clause_string = clause.keys()[0]
 
-		for clause in params["where"]:
-			clause_string = clause.keys()[0]
-			clause_string += " ="
-			clause_string += " '" + clause.values()[0] + "'"
-			where_clauses.append(clause_string)
-
-		where_clauses_string = " AND ".join(where_clauses)
+				if len(clause.values()[0]) > 1:
+					clause_string += " IN"
+					clause_string += "(" + ",".join(clause.values()[0]) + ")"
+				else:
+					clause_string += " ="
+					clause_string += " '" + clause.values()[0] + "'"
+				where_clauses.append(clause_string)
 
 		query = "SELECT " + ",".join(params["fields"]) + " FROM " + table_name
 
-		query += " WHERE "
-		query += where_clauses_string
+		if len(where_clauses) > 0:
+			where_clauses_string = " AND ".join(where_clauses)
+			query += " WHERE "
+			query += where_clauses_string
 
-		query += " ORDER BY " + params["sortby"] + " " + order
-		query += " LIMIT 0," + str(params["limit"])
+		if "sortby" in params:
+			query += " ORDER BY " + params["sortby"] + " " + order
+
+		if "limit" in params:
+			query += " LIMIT 0," + str(params["limit"])
 
 		print query
 		connection = self.get_read_db_connection_for_probe(probe)
@@ -150,14 +167,14 @@ class DBWrapper:
 
 wrapper = DBWrapper()
 params = {}
-params["fields"] = ["timestamp", "user"]
-params["sortby"] = "timestamp"
-params["order"] = 1
-params["start_date"] = 1391601999
-params["end_date"] = 1391602120
-params["users"] = ["dummarek"]
-params["limit"] = 2
-params["where"] = []#{'bssid':'7c:05:07:55:8d:4d'}, {'device_id':'a4574141ed7516c0dfe7e96bdc52b1'}]
+#params["fields"] = ["timestamp", "user"]
+#params["sortby"] = "timestamp"
+#params["order"] = 1
+#params["start_date"] = 1391601999
+#params["end_date"] = 1391602120
+#params["users"] = ["dummarek"]
+#params["limit"] = 2
+#params["where"] = []#{'bssid':'7c:05:07:55:8d:4d'}, {'device_id':'a4574141ed7516c0dfe7e96bdc52b1'}]
 
 cursor = wrapper.retrieve(params, "edu_mit_media_funf_probe_builtin_WifiProbe", None)
 print cursor.fetchall()
