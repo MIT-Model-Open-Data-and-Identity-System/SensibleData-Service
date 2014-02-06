@@ -89,6 +89,10 @@ class DBWrapper:
 
 	def retrieve(self, params, probe, user_role):
 
+		try:
+			",".join(params["fields"])
+		except KeyError:
+			params['fields'] = "*"
 		table_name = self.get_table_name_for_db(user_role)
 		self.check_columns_valid_for_table(params["fields"], probe, table_name)
 		order = self.get_order_from_param(params["order"])
@@ -100,7 +104,7 @@ class DBWrapper:
 			users[i] = "'" + users[i] + "'"
 
 		where_clauses = []
-		where_clauses.append("timestamp BETWEEN " + "'" + start_date + "' AND '" + end_date + "'")
+		#where_clauses.append("timestamp BETWEEN " + "'" + start_date + "' AND '" + end_date + "'")
 		where_clauses.append("user IN " + "(" + ",".join(users) + ")")
 
 		for clause in params["where"]:
@@ -111,10 +115,7 @@ class DBWrapper:
 
 		where_clauses_string = " AND ".join(where_clauses)
 
-		try:
-			query = "SELECT " + ",".join(params["fields"]) + " FROM " + table_name
-		except KeyError:
-			query = "SELECT * FROM " + table_name
+		query = "SELECT " + ",".join(params["fields"]) + " FROM " + table_name
 
 		query += " WHERE "
 		query += where_clauses_string
