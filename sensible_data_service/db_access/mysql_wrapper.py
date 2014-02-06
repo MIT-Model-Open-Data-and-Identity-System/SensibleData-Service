@@ -113,7 +113,7 @@ class DBWrapper:
 
 		if "users" in params:
 			users = params['users']
-			if "all" not in users:
+			if "all" not in users or len(users) == 0:
 				for i in range(0, len(users)):
 					users[i] = "'" + users[i] + "'"
 
