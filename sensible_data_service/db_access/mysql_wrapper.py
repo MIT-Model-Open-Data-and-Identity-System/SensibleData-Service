@@ -26,6 +26,8 @@ class DBWrapper:
 	def get_db_connection_for_probe(self, probe, read_connection):
 
 		database_name = probe
+		if probe == 'device_inventory':
+			database_name = "common_admin"
 		connection = None
 		if database_name in self.open_databases:
 			return self.open_databases[database_name]
@@ -93,6 +95,8 @@ class DBWrapper:
 		if "fields" not in params:
 			params["fields"] = ["*"]
 		table_name = self.get_table_name_for_db(user_role)
+		if probe == "device_inventory":
+			table_name = "device_inventory"
 		self.check_columns_valid_for_table(params["fields"], probe, table_name)
 
 		start_date = None
@@ -151,7 +155,7 @@ class DBWrapper:
 			query += " LIMIT 0," + str(params["limit"])
 
 		print query
-		connection = self.get_read_db_connection_for_probe(probe)
+		connection = self.get_write_db_connection_for_probe(probe)
 		return self.execute_query_on_db(query, connection, params)
 
 	def get_order_from_param(self, param):
