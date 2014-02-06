@@ -1,6 +1,19 @@
 import json
 import sys
+import hashlib
+import base64
+import time
 
+def json_to_csv(json_obj, probe):
+	probe = probe.replace('_researcher','').replace('_developer','')
+	if 'facebook' in probe:
+		return facebook_doc_to_csv(json_obj, probe)
+	if 'funf' in probe:
+		return funf_to_csv(json_obj, probe)
+	if 'questionnaire' in probe:
+		return questionnaire_to_csv(json_obj)
+	raise ValueError(probe + ' is not a valid probe name')	
+	
 
 def facebook_birthday_to_csv(json_obj):
 	fields = ['data', 'facebook_id', 'timestamp', 'user']
@@ -82,15 +95,36 @@ def facebook_to_csv(json_obj, fields, type):
 	row = {}
 	for v in json_obj:
 		if not v in fields: continue
-		try:
-			row[v] = float(json.dumps(json_obj[v]))
-		except ValueError:
+		if v == 'data':
+			row[v] = base64.b64encode(json.dumps(json_obj[v]))
+		else:
 			row[v] = json_obj[v]
 
-	row['type'] = type
+	row['data_type'] = type
 	rows.append(row)
 	return rows
+	
+def facebook_doc_to_csv(json_obj, collection):
+	mtype = collection.split('_')[-1]
+	if mtype == 'work': return facebook_work_to_csv(json_obj)
+	if mtype == 'statuses': return facebook_statuses_to_csv(json_obj)
+	if mtype == 'religion': return facebook_religion_to_csv(json_obj)
+	if mtype == 'political': return facebook_political_to_csv(json_obj)
+	if mtype == 'location': return facebook_location_to_csv(json_obj)
+	if mtype == 'locations': return facebook_locations_to_csv(json_obj)
+	if mtype == 'likes': return facebook_likes_to_csv(json_obj)
+	if mtype == 'interests': return facebook_interests_to_csv(json_obj)
+	if mtype == 'hometown': return facebook_hometown_to_csv(json_obj)
+	if mtype == 'groups': return facebook_groups_to_csv(json_obj)
+	if mtype == 'friends': return facebook_friends_to_csv(json_obj)
+	if mtype == 'friendlists': return facebook_friendlists_to_csv(json_obj)
+	if mtype == 'feed': return facebook_feed_to_csv(json_obj)
+	if mtype == 'education': return facebook_education_to_csv(json_obj)
+	if mtype == 'birthday': return facebook_birthday_to_csv(json_obj)
+	raise ValueError(collection + ' is not a valid Facebook collection')
+=======
 
+>>>>>>> d1deaddb5836539c5f79563219a4407da40dc0a9
 
 def funf_to_csv(json_obj, probe):
 	if probe == 'edu_mit_media_funf_probe_builtin_BluetoothProbe': return funf_bluetooth_to_csv(json_obj)
@@ -110,7 +144,6 @@ def funf_metadata(json_obj):
 	metadata['timestamp'] = json_obj['data']['TIMESTAMP']
 	metadata['device_id'] = json_obj['device_id']
 	metadata['sensible_token'] = json_obj['sensible_token']
-	metadata['timestamp_added'] = json_obj['timestamp_added']
 	metadata['user'] = json_obj['user']
 	metadata['uuid'] = json_obj['uuid']
 	return metadata
@@ -125,15 +158,16 @@ def funf_bluetooth_to_csv(json_obj):
 		for key in metadata: row[key] = metadata[key]
 		row['class'] = scan['android_bluetooth_device_extra_CLASS']['mClass']
 		row['bt_mac'] = scan['android_bluetooth_device_extra_DEVICE']['mAddress']
-		row['name'] = scan['android_bluetooth_device_extra_NAME']
+		try: row['name'] = scan['android_bluetooth_device_extra_NAME'] 
+		except KeyError: row['name'] = ''
 		row['rssi'] = scan['android_bluetooth_device_extra_RSSI']
 		rows.append(row)
 	if len(json_obj['data']['DEVICES']) == 0:
 		row = {}
 		for key in metadata: row[key] = metadata[key]
-		row['class'] = None
-		row['bt_mac'] = None
-		row['name'] = None
+		row['class'] = -1 
+		row['bt_mac'] = '-1'
+		row['name'] = '-1'
 		row['rssi'] = 0
 		rows.append(row)
 
@@ -185,6 +219,21 @@ def funf_contact_to_csv(json_obj):
 		row['starred'] = json_obj['data']['starred']
 		row['times_contacted'] = json_obj['data']['times_contacted']
 
+		try: row['mimetype'] = contact['mimetype']
+		except: row['mimetype'] = hashlib.md5(str(contact)).hexdigest()
+		try: row['_id'] = contact['_id']
+		except: pass
+		try: row['data1'] = contact['data1']
+		except: pass
+		try: row['data2'] = contact['data2']
+		except: pass
+		try: row['data3'] = contact['data3']
+		except: pass
+		try: row['data4'] = contact['data4']
+		except: pass
+		try: rows.append(row)
+		except: pass
+	
 		try:
 			row['_id'] = contact['_id']
 		except:
@@ -210,6 +259,7 @@ def funf_contact_to_csv(json_obj):
 		except:
 			pass
 
+>>>>>>> d1deaddb5836539c5f79563219a4407da40dc0a9
 	return rows
 
 
@@ -263,14 +313,16 @@ def funf_sms_to_csv(json_obj):
 	rows = []
 	metadata = funf_metadata(json_obj)
 
+
 	row = {}
 	for key in metadata: row[key] = metadata[key]
 	row['address'] = json_obj['data']['address']
 	row['body'] = json_obj['data']['body']
 	row['person'] = json_obj['data']['person']
 	row['protocol'] = json_obj['data']['protocol']
-	row['read'] = json_obj['data']['read']
-	row['service_center'] = json_obj['data']['service_center']
+	row['message_read'] = json_obj['data']['read']
+	try: row['service_center'] = json_obj['data']['service_center']
+	except: row['service_center'] = ''
 	row['status'] = json_obj['data']['status']
 	row['subject'] = json_obj['data']['subject']
 	row['thread_id'] = json_obj['data']['thread_id']
@@ -306,9 +358,9 @@ def funf_wifi_to_csv(json_obj):
 	if len(json_obj['data']['SCAN_RESULTS']) == 0:
 		row = {}
 		for key in metadata: row[key] = metadata[key]
-		row['bssid'] = None
-		row['ssid'] = None
-		row['level'] = None
+		row['bssid'] = '-1' 
+		row['ssid'] = '-1'
+		row['level'] = 0
 		rows.append(row)
 
 	return rows
@@ -318,10 +370,10 @@ def questionnaire_to_csv(json_obj):
 	rows = []
 	row = {}
 	row['form_version'] = json_obj['form_version']
-	row['human_readable_question'] = json_obj['human_readable_question']
-	row['human_readable_response'] = json_obj['human_readable_response']
-	row['last_answered'] = json_obj['last_answered']
-	row['response'] = json_obj['response']
+	row['human_readable_question'] = base64.b64encode(json_obj['human_readable_question'].encode('utf-8'))
+	row['human_readable_response'] = base64.b64encode(json_obj['human_readable_response'].encode('utf-8'))
+	row['timestamp'] = time.mktime(time.strptime(json_obj['last_answered'][:-6],'%Y-%m-%d %H:%M:%S'))
+	row['response'] = "".join([c for c in json_obj['response'] if ord(c) < 128])
 	row['user'] = json_obj['user']
 	row['variable_name'] = json_obj['variable_name']
 	rows.append(row)

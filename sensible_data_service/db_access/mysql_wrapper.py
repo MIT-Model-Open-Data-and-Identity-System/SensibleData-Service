@@ -1,14 +1,10 @@
 import MySQLdb as mdb
 #import SECURE_settings
 import time
-
+import pdb
 
 class DBWrapper:
 	def __init__(self):
-		self.read_hostname = "localhost"
-		self.write_hostname = "localhost"
-		self.username = 'radugatej'#SECURE_settings.DATA_DATABASE['username']
-		self.password = 'Who.gon.stop.me'#SECURE_settings.DATA_DATABASE['password']
 		self.open_databases = {}
 
 	def get_read_db_connection_for_probe(self, probe):
@@ -52,24 +48,29 @@ class DBWrapper:
 		return connection
 
 	def insert(self, rows, probe, user_role=None):
-		connection = self.get_read_db_connection_for_probe(probe)
+		#pdb.set_trace()
+		connection = self.get_write_db_connection_for_probe(probe)
 		table_name = self.get_table_name_for_db(user_role)
+		#pdb.set_trace()
 		for row in rows:
 			self.insert_row(row, table_name, connection)
 		connection.commit()
 
 	def get_table_name_for_db(self, user_role):
 		if user_role:
-			return user_role
-		else:
-			return "main"
+			if 'researcher' in user_role:
+				return 'researcher'
+			elif 'developer' in user_role:
+				return 'developer'
+				
+		return "main"
 
 	def insert_row(self, row, table_name, connection):
-
-		if not type(row['timestamp']) == str:
-			row['timestamp'] = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(row['timestamp']))
+		#pdb.set_trace()
+		if type(row['timestamp']) in [float, int]:
+			row['timestamp'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(row['timestamp']))
 		if 'timestamp_added' in row and not type(row['timestamp_added']) == str:
-			row['timestamp_added'] = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(row['timestamp_added']))
+			row['timestamp_added'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(row['timestamp_added']))
 
 		query = 'INSERT IGNORE INTO ' + table_name + " ("
 		query += ','.join(row.keys())
@@ -81,5 +82,6 @@ class DBWrapper:
 		self.execute_query_on_db(query, connection, parameters=parameters)
 
 	def execute_query_on_db(self, query, connection, parameters=None):
+		#pdb.set_trace()
 		cursor = connection.cursor()
 		cursor.execute(query, parameters)
