@@ -112,9 +112,11 @@ class DBWrapper:
 
 		if "users" in params:
 			users = params['users']
-			for i in range(0, len(users)):
-				users[i] = "'" + users[i] + "'"
-			where_clauses.append("user IN " + "(" + ",".join(users) + ")")
+			if "all" not in users:
+				for i in range(0, len(users)):
+					users[i] = "'" + users[i] + "'"
+
+				where_clauses.append("user IN " + "(" + ",".join(users) + ")")
 
 
 		#where_clauses.append("timestamp BETWEEN " + "'" + start_date + "' AND '" + end_date + "'")
