@@ -89,10 +89,8 @@ class DBWrapper:
 
 	def retrieve(self, params, probe, user_role):
 
-		try:
-			",".join(params["fields"])
-		except KeyError:
-			params['fields'] = "*"
+		if "fields" not in params:
+			params["fields"] = ["*"]
 		table_name = self.get_table_name_for_db(user_role)
 		self.check_columns_valid_for_table(params["fields"], probe, table_name)
 		order = self.get_order_from_param(params["order"])
@@ -134,6 +132,8 @@ class DBWrapper:
 			return "DESC"
 
 	def check_columns_valid_for_table(self, columns, probe, table_name):
+		if "*" in columns:
+			return
 		connection = self.get_read_db_connection_for_probe(probe)
 		cursor = connection.cursor()
 		cursor.execute("SHOW COLUMNS from " + table_name)
