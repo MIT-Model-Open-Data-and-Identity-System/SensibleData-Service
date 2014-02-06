@@ -176,3 +176,16 @@ class DBWrapper:
 		if len(invalid_columns) > 0:
 			raise BaseException("Fields " + ",".join(invalid_columns) + " are not correct")
 
+	def update_device_info(self, device_info_document):
+		connection = self.get_write_db_connection_for_probe("common_admin")
+		query = 'INSERT INTO ' + "device_inventory" + " ("
+		query += ','.join(device_info_document.keys())
+		query += ") VALUES ("
+		query += ','.join(["%s" for x in device_info_document.keys()])
+		query += ')'
+		update_keys = [str(x) + "=values(" + str(x) + ")" for x in device_info_document.keys()]
+		query += "ON DUPLICATE KEY UPDATE " + ','.join(update_keys)
+
+		parameters = [device_info_document[x] for x in device_info_document.keys()]
+		self.execute_query_on_db(query, connection, parameters=parameters)
+		connection.commit()
