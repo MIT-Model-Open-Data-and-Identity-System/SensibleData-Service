@@ -3,6 +3,7 @@ import MySQLdb as mdb
 import time
 import pdb
 
+
 class DBWrapper:
 	def __init__(self):
 		self.open_databases = {}
@@ -174,18 +175,3 @@ class DBWrapper:
 
 		if len(invalid_columns) > 0:
 			raise BaseException("Fields " + ",".join(invalid_columns) + " are not correct")
-
-
-wrapper = DBWrapper()
-params = {}
-params["fields"] = ["timestamp", "user"]
-params["sortby"] = "timestamp"
-params["order"] = 1
-params["start_date"] = 1391601999
-params["end_date"] = 1391602120
-params["users"] = ["dummarek"]
-params["limit"] = 2
-params["where"] = [{'bssid': '7c:05:07:55:8d:4d'}, {'device_id': 'a4574141ed7516c0dfe7e96bdc52b1'}]
-
-cursor = wrapper.retrieve(params, "edu_mit_media_funf_probe_builtin_WifiProbe", None)
-print cursor.fetchall()
