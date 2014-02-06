@@ -93,8 +93,6 @@ class DBWrapper:
 			params["fields"] = ["*"]
 		table_name = self.get_table_name_for_db(user_role)
 		self.check_columns_valid_for_table(params["fields"], probe, table_name)
-		if "order" in params:
-			order = self.get_order_from_param(params["order"])
 
 		start_date = None
 		if "start_date" in params:
@@ -104,20 +102,27 @@ class DBWrapper:
 		if "end_date" in params:
 			end_date = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(params['end_date']))
 
-		users = None
+		where_clauses = []
+		if start_date and end_date:
+			where_clauses.append("timestamp BETWEEN " + "'" + start_date + "' AND '" + end_date + "'")
+		elif start_date and not end_date:
+			where_clauses.append("timestamp >=" + "'" + start_date + "'")
+		elif end_date and not start_date:
+			where_clauses.append("timestamp <" + "'" + end_date + "'")
+
 		if "users" in params:
 			users = params['users']
 			for i in range(0, len(users)):
 				users[i] = "'" + users[i] + "'"
+			where_clauses.append("user IN " + "(" + ",".join(users) + ")")
 
-		where_clauses = []
+
 		#where_clauses.append("timestamp BETWEEN " + "'" + start_date + "' AND '" + end_date + "'")
-		#where_clauses.append("user IN " + "(" + ",".join(users) + ")")
 		if "where" in params:
 			for clause in params["where"]:
 				clause_string = clause.keys()[0]
 
-				if len(clause.values()[0]) > 1:
+				if type(clause.values()[0]) == "list":
 					clause_string += " IN"
 					clause_string += "(" + ",".join(clause.values()[0]) + ")"
 				else:
@@ -133,7 +138,11 @@ class DBWrapper:
 			query += where_clauses_string
 
 		if "sortby" in params:
-			query += " ORDER BY " + params["sortby"] + " " + order
+			query += " ORDER BY " + params["sortby"]
+
+		if "order" in params:
+			order = self.get_order_from_param(params["order"])
+			query += " " + order
 
 		if "limit" in params:
 			query += " LIMIT 0," + str(params["limit"])
@@ -167,14 +176,14 @@ class DBWrapper:
 
 wrapper = DBWrapper()
 params = {}
-#params["fields"] = ["timestamp", "user"]
-#params["sortby"] = "timestamp"
-#params["order"] = 1
-#params["start_date"] = 1391601999
-#params["end_date"] = 1391602120
-#params["users"] = ["dummarek"]
-#params["limit"] = 2
-#params["where"] = []#{'bssid':'7c:05:07:55:8d:4d'}, {'device_id':'a4574141ed7516c0dfe7e96bdc52b1'}]
+params["fields"] = ["timestamp", "user"]
+params["sortby"] = "timestamp"
+params["order"] = 1
+params["start_date"] = 1391601999
+params["end_date"] = 1391602120
+params["users"] = ["dummarek"]
+params["limit"] = 2
+params["where"] = [{'bssid': '7c:05:07:55:8d:4d'}, {'device_id': 'a4574141ed7516c0dfe7e96bdc52b1'}]
 
 cursor = wrapper.retrieve(params, "edu_mit_media_funf_probe_builtin_WifiProbe", None)
 print cursor.fetchall()
