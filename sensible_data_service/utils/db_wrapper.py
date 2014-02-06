@@ -47,8 +47,12 @@ class DatabaseHelper:
 	"""
 	def retrieve(self, params, collection, roles = None, from_secondary = True):
 		return self.engine.retrieve(params, collection, roles)
-	
-	#def getDocuments(self, query, collection, roles = None, from_secondary = True):
+
+	def update_device_info(self, device_info_document):
+		if isinstance(self.engine, mysql_wrapper.DBWrapper):
+			self.engine.update_device_info(device_info_document)
+
+		#def getDocuments(self, query, collection, roles = None, from_secondary = True):
 	#	# data retrieval not yet implemented in mysql, switching to mongo if necessary
 	#	if isinstance(self.engine, mysql_wrapper.Wrapper):
 	#		self.engine = database.Database()
