@@ -62,7 +62,7 @@ class DBWrapper:
 				return 'researcher'
 			elif 'developer' in user_role:
 				return 'developer'
-				
+
 		return "main"
 
 	def insert_row(self, row, table_name, connection):
@@ -83,5 +83,77 @@ class DBWrapper:
 
 	def execute_query_on_db(self, query, connection, parameters=None):
 		#pdb.set_trace()
-		cursor = connection.cursor()
+		cursor = connection.cursor(mdb.cursors.DictCursor)
 		cursor.execute(query, parameters)
+		return cursor
+
+	def retrieve(self, params, probe, user_role):
+
+		table_name = self.get_table_name_for_db(user_role)
+		self.check_columns_valid_for_table(params["fields"], probe, table_name)
+		order = self.get_order_from_param(params["order"])
+		users = params['users']
+		start_date = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(params['start_date']))
+		end_date = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(params['end_date']))
+
+		for i in range(0, len(users)):
+			users[i] = "'" + users[i] + "'"
+
+		where_clauses = []
+		where_clauses.append("timestamp BETWEEN " + "'" + start_date + "' AND '" + end_date + "'")
+		where_clauses.append("user IN " + "(" + ",".join(users) + ")")
+
+		for clause in params["where"]:
+			clause_string = clause.keys()[0]
+			clause_string += " ="
+			clause_string += " '" + clause.values()[0] + "'"
+			where_clauses.append(clause_string)
+
+		where_clauses_string = " AND ".join(where_clauses)
+
+		query = "SELECT " + ",".join(params["fields"]) + " FROM " + table_name
+
+		query += " WHERE "
+		query += where_clauses_string
+
+		query += " ORDER BY " + params["sortby"] + " " + order
+		query += " LIMIT 0," + str(params["limit"])
+
+		print query
+		connection = self.get_read_db_connection_for_probe(probe)
+		return self.execute_query_on_db(query, connection, params)
+
+	def get_order_from_param(self, param):
+		if param == 1:
+			return " "
+		elif param == -1:
+			return "DESC"
+
+	def check_columns_valid_for_table(self, columns, probe, table_name):
+		connection = self.get_read_db_connection_for_probe(probe)
+		cursor = connection.cursor()
+		cursor.execute("SHOW COLUMNS from " + table_name)
+		correct_columns = cursor.fetchall()
+		correct_columns = [x[0] for x in correct_columns]
+		invalid_columns = []
+		for column in columns:
+			if column not in correct_columns:
+				invalid_columns.append(column)
+
+		if len(invalid_columns) > 0:
+			raise BaseException("Fields " + ",".join(invalid_columns) + " are not correct")
+
+
+wrapper = DBWrapper()
+params = {}
+params["fields"] = ["timestamp", "user"]
+params["sortby"] = "timestamp"
+params["order"] = 1
+params["start_date"] = 1391601999
+params["end_date"] = 1391602120
+params["users"] = ["dummarek"]
+params["limit"] = 2
+params["where"] = []#{'bssid':'7c:05:07:55:8d:4d'}, {'device_id':'a4574141ed7516c0dfe7e96bdc52b1'}]
+
+cursor = wrapper.retrieve(params, "edu_mit_media_funf_probe_builtin_WifiProbe", None)
+print cursor.fetchall()
