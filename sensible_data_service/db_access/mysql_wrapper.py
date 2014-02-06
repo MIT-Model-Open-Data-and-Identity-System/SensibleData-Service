@@ -112,11 +112,8 @@ class DBWrapper:
 			where_clauses.append("timestamp <" + "'" + end_date + "'")
 
 		if "users" in params:
-			users = params['users']
-			if "all" not in users or len(users) != 0:
-				for i in range(0, len(users)):
-					users[i] = "'" + users[i] + "'"
-
+			users = ["'" + u + '"' for u in params['users']]
+			if "'all'" not in users and len(users) > 0:
 				where_clauses.append("user IN " + "(" + ",".join(users) + ")")
 
 
@@ -175,3 +172,4 @@ class DBWrapper:
 
 		if len(invalid_columns) > 0:
 			raise BaseException("Fields " + ",".join(invalid_columns) + " are not correct")
+
