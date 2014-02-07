@@ -1,5 +1,5 @@
-CREATE DATABASE IF NOT EXISTS facebook;
-USE facebook;
+CREATE DATABASE IF NOT EXISTS dk_dtu_compute_facebook;
+USE dk_dtu_compute_facebook;
 
 CREATE TABLE IF NOT EXISTS main (
     id INT NOT NULL AUTO_INCREMENT,
@@ -592,8 +592,8 @@ CREATE TABLE IF NOT EXISTS researcher (
 
 
 
-CREATE DATABASE IF NOT EXISTS questionnaire;
-USE questionnaire;
+CREATE DATABASE IF NOT EXISTS dk_dtu_compute_questionnaire;
+USE dk_dtu_compute_questionnaire;
 
 CREATE TABLE IF NOT EXISTS main (
     id INT NOT NULL AUTO_INCREMENT,
@@ -636,9 +636,3 @@ CREATE TABLE IF NOT EXISTS researcher (
     PRIMARY KEY (id),
     UNIQUE KEY compound_unique (form_version, response, variable_name, user)
 );
-
-
-
-
-
-
