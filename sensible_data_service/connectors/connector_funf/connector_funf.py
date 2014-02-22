@@ -8,7 +8,7 @@ from backup import backup
 from django.core.servers.basehttp import FileWrapper
 import mimetypes
 from django.conf import settings
-from sensible_audit import audit
+import logging
 
 from connectors.connector import connector
 import bson.json_util as json
@@ -29,16 +29,17 @@ import random
 import re
 
 myConnector = connectors.connectors_config.CONNECTORS['ConnectorFunf']['config']
+log = logging.getLogger('sensible.' + __name__)
 
 @csrf_exempt
 def rescue(request):
-	audit.Audit().e('phone_rescue','call_home',doc={'message': 'Rescue ' + request.POST['imei'] + ' @ ' + request.POST['lat'] + ',' + request.POST['lon'] + ' ~' + request.POST['acc'] + ' on ' + request.POST['timestamp'] + ' from ' + request.POST['provider'] + ' due to ' + request.POST['action']})
+	log.error('phone_rescue', extra = {'tag': 'call_home', 'message': 'Rescue ' + request.POST['imei'] + ' @ ' + request.POST['lat'] + ',' + request.POST['lon'] + ' ~' + request.POST['acc'] + ' on ' + request.POST['timestamp'] + ' from ' + request.POST['provider'] + ' due to ' + request.POST['action']})
 	return HttpResponse('got it','text/javascript', status=200)
 
 @csrf_exempt
 def upload(request):
 	random.seed(time.time())
-	audit.Audit().d('connector_funf', 'post', {'message': 'Received POST'})
+	log.debug('connector_funf', extra = {'tag': 'post', 'message': 'Received POST'})
 	scope = 'all_probes'
 
 
@@ -69,7 +70,7 @@ def upload(request):
 					
 					return HttpResponse(json.dumps({'ok':'success'}))
 			else:
-				audit.Audit().e('connector_funf', 'upload_fail', {})
+				log.error('connector_funf', extra = {'tag': 'upload_fail'})
 		except KeyError as e:
 			pass
 	# bad request

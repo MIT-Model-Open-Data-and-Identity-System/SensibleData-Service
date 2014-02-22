@@ -22,7 +22,9 @@ import traceback
 
 import time
 from accounts.models import UserRole
-from sensible_audit import audit
+import logging
+
+log = logging.getLogger('sensible.' + __name__)
 
 myConnector = connectors.connectors_config.CONNECTORS['ConnectorFunf']['config']
 
@@ -41,7 +43,7 @@ def populate(documents_to_insert):
 			try: db.insert(documents_to_insert[probe][role], probe, roles)
 			except: pass
 
-			audit.Audit().d('connector_funf', 'population_time', {'ptime': '%.4f'%(time.time()-population_start), 'documents': inserted_counter, 'collection': probe, 'roles': role})
+			log.debug('population_time', extra = {'ptime': '%.4f'%(time.time()-population_start), 'documents': inserted_counter, 'collection': probe, 'roles': role})
 			inserted_counter = 0
 
 def load_files(directory_to_load=myConnector['decrypted_path']):
@@ -135,7 +137,7 @@ def load_file(filename):
 			os.remove(current_filepath);
 			
 		except Exception as e:
-			audit.Audit().e('connector_funf', 'population_error', {'error':str(e)})
+			log.error('population_error', extra = {'error':str(e)})
 			if not 'already exists' in str(e):
 				top = traceback.extract_stack()[-1]
 				fail.fail(current_filepath, load_failed_path, 'Exception with file: ' + filename\
@@ -169,7 +171,7 @@ def row_to_doc(row, user, anonymizerObject):
 		else:
 			return None
 	except Exception as e:
-		audit.Audit().e('connector_funf', 'population_error', {'error': str(e), 'data': data})
+		log.error('population_error', extra = {'error': str(e), 'data': data})
 		return None
 		
 		

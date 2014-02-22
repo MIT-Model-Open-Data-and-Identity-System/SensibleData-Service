@@ -13,6 +13,9 @@ from connector_utils import *
 from anonymizer.anonymizer import Anonymizer
 from collections import OrderedDict
 from connectors.connector_funf import device_inventory
+import logging
+
+log = logging.getLogger('sensible.' + __name__)
 
 def wifi(request):
 	return get_data(request, PHONE_DATA_SETTINGS['wifi'])
@@ -38,12 +41,14 @@ def get_data(request, probe_settings):
 
 	if 'error' in auth:
 		response = {'meta':{'status':{'status':'error','code':401,'desc':auth['error']}}}
+		log.error('authentication error', extra = response)
 		return HttpResponse(json.dumps(response), status=401, content_type="application/json")
 
 	auth_scopes = set([x for x in auth['scope']])
 
 	if len(accepted_scopes & auth_scopes) == 0:
 		response = {'meta':{'status':{'status':'error','code':401,'desc':'token not authorized for any accepted scope %s'%str(list(accepted_scopes))}}}
+		log.error('token not authorized', extra = response)
 		return HttpResponse(json.dumps(response), status=401)
 	
 	if ('dummy' in request.REQUEST.keys()):
@@ -61,7 +66,7 @@ def get_data(request, probe_settings):
 	own_data = False
 	if len(users_to_return) == 1 and users_to_return[0] == auth['user'].username: own_data = True
 
-
+	log.info('get_data', extra = {'user': auth['user'].username, 'researcher': is_researcher, 'users_to_return': users_to_return, 'own_data': own_data})
 	return dataBuild(request, probe_settings, users_to_return, decrypted = decrypted, own_data = own_data, roles = roles)
 
 def dataBuild(request, probe_settings, users_to_return, decrypted = False, own_data = False, roles = []):

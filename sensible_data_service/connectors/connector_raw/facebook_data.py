@@ -2,7 +2,6 @@ from django.http import HttpResponse
 import bson.json_util as json
 from authorization_manager import authorization_manager
 from utils import database
-#from utils import audit
 from django.shortcuts import render_to_response
 from accounts.models import UserRole
 from django.contrib.auth.models import User
@@ -74,7 +73,7 @@ def get_data(request, probe_settings):
 	own_data = False
 	if len(users_to_return) == 1 and users_to_return[0] == auth['user'].username: own_data = True
 
-
+	log.info('get_data', extra = {'users': users_to_return, 'requester': auth['user'].username})
 	return dataBuild(request, probe_settings, users_to_return, decrypted = decrypted, own_data = own_data, roles = roles)
 
 def dataBuild(request, probe_settings, users_to_return, decrypted = False, own_data = False, roles = []):
@@ -152,17 +151,6 @@ def dataBuild(request, probe_settings, users_to_return, decrypted = False, own_d
 
 	if decrypted:
 		pass
-	
-	#auditdb= audit.Audit()
-	#doc_audit=response['meta']
-	#users_return=[]
-	#users_results = cursorToArray(results, decrypted = decrypted, probe=probe_settings['collection'])
-	#for data_users in users_results:
-	#	if data_users['user'] not in users_return:
-	#		users_return.append(data_users['user'])
-	#doc_audit['users']=users_return
-	#doc_audit=transform.transform(doc_audit)
-	#auditdb.d(typ='prueba',tag='prueba2',doc=doc_audit,onlyfile=False)
 	
 	if proc_req['format'] == 'pretty':
 		return render_to_response('pretty_json.html', {'response': json.dumps(response, indent=2)})

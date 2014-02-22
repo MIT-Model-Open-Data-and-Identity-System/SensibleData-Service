@@ -13,8 +13,13 @@ from connector_utils import *
 from anonymizer.anonymizer import Anonymizer
 from collections import OrderedDict
 import bson.json_util as json
+import logging
+
+log = logging.getLogger('sensible.' + __name__)
+
 #import json
 def questionnaire(request):
+	log.info('questionnaire', extra = {'request': request})
 	return get_data(request,QUESTIONNAIRE_DATA_SETTINGS['questionnaire'])
 
 def get_data(request, probe_settings):

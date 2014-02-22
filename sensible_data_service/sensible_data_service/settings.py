@@ -202,7 +202,35 @@ LOGGING = {
             '()': 'django.utils.log.RequireDebugFalse'
         }
     },
+    'formatters': {
+        'audit': {
+            '()': 'sensible_audit.formatters.AuditorFormatter',
+            'format': '%(levelname)s %(message)s',
+        },
+    },
     'handlers': {
+        'audit': {
+            'class': 'log4mongo.handlers.MongoHandler',
+            'level': 'DEBUG',
+            'host': AUDIT_DATABASE['host'],
+            'username': AUDIT_DATABASE['username'],
+            'password': AUDIT_DATABASE['password'],
+            'port': AUDIT_DATABASE['port'],
+            'database_name': AUDIT_DATABASE['database'],
+            'collection': AUDIT_DATABASE['collection'],
+            'formatter': 'audit',
+        },
+        'log': {
+            'class': 'log4mongo.handlers.MongoHandler',
+            'level': 'INFO',
+            'host': AUDIT_DATABASE['host'],
+            'username': AUDIT_DATABASE['username'],
+            'password': AUDIT_DATABASE['password'],
+            'port': AUDIT_DATABASE['port'],
+            'database_name': AUDIT_DATABASE['database'],
+            'collection': 'log',
+            'formatter': 'audit',
+        },
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
@@ -214,6 +242,16 @@ LOGGING = {
             'handlers': ['mail_admins'],
             'level': 'ERROR',
             'propagate': True,
+        },
+        'sensible.connectors': {
+            'handlers': ['audit'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'sensible': {
+            'handlers': ['log'],
+            'level': 'DEBUG',
+            'propagate': False,
         },
     }
 }
