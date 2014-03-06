@@ -13,9 +13,9 @@ from connector_utils import *
 from anonymizer.anonymizer import Anonymizer
 from collections import OrderedDict
 import bson.json_util as json
-import logging
+from sensible_audit import audit
 
-log = logging.getLogger('sensible.' + __name__)
+log = audit.getLogger(__name__)
 
 #import json
 def questionnaire(request):
@@ -34,12 +34,14 @@ def get_data(request, probe_settings):
 
 	if 'error' in auth:
 		response = {'meta':{'status':{'status':'error','code':401,'desc':auth['error']}}}
+		log.error(audit.message(request, response))
 		return HttpResponse(json.dumps(response), status=401, content_type="application/json")
 
 	auth_scopes = set([x for x in auth['scope']])
 
 	if len(accepted_scopes & auth_scopes) == 0:
 		response = {'meta':{'status':{'status':'error','code':401,'desc':'token not authorized for any accepted scope %s'%str(list(accepted_scopes))}}}
+		log.error(audit.message(request, response))
 		return HttpResponse(json.dumps(response), status=401)
 	
 	if ('dummy' in request.REQUEST.keys()):
@@ -57,7 +59,6 @@ def get_data(request, probe_settings):
 
 	own_data = False
 	if len(users_to_return) == 1 and users_to_return[0] == auth['user'].username: own_data = True
-
 
 
 	return dataBuild(request, probe_settings, users_to_return, questions_to_return, decrypted = decrypted, own_data = own_data, roles = roles)
@@ -130,6 +131,7 @@ def dataBuild(request, probe_settings, users_to_return, questions_to_return, dec
 
 	if len(callback) > 0:
 		data = '%s(%s);' % (callback, json.dumps(response))
+		log.info(audit.message(request, response['meta']['api_call']))
 		return HttpResponse(data, content_type="text/plain", status=response['meta']['status']['code'])
 
 	if decrypted:
@@ -146,12 +148,15 @@ def dataBuild(request, probe_settings, users_to_return, questions_to_return, dec
 	#doc_audit=transform.transform(doc_audit)
 	#auditdb.d(typ='prueba',tag='prueba2',doc=doc_audit,onlyfile=False)
 	if proc_req['format'] == 'pretty':
+		log.info(audit.message(request, response['meta']['api_call']))
 		return render_to_response('pretty_json.html', {'response': json.dumps(response, indent=2)})
         elif proc_req['format'] == 'csv':
 		output = '#' + json.dumps(response['meta'], indent=2).replace('\n','\n#') + '\n'
 		output += array_to_csv(results,probe_settings['collection'])
+		log.info(audit.message(request, response['meta']['api_call']))
 		return HttpResponse(output, content_type="text/plain", status=response['meta']['status']['code'])
 	else:
+		log.info(audit.message(request, response['meta']['api_call']))
 		return HttpResponse(json.dumps(response), content_type="application/json", status=response['meta']['status']['code'])
 	return HttpResponse('hello decrypted')
 

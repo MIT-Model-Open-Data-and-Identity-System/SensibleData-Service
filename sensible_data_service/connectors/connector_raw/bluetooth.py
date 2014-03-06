@@ -9,6 +9,9 @@ import re
 import urllib
 import time
 from connector_utils import *
+from sensible_audit import audit
+
+log = audit.getLogger(__name__)
 
 def bluetooth(request):
 	decrypted = booleanize(request.REQUEST.get('decrypted', False))
@@ -22,12 +25,14 @@ def bluetooth(request):
 
 	if 'error' in auth:
 		response = {'meta':{'status':{'status':'error','code':401,'desc':auth['error']}}}
+		log.error(audit.message(request, response))
 		return HttpResponse(json.dumps(response), status=401, content_type="application/json")
 
 	auth_scopes = set([x for x in auth['scope']])
 
 	if len(accepted_scopes & auth_scopes) == 0:
 		response = {'meta':{'status':{'status':'error','code':401,'desc':'token not authorized for any accepted scope %s'%str(list(accepted_scopes))}}}
+		log.error(audit.message(request, response))
 		return HttpResponse(json.dumps(response), status=401)
 	
 	if ('dummy' in request.REQUEST.keys()):
@@ -45,7 +50,6 @@ def bluetooth(request):
 
 	own_data = False
 	if len(users_to_return) == 1 and users_to_return[0] == auth['user'].username: own_data = True
-
 
 	return bluetoothBuild(request, users_to_return, decrypted = decrypted, own_data = own_data, roles = roles)
 
@@ -126,8 +130,10 @@ def bluetoothBuild(request, users_to_return, decrypted = False, own_data = False
 		pass
 
 	if pretty:
+		log.info(audit.message(request, response['meta']['api_call']))
 		return render_to_response('pretty_json.html', {'response': json.dumps(response, indent=2)})
 	else:
+		log.info(audit.message(request, response['meta']['api_call']))
 		return HttpResponse(json.dumps(response), content_type="application/json", status=response['meta']['status']['code'])
 	return HttpResponse('hello decrypted')
 

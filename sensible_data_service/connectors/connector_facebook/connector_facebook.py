@@ -6,11 +6,12 @@ from utils import database
 from anonymizer.anonymizer import Anonymizer
 from backup import backup
 from accounts.models import UserRole
-import logging
+from sensible_audit import audit
+
+log = audit.getLogger(__name__)
 
 db = None
 anonymizer = None
-log = logging.getLogger('sensible.' + __name__)
 
 def collect_facebook():
 	authorizations = auth.getAllInboundAuth()
@@ -50,7 +51,7 @@ def getData(url, resource, user, facebook_id, access_token, authorization, depth
 		except urllib2.HTTPError as e:
 			response = json.loads(e.read())
 			if 'error' in response: 
-				log.error('get_data_error', extra = {'error': response, 'user': user.username})
+				log.error({'message': 'get_data_error', 'error': response, 'user': user.username})
 				if response['error']['code'] == 190:
 					authorization.active = False
 					authorization.save()  

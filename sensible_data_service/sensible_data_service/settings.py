@@ -26,6 +26,7 @@ DATABASES = LOCAL_SETTINGS.DATABASES
 PLATFORM = LOCAL_SETTINGS.PLATFORM
 CONNECTORS = LOCAL_SETTINGS.CONNECTORS
 SERVICE_NAME = LOCAL_SETTINGS.SERVICE_NAME
+LOGGING = LOCAL_SETTINGS.LOGGING
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = LOCAL_SETTINGS.SECRET_KEY
@@ -202,34 +203,13 @@ LOGGING = {
             '()': 'django.utils.log.RequireDebugFalse'
         }
     },
-    'formatters': {
-        'audit': {
-            '()': 'sensible_audit.formatters.AuditorFormatter',
-            'format': '%(levelname)s %(message)s',
-        },
-    },
     'handlers': {
-        'audit': {
-            'class': 'log4mongo.handlers.MongoHandler',
+        'fluentd': {
             'level': 'DEBUG',
-            'host': AUDIT_DATABASE['host'],
-            'username': AUDIT_DATABASE['username'],
-            'password': AUDIT_DATABASE['password'],
-            'port': AUDIT_DATABASE['port'],
-            'database_name': AUDIT_DATABASE['database'],
-            'collection': AUDIT_DATABASE['collection'],
-            'formatter': 'audit',
-        },
-        'log': {
-            'class': 'log4mongo.handlers.MongoHandler',
-            'level': 'INFO',
-            'host': AUDIT_DATABASE['host'],
-            'username': AUDIT_DATABASE['username'],
-            'password': AUDIT_DATABASE['password'],
-            'port': AUDIT_DATABASE['port'],
-            'database_name': AUDIT_DATABASE['database'],
-            'collection': 'log',
-            'formatter': 'audit',
+            'class': 'fluent.handler.FluentHandler',
+            'tag': 'mongo.django',
+            'host': LOGGING['host'],
+            'port': LOGGING['port']
         },
         'mail_admins': {
             'level': 'ERROR',
@@ -243,15 +223,10 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
-        'sensible.connectors': {
-            'handlers': ['audit'],
+        'sensible': {
+            'handlers': ['fluentd'],
             'level': 'DEBUG',
             'propagate': True,
-        },
-        'sensible': {
-            'handlers': ['log'],
-            'level': 'DEBUG',
-            'propagate': False,
         },
     }
 }

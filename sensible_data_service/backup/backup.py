@@ -5,9 +5,9 @@ import datetime
 import json
 import shutil
 import pdb
-import logging
+from sensible_audit import audit
 
-log = logging.getLogger('sensible.' + __name__)
+log = audit.getLogger(__name__)
 
 def backupValue(data, probe, user):
 	probeFolder = getProbeFolder(probe)
@@ -30,7 +30,7 @@ def backupValue(data, probe, user):
 def backupFile(filename, probe):
 	probeFolder = getProbeFolder(probe)
 	if 'error' in probeFolder:
-		log.error('probe_folder_fail', extra = {'message': str(probeFolder)})
+		log.error({'error': 'probe_folder_fail', 'message': str(probeFolder)})
 		return False
 	index = ''
 	try:
