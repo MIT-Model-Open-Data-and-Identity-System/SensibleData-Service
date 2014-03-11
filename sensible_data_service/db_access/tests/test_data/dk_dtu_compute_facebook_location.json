@@ -1,0 +1,3 @@
+{"timestamp": 1378392373, "_id": {"$oid": "522899355a2f9178005375d8"}, "data": {"id": "112712758741730", "name": "Gentofte"}, "user": "0010fedde8e61cad5b049da6df8b5a", "facebook_id": "1b40754e92e7d207437749cc903a94a0"}
+{"timestamp": 1377986460, "_id": {"$oid": "5222679c5a2f9144a01d02b0"}, "data": {"id": "111994468811991", "name": "Kongens Lyngby"}, "user": "0037c93a19a7e90580086b462ba11b", "facebook_id": "7dc99469d18b290bf243d8b27f461f3a"}
+{"timestamp": 1378392391, "_id": {"$oid": "522899475a2f9178005375f1"}, "data": {"id": "110471282312918", "name": "S\u00f8borg, Kobenhavn, Denmark"}, "user": "005b1e0298bde6b726156aefb8d88c", "facebook_id": "4f715ba9db57eb30358676b81b02a496"}

@@ -122,9 +122,6 @@ def facebook_doc_to_csv(json_obj, collection):
 	if mtype == 'education': return facebook_education_to_csv(json_obj)
 	if mtype == 'birthday': return facebook_birthday_to_csv(json_obj)
 	raise ValueError(collection + ' is not a valid Facebook collection')
-=======
-
->>>>>>> d1deaddb5836539c5f79563219a4407da40dc0a9
 
 def funf_to_csv(json_obj, probe):
 	if probe == 'edu_mit_media_funf_probe_builtin_BluetoothProbe': return funf_bluetooth_to_csv(json_obj)
@@ -233,33 +230,7 @@ def funf_contact_to_csv(json_obj):
 		except: pass
 		try: rows.append(row)
 		except: pass
-	
-		try:
-			row['_id'] = contact['_id']
-		except:
-			pass
-		try:
-			row['data1'] = contact['data1']
-		except:
-			pass
-		try:
-			row['data2'] = contact['data2']
-		except:
-			pass
-		try:
-			row['data3'] = contact['data3']
-		except:
-			pass
-		try:
-			row['data4'] = contact['data4']
-		except:
-			pass
-		try:
-			rows.append(row)
-		except:
-			pass
 
->>>>>>> d1deaddb5836539c5f79563219a4407da40dc0a9
 	return rows
 
 
@@ -370,12 +341,13 @@ def questionnaire_to_csv(json_obj):
 	rows = []
 	row = {}
 	row['form_version'] = json_obj['form_version']
-	row['human_readable_question'] = base64.b64encode(json_obj['human_readable_question'].encode('utf-8'))
-	row['human_readable_response'] = base64.b64encode(json_obj['human_readable_response'].encode('utf-8'))
+	row['variable_name'] = json_obj['variable_name']
+	if not json_obj['variable_name'].startswith("_"):
+		row['human_readable_question'] = base64.b64encode(json_obj['human_readable_question'].encode('utf-8'))
+		row['human_readable_response'] = base64.b64encode(json_obj['human_readable_response'].encode('utf-8'))
 	row['timestamp'] = time.mktime(time.strptime(json_obj['last_answered'][:-6],'%Y-%m-%d %H:%M:%S'))
 	row['response'] = "".join([c for c in json_obj['response'] if ord(c) < 128])
 	row['user'] = json_obj['user']
-	row['variable_name'] = json_obj['variable_name']
 	rows.append(row)
 
 	return rows

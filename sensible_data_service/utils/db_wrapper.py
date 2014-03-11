@@ -18,18 +18,28 @@ class DatabaseHelper:
 
 	def insert(self, documents, collection, roles = None):
 		probe = collection
-		#pdb.set_trace()
 
-		# if it's the mysql wrapper, the documents have to be transformed into lists of rows
-		if isinstance(self.engine, mysql_wrapper.DBWrapper):
-			payload = []
-			for document in documents:
-				#pdb.set_trace()
-				payload += json_to_csv.json_to_csv(document, probe)
-			if 'facebook' in probe: probe = 'facebook'
-			self.engine.insert(payload, probe, roles)
-		elif isinstance(self.engine, database.Database):
-			self.engine.insert(documents, collection, roles)	
+		#TEMPORARY upload to both mongo AND mysql.
+
+		#Mongo
+		database.Database().insert(documents, collection, roles)
+
+		#MySQL
+		payload = []
+		for document in documents:
+			payload += json_to_csv.json_to_csv(document, probe)
+		if 'facebook' in probe: probe = 'facebook'
+
+		# # if it's the mysql wrapper, the documents have to be transformed into lists of rows
+		# if isinstance(self.engine, mysql_wrapper.DBWrapper):
+		# 	payload = []
+		# 	for document in documents:
+		# 		#pdb.set_trace()
+		# 		payload += json_to_csv.json_to_csv(document, probe)
+		# 	if 'facebook' in probe: probe = 'facebook'
+		# 	self.engine.insert(payload, probe, roles)
+		# elif isinstance(self.engine, database.Database):
+		# 	self.engine.insert(documents, collection, roles)
 	
 	""" 
 	params: dictionary used to construct engine specific query. Keys:
@@ -45,22 +55,22 @@ class DatabaseHelper:
 	'where' list dictionaries with a field and value(s), for example: 
 		params['where'] = [{'device_id':['devid1', 'devid2']},{'timestamp':123345}]
 	"""
-	def retrieve(self, params, collection, roles = None, from_secondary = True):
-		return self.engine.retrieve(params, collection, roles)
+	# def retrieve(self, params, collection, roles = None, from_secondary = True):
+	# 	return self.engine.retrieve(params, collection, roles)
 
 	def update_device_info(self, device_info_document):
 		if isinstance(self.engine, mysql_wrapper.DBWrapper):
 			self.engine.update_device_info(device_info_document)
 
-		#def getDocuments(self, query, collection, roles = None, from_secondary = True):
-	#	# data retrieval not yet implemented in mysql, switching to mongo if necessary
-	#	if isinstance(self.engine, mysql_wrapper.Wrapper):
-	#		self.engine = database.Database()
-	#	return self.engine.getDocuments(query, collection, roles, from_secondary)
+	def getDocuments(self, query, collection, roles = None, from_secondary = True):
+		# data retrieval not yet implemented in mysql, switching to mongo if necessary
+		if isinstance(self.engine, mysql_wrapper.Wrapper):
+			self.engine = database.Database()
+		return self.engine.getDocuments(query, collection, roles, from_secondary)
 
-	# to be merged with getDocuments with default fields argument
-	#def getDocumentsCustom(self, query, collection, fields, roles = None, from_secondary = True):
-	#	# data retrieval not yet implemented in mysql, switching to mongo if necessary
-	#	if isinstance(self.engine, mysql_wrapper.Wrapper):
-	#		self.engine = database.Database()
-	#	return self.engine.getDocumentsCustom(query, collection, fields, roles, from_secondary)
+	#to be merged with getDocuments with default fields argument
+	def getDocumentsCustom(self, query, collection, fields, roles = None, from_secondary = True):
+		# data retrieval not yet implemented in mysql, switching to mongo if necessary
+		if isinstance(self.engine, mysql_wrapper.Wrapper):
+			self.engine = database.Database()
+		return self.engine.getDocumentsCustom(query, collection, fields, roles, from_secondary)
