@@ -25,11 +25,13 @@ class DatabaseHelper:
 		database.Database().insert(documents, collection, roles)
 
 		#MySQL
-		payload = []
-		for document in documents:
-			payload += json_to_csv.json_to_csv(document, probe)
-		if 'facebook' in probe: probe = 'facebook'
-
+		if isinstance(self.engine, mysql_wrapper.DBWrapper):
+			payload = []
+			for document in documents:
+				#pdb.set_trace()
+				payload += json_to_csv.json_to_csv(document, probe)
+			if 'facebook' in probe: probe = 'facebook'
+			self.engine.insert(payload, probe, roles)
 		# # if it's the mysql wrapper, the documents have to be transformed into lists of rows
 		# if isinstance(self.engine, mysql_wrapper.DBWrapper):
 		# 	payload = []

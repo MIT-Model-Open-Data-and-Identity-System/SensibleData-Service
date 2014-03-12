@@ -7,7 +7,7 @@ from anonymizer.anonymizer import Anonymizer
 from backup import backup
 from accounts.models import UserRole
 from sensible_audit import audit
-from sensible_data_service.utils import db_wrapper
+from utils import db_wrapper
 
 db = None
 anonymizer = None

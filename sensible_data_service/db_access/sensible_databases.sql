@@ -554,7 +554,7 @@ CREATE TABLE IF NOT EXISTS main (
     user VARCHAR(64) not null,
     uuid VARCHAR(64),
     bssid VARCHAR(40),
-    ssid VARCHAR(40),
+    ssid VARCHAR(64),
     level INT,
     PRIMARY KEY (id),
     UNIQUE KEY compound_unique (bssid, level, timestamp, user)
@@ -569,7 +569,7 @@ CREATE TABLE IF NOT EXISTS developer (
     user VARCHAR(64) not null,
     uuid VARCHAR(64),
     bssid VARCHAR(40),
-    ssid VARCHAR(40),
+    ssid VARCHAR(64),
     level INT,
     PRIMARY KEY (id),
     UNIQUE KEY compound_unique (bssid, level, timestamp, user)
@@ -584,7 +584,7 @@ CREATE TABLE IF NOT EXISTS researcher (
     user VARCHAR(64) not null,
     uuid VARCHAR(64),
     bssid VARCHAR(40),
-    ssid VARCHAR(40),
+    ssid VARCHAR(64),
     level INT,
     PRIMARY KEY (id),
     UNIQUE KEY compound_unique (bssid, level, timestamp, user)

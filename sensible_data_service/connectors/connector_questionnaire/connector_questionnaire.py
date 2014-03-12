@@ -9,7 +9,7 @@ from backup import backup
 import time
 from django.utils.http import urlunquote
 import pymongo
-from sensible_data_service.utils import db_wrapper
+from utils import db_wrapper
 
 
 def upload(request):
