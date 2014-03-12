@@ -105,25 +105,21 @@ def load_file(filename):
 			# get the meta data from db file
 			meta = {}
 			(meta['device'], meta['uuid'], meta['device_id'], meta['sensible_token'], meta['device_bt_mac'], meta['timestamp']) = cursor.execute('select device, uuid, device_id, sensible_token, device_bt_mac, created from file_info').fetchone()
-			
-			
-			meta['user'] = 'dummarek'
-			##### Uncomment this part to verify the token embedded in the uploaded file before populating
-			#meta['user'] = None
-			#try: 
-			#	(user, token) = get_user_name(meta['sensible_token'], meta['device_id'], meta['timestamp'])
-			#	meta['user'] = user.username
-			#	meta['sensible_token'] = token
-			#	roles = [x.role for x in UserRole.objects.get(user=user).roles.all()]
-			#except: pass
-			#
-			#		
-			#if meta['user'] == None:
-			#	if not os.path.exists(myConnector['decrypted_not_authorized']):
-			#		os.makedirs(myConnector['decrypted_not_authorized'])
-			#	shutil.move(current_filepath, myConnector['decrypted_not_authorized'])
-			#	return (0,0)
-			##### END UNCOMMENT
+
+			meta['user'] = None
+			try:
+				(user, token) = get_user_name(meta['sensible_token'], meta['device_id'], meta['timestamp'])
+				meta['user'] = user.username
+				meta['sensible_token'] = token
+				roles = [x.role for x in UserRole.objects.get(user=user).roles.all()]
+			except: pass
+
+
+			if meta['user'] == None:
+				if not os.path.exists(myConnector['decrypted_not_authorized']):
+					os.makedirs(myConnector['decrypted_not_authorized'])
+				shutil.move(current_filepath, myConnector['decrypted_not_authorized'])
+				return (0,0)
 			
 			meta['device_id'] = anonymizerObject.anonymizeValue('device_id',meta['device_id'])
 			
