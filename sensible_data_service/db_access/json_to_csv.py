@@ -345,7 +345,8 @@ def questionnaire_to_csv(json_obj):
 	if not json_obj['variable_name'].startswith("_"):
 		row['human_readable_question'] = base64.b64encode(json_obj['human_readable_question'].encode('utf-8'))
 		row['human_readable_response'] = base64.b64encode(json_obj['human_readable_response'].encode('utf-8'))
-	row['timestamp'] = time.mktime(time.strptime(json_obj['last_answered'][:-6],'%Y-%m-%d %H:%M:%S'))
+
+	row['timestamp'] = time.mktime(time.strptime(json_obj['last_answered'][:19],'%Y-%m-%d %H:%M:%S'))
 	row['response'] = "".join([c for c in json_obj['response'] if ord(c) < 128])
 	row['user'] = json_obj['user']
 	rows.append(row)
