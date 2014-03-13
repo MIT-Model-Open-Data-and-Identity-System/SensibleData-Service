@@ -47,6 +47,7 @@ class DBWrapper:
 		connection = self.get_write_db_connection_for_probe(probe)
 		table_name = self.__get_table_name(user_role, probe)
 		for row in rows:
+			if not row: continue
 			self.insert_row(row, table_name, connection)
 		connection.commit()
 
