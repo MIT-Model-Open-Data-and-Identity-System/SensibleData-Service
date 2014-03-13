@@ -24,6 +24,8 @@ class DatabaseHelper:
 		#Mongo
 		database.Database().insert(documents, collection, roles)
 
+		if isinstance(documents, dict):
+			documents = [documents]
 		#MySQL
 		if isinstance(self.engine, mysql_wrapper.DBWrapper):
 			payload = []
