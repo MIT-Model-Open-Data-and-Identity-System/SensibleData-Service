@@ -30,15 +30,15 @@ def missing_redirect_uri(request):
 
 
 def authorize(request):
-	try:
-		sessions = Session.objects.filter(expire_date__gte=datetime.now())
-		for session in sessions:
-			data = session.get_decoded()
-			try: user = User.objects.filter(id=data.get('_auth_user_id', None))[0]
-			except: continue
-			if request.user == user:
-				session.delete()
-	except: pass
+#	try:
+#		sessions = Session.objects.filter(expire_date__gte=datetime.now())
+#		for session in sessions:
+#			data = session.get_decoded()
+#			try: user = User.objects.filter(id=data.get('_auth_user_id', None))[0]
+#			except: continue
+#			if request.user == user:
+#				session.delete()
+#	except: pass
 	return redirect(settings.ROOT_URL+'authorization_manager/oauth2/authorize_refreshed/?'+request.GET.urlencode())
 
 @login_required
