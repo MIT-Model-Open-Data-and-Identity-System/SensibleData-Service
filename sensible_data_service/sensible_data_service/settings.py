@@ -50,7 +50,8 @@ def failure_handler_function(request, message, status=None, template_name=None, 
 	registration = request.REQUEST.get('registration', False)
 	next = request.REQUEST.get('next', '')
 	if registration: return redirect(next)
-	return redirect('openid_failed')
+	#return redirect('openid_failed')
+    	return HttpResponse(message)
 
 OPENID_RENDER_FAILURE = failure_handler_function
 
@@ -151,7 +152,7 @@ ROOT_URLCONF = 'sensible_data_service.urls'
 WSGI_APPLICATION = 'sensible_data_service.wsgi.application'
 
 TEMPLATE_DIRS = (
-	ROOT_DIR+'templates',
+	ROOT_DIR+'/templates',
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
