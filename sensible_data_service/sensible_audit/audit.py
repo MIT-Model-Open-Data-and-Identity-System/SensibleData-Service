@@ -28,7 +28,25 @@ def message(request, data={}, results=[]):
             req.update({'results': queries})    
     return req
 
-def visualization(request):
+log = getLogger(__name__)
+
+def dashboard(request):
+	# authenticate token
+	auth = authorization_manager.authenticate_token(request)
+
+	if 'error' in auth:
+		response = {'meta': {'status': 'error', 'code': 401, 'desc': auth['error']}}
+		log.error(message(request, response))
+		return HttpResponse(json.dumps(response), status=401, content_type='application/json')
+
+	# read accesses from the database
+	accesses = dataBuild(request, request.user.username)
+
+	# build response
+	context = {'accesses': accesses, 'bearer_token': request.REQUEST.get('bearer_token')}
+	return render(request, 'sensible_audit/audit.html', context)
+
+def accesses(request):
     """
      Shows information about who has access the user's data.
     """
@@ -38,32 +56,12 @@ def visualization(request):
         response = {'meta': {'status':
                             {'status': 'error', 'code': 401,
                              'desc': auth['error']}}}
-        log.error('authentication error', extra=build_request_dict(request))
-        return HttpResponse(json.dumps(response),
+    	return HttpResponse(json.dumps(response),
                             status=401, content_type="application/json")
 
-    log.info('audit data accessed', extra=build_request_dict(request))
     accesses = dataBuild(request, request.user.username)
     return HttpResponse(json.dumps(accesses), status=200, content_type="application/json")
     
-
-def accesses(request):
-    return get_data(request)
-
-def get_data(request):
-    auth = authorization_manager.authenticate_token(request)
-
-    if 'error' in auth:
-        response = {'meta': {'status':
-                            {'status': 'error', 'code': 401,
-                             'desc': auth['error']}}}
-        log.error('authentication error', extra=build_request_dict(request))
-        return HttpResponse(json.dumps(response),
-                            status=401, content_type="application/json")
-
-    log.info('audit data accessed', extra=build_request_dict(request))
-    accesses = dataBuild(request, request.user.username)
-    return render(request, 'sensible_audit/audit.html', {'accesses': accesses, 'token': request.REQUEST.get('bearer_token')})
 
 def dataBuild(request, user):
     db = database.AuditDB()
