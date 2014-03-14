@@ -37,7 +37,7 @@ class DBWrapper:
 		ssl = connection_parameters['ssl']
 
 		try:
-			connection = mdb.connect(hostname, username, password, database_name, ssl=ssl)
+			connection = mdb.connect(hostname, username, password, database_name, ssl=ssl, charset="utf8", use_unicode=True)
 		except mdb.Error, e:
 			audit.Audit().e("MySQL", "connect", {"exception": str(e)})
 

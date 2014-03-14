@@ -340,8 +340,8 @@ def questionnaire_to_csv(json_obj):
 	row['form_version'] = json_obj.get('form_version')
 	row['variable_name'] = json_obj.get('variable_name')
 	if not json_obj['variable_name'].startswith("_"):
-		row['human_readable_question'] = json_obj.get('human_readable_question', "").encode('utf-8')
-		row['human_readable_response'] = json_obj.get('human_readable_response', "").encode('utf-8')
+		row['human_readable_question'] = json_obj['human_readable_question'].encode('utf-8')
+		row['human_readable_response'] = json_obj['human_readable_response'].encode('utf-8')
 
 	row['timestamp'] = time.mktime(time.strptime(json_obj.get('last_answered')[:19],'%Y-%m-%d %H:%M:%S'))
 	row['response'] = "".join([c for c in json_obj.get('response') if ord(c) < 128])
