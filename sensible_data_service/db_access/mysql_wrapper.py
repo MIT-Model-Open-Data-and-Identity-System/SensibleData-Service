@@ -3,7 +3,7 @@ import MySQLdb as mdb
 #import SECURE_settings
 import time
 from django.conf import settings
-from sensible_data_service.utils import SECURE_settings
+from utils import SECURE_settings
 
 
 class DBWrapper:
