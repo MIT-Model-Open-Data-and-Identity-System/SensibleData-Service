@@ -1,4 +1,4 @@
-{ "_id" : ObjectId("521619635a2f91077aed5f43"), "timestamp" : 1377180003, "data" : "Jedi (for the force)", "user" : "a6ad00ac113a19d953efb91820d878", "facebook_id" : "da7b80dc581589638c5b52e8504da87c" }
-{ "_id" : ObjectId("521689e35a2f9149a93a2817"), "timestamp" : 1377208803, "data" : "Jedi (for the force)", "user" : "a6ad00ac113a19d953efb91820d878", "facebook_id" : "da7b80dc581589638c5b52e8504da87c" }
-{ "_id" : ObjectId("52176ae35a2f914c7caa716a"), "timestamp" : 1377266403, "data" : "Jedi (for the force)", "user" : "a6ad00ac113a19d953efb91820d878", "facebook_id" : "da7b80dc581589638c5b52e8504da87c" }
-{ "_id" : ObjectId("5217db625a2f910278566ee1"), "timestamp" : 1377295202, "data" : "Jedi (for the force)", "user" : "a6ad00ac113a19d953efb91820d878", "facebook_id" : "da7b80dc581589638c5b52e8504da87c" }
+{ "timestamp" : 1377180003, "data" : "Jedi (for the force)", "user" : "a6ad00ac113a19d953efb91820d878", "facebook_id" : "da7b80dc581589638c5b52e8504da87c" }
+{ "timestamp" : 1377208803, "data" : "Jedi (for the force)", "user" : "a6ad00ac113a19d953efb91820d878", "facebook_id" : "da7b80dc581589638c5b52e8504da87c" }
+{ "timestamp" : 1377266403, "data" : "Jedi (for the force)", "user" : "a6ad00ac113a19d953efb91820d878", "facebook_id" : "da7b80dc581589638c5b52e8504da87c" }
+{ "timestamp" : 1377295202, "data" : "Jedi (for the force)", "user" : "a6ad00ac113a19d953efb91820d878", "facebook_id" : "da7b80dc581589638c5b52e8504da87c" }
