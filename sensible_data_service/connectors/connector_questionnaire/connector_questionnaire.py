@@ -11,7 +11,6 @@ from django.utils.http import urlunquote
 import pymongo
 from utils import db_wrapper
 
-
 def upload(request):
 
 	auth = authorization_manager.authenticate_token(request, 'connector_questionnaire.input_form_data')

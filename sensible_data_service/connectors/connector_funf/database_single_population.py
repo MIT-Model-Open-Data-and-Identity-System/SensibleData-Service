@@ -25,14 +25,12 @@ from accounts.models import UserRole
 from sensible_audit import audit
 from utils import db_wrapper
 myConnector = connectors.connectors_config.CONNECTORS['ConnectorFunf']['config']
-import pdb
 db = db_wrapper.DatabaseHelper()
 
 valid_tokens = {};
 
 def populate(documents_to_insert):
 	inserted_counter = 0
-	#pdb.set_trace()
 #	for probe in documents_to_insert:
 #		for role in documents_to_insert[probe]:
 #			for doc in documents_to_insert[probe][role]:
@@ -71,7 +69,7 @@ def load_files(directory_to_load=myConnector['decrypted_path']):
 				populate(documents_to_insert)
 				documents_to_insert = defaultdict(lambda: defaultdict(list))
 			#break
-		except: pass 
+		except: pass
 
 	populate(documents_to_insert)
 
