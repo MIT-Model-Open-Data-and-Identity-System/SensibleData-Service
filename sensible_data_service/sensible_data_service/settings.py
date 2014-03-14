@@ -152,7 +152,7 @@ ROOT_URLCONF = 'sensible_data_service.urls'
 WSGI_APPLICATION = 'sensible_data_service.wsgi.application'
 
 TEMPLATE_DIRS = (
-	ROOT_DIR+'/templates',
+	ROOT_DIR+'templates',
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
