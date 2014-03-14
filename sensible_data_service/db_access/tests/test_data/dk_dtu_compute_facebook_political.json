@@ -1,3 +1,3 @@
-{"timestamp": 1378219100, "_id": {"$oid": "5225f45c5a2f914ae211785d"}, "data": "dem der sidder til venstre", "user": "014813ebd3e875e031adf6ab717acc", "facebook_id": "6c64264682775e1c998e54ec8fc12f1f"}
-{"timestamp": 1378825745, "_id": {"$oid": "522f36115a2f917365990228"}, "data": "R.A.C.E. :D", "user": "0192d71b149f60e98272b3ad3daf05", "facebook_id": "45469cbbe0674feae0586893d369e029"}
-{"timestamp": 1377094941, "_id": {"$oid": "5214cd1d5a2f9153ec441473"}, "data": "Die Gr\u00fcnen", "user": "01bead0797b27df58534edb513d875", "facebook_id": "82baf187bb667eef2e8c46ce515088b8"}
+{ "_id" : ObjectId("521689e35a2f9149a93a2818"), "timestamp" : 1377208803, "data" : "Empire (strikes back)", "user" : "a6ad00ac113a19d953efb91820d878", "facebook_id" : "da7b80dc581589638c5b52e8504da87c" }
+{ "_id" : ObjectId("52176ae35a2f914c7caa716b"), "timestamp" : 1377266403, "data" : "Empire (strikes back)", "user" : "a6ad00ac113a19d953efb91820d878", "facebook_id" : "da7b80dc581589638c5b52e8504da87c" }
+{ "_id" : ObjectId("5217db635a2f910278566ee2"), "timestamp" : 1377295203, "data" : "Empire (strikes back)", "user" : "a6ad00ac113a19d953efb91820d878", "facebook_id" : "da7b80dc581589638c5b52e8504da87c" }
