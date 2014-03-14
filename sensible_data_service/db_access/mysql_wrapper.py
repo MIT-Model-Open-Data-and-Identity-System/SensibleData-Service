@@ -4,7 +4,7 @@ import MySQLdb as mdb
 import time
 from django.conf import settings
 from utils import SECURE_settings
-
+from sensible_audit import audit
 
 class DBWrapper:
 
@@ -39,7 +39,7 @@ class DBWrapper:
 		try:
 			connection = mdb.connect(hostname, username, password, database_name, ssl=ssl)
 		except mdb.Error, e:
-			print "Error %d: %s" % (e.args[0], e.args[1])
+			audit.Audit().e("MySQL", "connect", {"exception": str(e)})
 
 		return connection
 

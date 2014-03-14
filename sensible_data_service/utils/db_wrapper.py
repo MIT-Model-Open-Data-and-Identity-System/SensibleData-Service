@@ -5,7 +5,8 @@ import pymongo
 from utils import database
 from db_access import mysql_wrapper
 from db_access import json_to_csv
-import pdb
+from sensible_audit import audit
+
 class DatabaseHelper:
 
 	def __init__(self, engine = 'mysql'):
@@ -19,21 +20,21 @@ class DatabaseHelper:
 	def insert(self, documents, collection, roles = None):
 		probe = collection
 
-		#TEMPORARY upload to both mongo AND mysql.
-
-		#Mongo
-		database.Database().insert(documents, collection, roles)
-
 		if isinstance(documents, dict):
 			documents = [documents]
 		#MySQL
 		if isinstance(self.engine, mysql_wrapper.DBWrapper):
 			payload = []
 			for document in documents:
-				#pdb.set_trace()
 				payload += json_to_csv.json_to_csv(document, probe)
-			if 'facebook' in probe: probe = 'facebook'
-			self.engine.insert(payload, probe, roles)
+			try:
+				self.engine.insert(payload, probe, roles)
+			except Exception, e: 
+				audit.Audit().e("MySQL", "insert", {"exception": str(e)})
+		
+		#Mongo
+		#TODO REMOVE WHEN MYSQL MIGRATION IS COMPLETE
+		database.Database().insert(documents, collection, roles)
 		# # if it's the mysql wrapper, the documents have to be transformed into lists of rows
 		# if isinstance(self.engine, mysql_wrapper.DBWrapper):
 		# 	payload = []
