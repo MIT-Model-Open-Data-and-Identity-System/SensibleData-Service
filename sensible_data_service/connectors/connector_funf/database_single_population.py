@@ -1,4 +1,4 @@
-from utils import database
+#from utils import database
 import os
 import fnmatch
 import random
@@ -23,10 +23,9 @@ import traceback
 import time
 from accounts.models import UserRole
 from sensible_audit import audit
-
+from utils import db_wrapper
 myConnector = connectors.connectors_config.CONNECTORS['ConnectorFunf']['config']
-
-db = database.Database()
+db = db_wrapper.DatabaseHelper()
 
 valid_tokens = {};
 
@@ -104,9 +103,9 @@ def load_file(filename):
 			# get the meta data from db file
 			meta = {}
 			(meta['device'], meta['uuid'], meta['device_id'], meta['sensible_token'], meta['device_bt_mac'], meta['timestamp']) = cursor.execute('select device, uuid, device_id, sensible_token, device_bt_mac, created from file_info').fetchone()
-			
+
 			meta['user'] = None
-			try: 
+			try:
 				(user, token) = get_user_name(meta['sensible_token'], meta['device_id'], meta['timestamp'])
 				meta['user'] = user.username
 				meta['sensible_token'] = token

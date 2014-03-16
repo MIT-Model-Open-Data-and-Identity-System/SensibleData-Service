@@ -7,6 +7,7 @@ from anonymizer.anonymizer import Anonymizer
 from backup import backup
 from accounts.models import UserRole
 from sensible_audit import audit
+from utils import db_wrapper
 
 db = None
 anonymizer = None
@@ -86,5 +87,6 @@ def saveData(data, resource, user, facebook_id):
 	doc['facebook_id'] = facebook_id
 	doc['timestamp'] = int(time.time())
 	backup.backupValue(data=doc, probe='dk_dtu_compute_facebook_'+resource, user=user.username)
-	doc_id = db.insert(doc, collection=probe, roles=roles)
+	database_helper = db_wrapper.DatabaseHelper()
+	doc_id = database_helper.insert(doc, collection=probe, roles=roles)
 	print doc_id

@@ -18,6 +18,7 @@ ROOT_DIR = LOCAL_SETTINGS.ROOT_DIR
 ROOT_URL = LOCAL_SETTINGS.ROOT_URL
 BASE_URL = LOCAL_SETTINGS.BASE_URL
 DATA_DATABASE = LOCAL_SETTINGS.DATA_DATABASE
+DATA_DATABASE_SQL = LOCAL_SETTINGS.DATA_DATABASE_SQL
 AUDIT_DATABASE = LOCAL_SETTINGS.AUDIT_DATABASE
 DATA_BASE_DIR = LOCAL_SETTINGS.DATA_BASE_DIR
 DATA_LOG_DIR = LOCAL_SETTINGS.DATA_LOG_DIR
@@ -49,7 +50,8 @@ def failure_handler_function(request, message, status=None, template_name=None, 
 	registration = request.REQUEST.get('registration', False)
 	next = request.REQUEST.get('next', '')
 	if registration: return redirect(next)
-	return redirect('openid_failed')
+	#return redirect('openid_failed')
+    	return HttpResponse(message)
 
 OPENID_RENDER_FAILURE = failure_handler_function
 
@@ -187,6 +189,8 @@ INSTALLED_APPS = (
 	'djcelery',
 	'questions',
 	'sensible_audit',
+	'db_access',
+	'django_nose',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -233,3 +237,5 @@ import djcelery.schedulers
 djcelery.setup_loader()
 
 CELERYBEAT_SCHEDULER = djcelery.schedulers.DatabaseScheduler
+
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
