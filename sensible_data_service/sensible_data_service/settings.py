@@ -50,8 +50,7 @@ def failure_handler_function(request, message, status=None, template_name=None, 
 	registration = request.REQUEST.get('registration', False)
 	next = request.REQUEST.get('next', '')
 	if registration: return redirect(next)
-	#return redirect('openid_failed')
-    	return HttpResponse(message)
+	return redirect('openid_failed')
 
 OPENID_RENDER_FAILURE = failure_handler_function
 
@@ -190,7 +189,7 @@ INSTALLED_APPS = (
 	'questions',
 	'sensible_audit',
 	'db_access',
-	'django_nose',
+	'django-nose',
 )
 
 # A sample logging configuration. The only tangible logging
