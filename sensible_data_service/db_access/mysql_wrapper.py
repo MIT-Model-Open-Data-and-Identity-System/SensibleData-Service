@@ -1,10 +1,12 @@
 import hashlib
+from operator import itemgetter
 import MySQLdb as mdb
 #import SECURE_settings
 import time
 from django.conf import settings
 from utils import SECURE_settings
 from sensible_audit import audit
+import json
 
 class DBWrapper:
 
@@ -46,10 +48,39 @@ class DBWrapper:
 	def insert(self, rows, probe, user_role=None):
 		connection = self.get_write_db_connection_for_probe(probe)
 		table_name = self.__get_table_name(user_role, probe)
+		row_max_len, row = max([(len(row.keys()), row) for row in rows], key=itemgetter(0))
+
+		insert_query = self.__get_insert_query(table_name, row.keys())
+
+		values_to_insert = self.__get_values_to_insert(rows, row.keys())
+		cursor = connection.cursor()
+		cursor.executemany(insert_query, values_to_insert)
+		connection.commit()
+	
+	#Notice the small (as in non-capital) letters used for
+	#the query. The query is much slower with capital letters
+	#for some very weird reason. 
+	def __get_insert_query(self, table_name, keys):
+		query = 'insert ignore into ' + table_name + " ("
+		query += ','.join(keys)
+		query += ") values("
+		query += ','.join(["%s" for x in keys])
+		query += ')'
+
+		return query
+
+	def __get_values_to_insert(self, rows, keys):
+		insert_values = []
 		for row in rows:
 			if not row: continue
-			self.insert_row(row, table_name, connection)
-		connection.commit()
+			if type(row['timestamp']) in [float, int]:
+				row['timestamp'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(row['timestamp']))
+			if 'timestamp_added' in row and not type(row['timestamp_added']) == str:
+				row['timestamp_added'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(row['timestamp_added']))
+
+			insert_values.append(tuple([row.get(x) for x in keys]))
+
+		return insert_values
 
 	def __get_table_name(self, user_role, probe):
 		if user_role:
@@ -62,21 +93,6 @@ class DBWrapper:
 			return "device_inventory"
 
 		return "main"
-
-	def insert_row(self, row, table_name, connection):
-		if type(row['timestamp']) in [float, int]:
-			row['timestamp'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(row['timestamp']))
-		if 'timestamp_added' in row and not type(row['timestamp_added']) == str:
-			row['timestamp_added'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(row['timestamp_added']))
-
-		query = 'INSERT IGNORE INTO ' + table_name + " ("
-		query += ','.join(row.keys())
-		query += ") VALUES ("
-		query += ','.join(["%s" for x in row.keys()])
-		query += ')'
-
-		parameters = [row[x] for x in row.keys()]
-		self.execute_query_on_db(query, connection, parameters=parameters)
 
 	def execute_query_on_db(self, query, connection, parameters=None):
 		cursor = connection.cursor(mdb.cursors.DictCursor)
@@ -96,3 +112,4 @@ class DBWrapper:
 		parameters = [device_info_document[x] for x in device_info_document.keys()]
 		self.execute_query_on_db(query, connection, parameters=parameters)
 		connection.commit()
+
