@@ -10,6 +10,8 @@ import mimetypes
 from django.conf import settings
 from sensible_audit import audit
 
+log = audit.getLogger(__name__)
+
 from connectors.connector import connector
 import bson.json_util as json
 
@@ -32,13 +34,13 @@ myConnector = connectors.connectors_config.CONNECTORS['ConnectorFunf']['config']
 
 @csrf_exempt
 def rescue(request):
-	audit.Audit().e('phone_rescue','call_home',doc={'message': 'Rescue ' + request.POST['imei'] + ' @ ' + request.POST['lat'] + ',' + request.POST['lon'] + ' ~' + request.POST['acc'] + ' on ' + request.POST['timestamp'] + ' from ' + request.POST['provider'] + ' due to ' + request.POST['action']})
+	log.error({'tag': 'call_home', 'message': 'Rescue ' + request.POST['imei'] + ' @ ' + request.POST['lat'] + ',' + request.POST['lon'] + ' ~' + request.POST['acc'] + ' on ' + request.POST['timestamp'] + ' from ' + request.POST['provider'] + ' due to ' + request.POST['action']})
 	return HttpResponse('got it','text/javascript', status=200)
 
 @csrf_exempt
 def upload(request):
 	random.seed(time.time())
-	audit.Audit().d('connector_funf', 'post', {'message': 'Received POST'})
+	log.debug({'tag': 'post', 'message': 'Received POST'})
 	scope = 'all_probes'
 
 
@@ -69,7 +71,7 @@ def upload(request):
 					
 					return HttpResponse(json.dumps({'ok':'success'}))
 			else:
-				audit.Audit().e('connector_funf', 'upload_fail', {})
+				log.error({'tag': 'upload_fail'})
 		except KeyError as e:
 			pass
 	# bad request

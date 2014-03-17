@@ -1,4 +1,4 @@
 sensible_audit
 ==============
 
-This module is responsible for saving and exposing audit information. The data can be saved to database andor file.
+This module is responsible for providing a custom formatter for audit information and for exposing it. The data would be normally saved into a database.

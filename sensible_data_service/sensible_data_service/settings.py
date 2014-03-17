@@ -27,6 +27,7 @@ DATABASES = LOCAL_SETTINGS.DATABASES
 PLATFORM = LOCAL_SETTINGS.PLATFORM
 CONNECTORS = LOCAL_SETTINGS.CONNECTORS
 SERVICE_NAME = LOCAL_SETTINGS.SERVICE_NAME
+LOGGING = LOCAL_SETTINGS.LOGGING
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = LOCAL_SETTINGS.SECRET_KEY
@@ -207,6 +208,13 @@ LOGGING = {
         }
     },
     'handlers': {
+        'fluentd': {
+            'level': 'DEBUG',
+            'class': 'fluent.handler.FluentHandler',
+            'tag': 'mongo.django',
+            'host': LOGGING['host'],
+            'port': LOGGING['port']
+        },
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
@@ -217,6 +225,11 @@ LOGGING = {
         'django.request': {
             'handlers': ['mail_admins'],
             'level': 'ERROR',
+            'propagate': True,
+        },
+        'sensible': {
+            'handlers': ['fluentd'],
+            'level': 'DEBUG',
             'propagate': True,
         },
     }

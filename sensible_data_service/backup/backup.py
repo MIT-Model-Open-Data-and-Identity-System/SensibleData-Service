@@ -7,6 +7,8 @@ import shutil
 import pdb
 from sensible_audit import audit
 
+log = audit.getLogger(__name__)
+
 def backupValue(data, probe, user):
 	probeFolder = getProbeFolder(probe)
 	index = ''
@@ -28,7 +30,7 @@ def backupValue(data, probe, user):
 def backupFile(filename, probe):
 	probeFolder = getProbeFolder(probe)
 	if 'error' in probeFolder:
-		audit.Audit().e('backup','probe_folder_fail',{"message": str(probeFolder)})
+		log.error({'error': 'probe_folder_fail', 'message': str(probeFolder)})
 		return False
 	index = ''
 	try:

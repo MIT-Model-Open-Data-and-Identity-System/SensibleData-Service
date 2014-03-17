@@ -9,6 +9,9 @@ import re
 import urllib
 import time
 from connector_utils import *
+from sensible_audit import audit
+
+log = audit.getLogger(__name__)
 
 def user(request):
 	decrypted = booleanize(request.REQUEST.get('decrypted', False))
@@ -16,11 +19,12 @@ def user(request):
 	auth = authorization_manager.authenticate_token(request)
 
 	if 'error' in auth:
+		log.error(audit.message(request, auth))
 		return HttpResponse(json.dumps(auth), status=401)
 	
 	auth_scopes = set([x for x in auth['scope']])
-
 	if len(accepted_scopes & auth_scopes) == 0:
+		log.error(audit.message(request, {'error':'token not authorized for any accepted scope %s'%str(list(accepted_scopes))}))
 		return HttpResponse(json.dumps({'error':'token not authorized for any accepted scope %s'%str(list(accepted_scopes))}), status=401)
 
 	is_researcher = False
@@ -34,7 +38,7 @@ def user(request):
 
 	own_data = False
 	if len(users_to_return) == 1 and users_to_return[0] == auth['user'].username: own_data = True
-
+	
 	return userBuild(request, users_to_return, decrypted = decrypted, own_data = own_data, roles = roles)
 
 def buildUsersToReturn(auth_user, request, is_researcher = False):
@@ -74,7 +78,9 @@ def userBuild(request, users_to_return, decrypted = False, own_data = False, rol
 		pass
 
 	if pretty:
+		log.info(audit.message(request, response['meta']))
 		return render_to_response('pretty_json.html', {'response': json.dumps(response, indent=2)})
 	else:
+		log.info(audit.message(request, response['meta']))
 		return HttpResponse(json.dumps(response), content_type="application/json", status=response['meta']['status']['code'])
 	return HttpResponse('hello decrypted')
