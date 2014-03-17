@@ -189,7 +189,7 @@ INSTALLED_APPS = (
 	'questions',
 	'sensible_audit',
 	'db_access',
-	'django-nose',
+	'django_nose',
 )
 
 # A sample logging configuration. The only tangible logging
