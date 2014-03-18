@@ -10,6 +10,7 @@ from sensible_audit import audit
 class DatabaseHelper:
 
 	def __init__(self, engine = 'mysql'):
+		self.log = audit.getLogger(__name__)
 		if engine == 'mysql':
 			self.engine = mysql_wrapper.DBWrapper()
 		elif engine == 'mongo':
@@ -30,7 +31,7 @@ class DatabaseHelper:
 			try:
 				self.engine.insert(payload, probe, roles)
 			except Exception, e: 
-				audit.Audit().e("MySQL", "insert", {"exception": str(e)})
+				self.log.e({'type': 'MYSQL', 'tag': 'insert', 'exception': str(e)})
 		
 		#Mongo
 		#TODO REMOVE WHEN MYSQL MIGRATION IS COMPLETE

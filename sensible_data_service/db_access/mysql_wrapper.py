@@ -10,6 +10,9 @@ import json
 
 class DBWrapper:
 
+	def __init__(self):
+		self.log = audit.getLogger(__name__)
+
 	def get_read_db_connection_for_probe(self, probe):
 		return self.get_db_connection_for_probe(probe, True)
 
@@ -41,7 +44,7 @@ class DBWrapper:
 		try:
 			connection = mdb.connect(hostname, username, password, database_name, ssl=ssl, charset="utf8", use_unicode=True)
 		except mdb.Error, e:
-			audit.Audit().e("MySQL", "connect", {"exception": str(e)})
+			self.log.e({'type': 'MYSQL', 'tag': 'connect', 'exception': str(e)})
 
 		return connection
 
