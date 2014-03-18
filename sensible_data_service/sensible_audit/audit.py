@@ -30,6 +30,31 @@ def message(request, data={}, results=[]):
 
 log = getLogger(__name__)
 
+def accesses(request):
+    """
+        Queries the database and returns aggregated accesses by researcher.
+    """
+
+    # authenticate token
+    auth = authorization_manager.authenticate_token(request)
+
+    if 'error' in auth: 
+        return response_error(request, auth)
+
+    # read accesses from database
+    db = database.AuditDB()
+    accesses = db.get_accesses_by_researcher(request.user.username)
+
+    # build response
+    context = {'accesses': accesses}
+    return HttpResponse(json.dumps(accesses))
+
+def response_error(request, auth):
+    response = {'meta': {'status': 'error', 'code': 401, 'desc': auth['error']}}
+    log.error(message(request, response))
+    return HttpResponse(json.dumps(response), status=401, content_type='application/json')
+
+
 def dashboard(request):
 	# authenticate token
 	auth = authorization_manager.authenticate_token(request)
@@ -46,7 +71,7 @@ def dashboard(request):
 	context = {'accesses': accesses, 'bearer_token': request.REQUEST.get('bearer_token')}
 	return render(request, 'sensible_audit/audit.html', context)
 
-def accesses(request):
+def accesses2(request):
     """
      Shows information about who has access the user's data.
     """

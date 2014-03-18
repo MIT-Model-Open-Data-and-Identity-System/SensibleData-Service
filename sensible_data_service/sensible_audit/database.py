@@ -1,4 +1,5 @@
 from pymongo import MongoClient
+from bson.code import Code
 import SECURE_settings
 
 
@@ -22,6 +23,17 @@ class AuditDB:
         self.database = self.client[self.database_name]
         self.authenticated = self.database.authenticate(self.username, self.password)
         self.collection = self.database[self.collection_name]
+
+
+    def get_accesses_by_researcher(self, username):
+        query = {}
+        query['key'] = {'user': 1, 'sys_module': 1}
+        query['cond'] = {'results': {'$in': [username]}}
+        query['reduce'] = Code("""function (curr, res) {}""")
+        query['initial'] = {}
+
+        return self.collection.group(key=query['key'], condition=query['cond'], 
+            initial=query['initial'], reduce=query['reduce'])
 
     def get_accesses(self, username):
         query = {}
