@@ -1,17 +1,16 @@
 from pymongo import MongoClient
-from bson.code import Code
-import SECURE_settings
+from sensible_data_service.sensible_data_service import LOCAL_SETTINGS
 
 
 class AuditDB:
 
     def __init__(self, **options):
-        self.database_name = SECURE_settings.AUDIT_DATABASE['DATABASE']
-        self.host = SECURE_settings.AUDIT_DATABASE['HOST']
-        self.port = SECURE_settings.AUDIT_DATABASE['PORT']
-        self.username = SECURE_settings.AUDIT_DATABASE['USERNAME']
-        self.password = SECURE_settings.AUDIT_DATABASE['PASSWORD']
-        self.collection_name = SECURE_settings.AUDIT_DATABASE['COLLECTION']
+        self.database_name = LOCAL_SETTINGS.AUDIT_DATABASE['DATABASE']
+        self.host = LOCAL_SETTINGS.AUDIT_DATABASE['HOST']
+        self.port = LOCAL_SETTINGS.AUDIT_DATABASE['PORT']
+        self.username = LOCAL_SETTINGS.AUDIT_DATABASE['USERNAME']
+        self.password = LOCAL_SETTINGS.AUDIT_DATABASE['PASSWORD']
+        self.collection_name = LOCAL_SETTINGS.AUDIT_DATABASE['COLLECTION']
         self.options = options
         self._connect()
 
@@ -23,17 +22,6 @@ class AuditDB:
         self.database = self.client[self.database_name]
         self.authenticated = self.database.authenticate(self.username, self.password)
         self.collection = self.database[self.collection_name]
-
-
-    def get_accesses_by_researcher(self, username):
-        query = {}
-        query['key'] = {'user': 1, 'sys_module': 1}
-        query['cond'] = {'results': {'$in': [username]}}
-        query['reduce'] = Code("""function (curr, res) {}""")
-        query['initial'] = {}
-
-        return self.collection.group(key=query['key'], condition=query['cond'], 
-            initial=query['initial'], reduce=query['reduce'])
 
     def get_accesses(self, username):
         query = {}

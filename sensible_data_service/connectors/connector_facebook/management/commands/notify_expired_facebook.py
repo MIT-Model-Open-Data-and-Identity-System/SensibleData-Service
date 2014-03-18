@@ -15,6 +15,7 @@ class Command(NoArgsCommand):
 		authorizations = Authorization.objects.filter(application=Application.objects.get(connector_type='facebook_in'))
 		db = database.Database()
 		inventory = list()
+		MIN_SENSIBLE_VERSION = 'v0.3.2.3'
 		for a in authorizations:
 			user = a.user
 			expires_at = json.loads(a.payload)['expires_at']
@@ -27,17 +28,17 @@ class Command(NoArgsCommand):
 			if expired:
 				#TODO: base this on connetor_type
 				gcm_registrations = GcmRegistration.objects.filter(user=user, application=Application.objects.get(name='Phone Data Collector'))
-				if len(gcm_registrations) == 0: continue
-				if len(gcm_registrations) > 1:
-					for gr in gcm_registrations:
-						for d in list(db.getDocuments(query={'device_id':gr.device.device_id}, collection='device_inventory')):
-							if d['end'] > now and d['user'] == user.username:
-								self.sendNotification(gr.gcm_id, user)
+				for gr in gcm_registrations:
+					for d in list(db.getDocuments(query={'device_id':gr.device.device_id}, collection='device_inventory')):
+						try: sensible_version = d['sensible_version']
+						except KeyError: continue
+						print sensible_version
+						if d['end'] > now and d['user'] == user.username and sensible_version >= MIN_SENSIBLE_VERSION:
+							self.sendNotification(gr.gcm_id, user)
 
-				if len(gcm_registrations) == 1: self.sendNotification(gcm_registrations[0].gcm_id, user)
 
 
 	def sendNotification(self, gcm_id, user):
-		print "sending to", gcm_id, user.username
 		url = auth.buildInboundAuthUrl()
-		#print gcm_server.sendNotification(gcm_id, {'header': 'Facebook registration', 'text':'Please renew your Facebook SensibleDTU registration by clicking this notification.', 'url': url['url'], 'type':'url'}, '')
+		print "sending to", gcm_id, user, url
+		print gcm_server.sendNotification(gcm_id, {'title': 'Facebook registration', 'message':'Please renew your Facebook SensibleDTU registration by clicking this notification.', 'url': url['url'], 'type':'url'}, '')

@@ -8,6 +8,8 @@ from accounts.models import UserRole
 from backup import backup
 import time
 from django.utils.http import urlunquote
+import pymongo
+from utils import db_wrapper
 
 def upload(request):
 
@@ -29,8 +31,9 @@ def upload(request):
 
 	backup.backupValue(data=doc, probe=probe, user=user.username)
 
-	database = Database()
-	doc_id = database.insert(doc, collection=probe, roles=roles)
+	database_helper = db_wrapper.DatabaseHelper()
+	try: doc_id = database_helper.insert(doc, collection=probe, roles=roles)
+	except pymongo.errors.DuplicateKeyError: doc_id = '00'
 
 	return HttpResponse(json.dumps({'ok':str(doc_id)}), status=200)
 

@@ -14,7 +14,9 @@ class Command(NoArgsCommand):
 		print len(authorizations)
 		devices = defaultdict(lambda: defaultdict(str))
 		for a in authorizations:
-			devices[a.device.device_id][a.activated_at] = a.user.username
+			try: devices[a.device.device_id][a.activated_at] = a.user.username
+			except: print a.device, a.user.username
+
 
 		mapping = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: 9999999999999)))
 		for d in devices:
@@ -39,8 +41,17 @@ class Command(NoArgsCommand):
 		for device_id in mapping:
 			for u in mapping[device_id]:
 				a_device_id = anonymizerObject.anonymizeValue('device_id', device_id)
-				try: hardware_info = db.getDocuments(query={'device_id':a_device_id}, collection='edu_mit_media_funf_probe_builtin_HardwareInfoProbe')[0]
-				except: continue
+				hardware_info = None
+				try: 
+#					hardware_info = db.getDocuments(query={'device_id':a_device_id}, collection='edu_mit_media_funf_probe_builtin_HardwareInfoProbe')[0]
+					for v in db.getDocuments(query={'device_id':a_device_id}, collection='edu_mit_media_funf_probe_builtin_HardwareInfoProbe').sort('timestamp', -1):
+						if v['timestamp_added'] < v['timestamp']: continue
+						hardware_info = v
+						break
+
+				except: 
+					continue
+				if not hardware_info: continue
 				doc = {}
 				doc['_id'] = a_device_id + '_' + u
 				doc['device_id'] = device_id
@@ -51,6 +62,8 @@ class Command(NoArgsCommand):
 				doc['bt_mac'] = hardware_info['device_bt_mac']
 				doc['a_bt_mac'] = hardware_info['data']['BLUETOOTH_MAC']
 				doc['a_wifi_mac'] = hardware_info['data']['WIFI_MAC']
+				doc['sensible_version'] = hardware_info['uuid'].split('-')[-2]
+				doc['funf_version'] = hardware_info['uuid'].split('-')[-1]
 
 				collection = 'device_inventory'
 				(db.getDatabase(collection))[collection].update(spec={'_id':doc['_id']}, document=doc, upsert=True)

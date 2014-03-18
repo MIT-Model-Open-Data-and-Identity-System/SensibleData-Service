@@ -1,4 +1,4 @@
-from utils import database
+#from utils import database
 import os
 import fnmatch
 import random
@@ -23,17 +23,20 @@ import traceback
 import time
 from accounts.models import UserRole
 from sensible_audit import audit
-
+from utils import db_wrapper
 log = audit.getLogger(__name__)
 
 myConnector = connectors.connectors_config.CONNECTORS['ConnectorFunf']['config']
-
-db = database.Database()
+db = db_wrapper.DatabaseHelper()
 
 valid_tokens = {};
 
 def populate(documents_to_insert):
 	inserted_counter = 0
+#	for probe in documents_to_insert:
+#		for role in documents_to_insert[probe]:
+#			for doc in documents_to_insert[probe][role]:
+#				print json.dumps({'probe': probe, 'role': role, 'doc':doc})
 	for probe in documents_to_insert:
 		for role in documents_to_insert[probe]:
 			population_start = time.time()	
@@ -54,19 +57,21 @@ def load_files(directory_to_load=myConnector['decrypted_path']):
 	jj = 0 
 	documents_to_insert = defaultdict(lambda: defaultdict(list))
 	for f in raw_filenames:
-		#try:
-		current_documents_to_insert, current_roles = load_file(f)
-		if current_documents_to_insert == 0: 
-			continue
-		jj += 1
-		for probe in current_documents_to_insert:
-			documents_to_insert[probe]['@'.join(current_roles)] += current_documents_to_insert[probe]
+		try:
+			current_documents_to_insert, current_roles = load_file(f)
+			if current_documents_to_insert == 0: 
+				continue
+			jj += 1
+			for probe in current_documents_to_insert:
+				documents_to_insert[probe]['@'.join(current_roles)] += current_documents_to_insert[probe]
 		
-		if jj == 20:
-			jj = 0
-			populate(documents_to_insert)
-			documents_to_insert = defaultdict(lambda: defaultdict(list))
-		#except: pass
+			#print jj
+			if jj == 20:
+				jj = 0
+				populate(documents_to_insert)
+				documents_to_insert = defaultdict(lambda: defaultdict(list))
+			#break
+		except: pass
 
 	populate(documents_to_insert)
 
@@ -100,9 +105,9 @@ def load_file(filename):
 			# get the meta data from db file
 			meta = {}
 			(meta['device'], meta['uuid'], meta['device_id'], meta['sensible_token'], meta['device_bt_mac'], meta['timestamp']) = cursor.execute('select device, uuid, device_id, sensible_token, device_bt_mac, created from file_info').fetchone()
-			
+
 			meta['user'] = None
-			try: 
+			try:
 				(user, token) = get_user_name(meta['sensible_token'], meta['device_id'], meta['timestamp'])
 				meta['user'] = user.username
 				meta['sensible_token'] = token
@@ -137,7 +142,7 @@ def load_file(filename):
 			os.remove(current_filepath);
 			
 		except Exception as e:
-			log.error({'error':str(e)})
+			log.error({'message': 'population_error', 'error':str(e)})
 			if not 'already exists' in str(e):
 				top = traceback.extract_stack()[-1]
 				fail.fail(current_filepath, load_failed_path, 'Exception with file: ' + filename\
@@ -171,7 +176,7 @@ def row_to_doc(row, user, anonymizerObject):
 		else:
 			return None
 	except Exception as e:
-		log.error({'error': str(e), 'data': data})
+		log.error({'message': 'population_error', 'error': str(e), 'data': data})
 		return None
 		
 		

@@ -10,7 +10,10 @@ from django.conf import settings
 from django.contrib.sessions.models import Session
 from django.contrib.auth.models import User
 from datetime import datetime
+from nose.tools import nottest
 
+
+@nottest
 @staff_member_required
 def testing(request):
 	values = {}
@@ -23,6 +26,7 @@ def testing(request):
 
 	return render_to_response("test.html", values, context_instance=RequestContext(request))
 
+@nottest
 @login_required
 def testing2(request):
 	return HttpResponse(json.dumps(request.user.username))
