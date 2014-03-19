@@ -30,6 +30,10 @@ def facebook_feed_to_csv(json_obj):
 	return facebook_to_csv(json_obj, fields, 'feed')
 
 
+def facebook_friendrequests_to_csv(json_obj):
+        fields = ['data', 'facebook_id', 'timestamp', 'user']
+        return facebook_to_csv(json_obj, fields, 'friendrequests')
+
 def facebook_friendlists_to_csv(json_obj):
 	fields = ['data', 'facebook_id', 'timestamp', 'user']
 	return facebook_to_csv(json_obj, fields, 'friendlists')
@@ -116,6 +120,7 @@ def facebook_doc_to_csv(json_obj, collection):
 	if mtype == 'interests': return facebook_interests_to_csv(json_obj)
 	if mtype == 'hometown': return facebook_hometown_to_csv(json_obj)
 	if mtype == 'groups': return facebook_groups_to_csv(json_obj)
+	if mtype == 'friendrequests': return facebook_friendrequests_to_csv(json_obj)
 	if mtype == 'friends': return facebook_friends_to_csv(json_obj)
 	if mtype == 'friendlists': return facebook_friendlists_to_csv(json_obj)
 	if mtype == 'feed': return facebook_feed_to_csv(json_obj)
