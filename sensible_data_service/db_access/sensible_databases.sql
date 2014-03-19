@@ -636,3 +636,47 @@ CREATE TABLE IF NOT EXISTS researcher (
     PRIMARY KEY (id),
     UNIQUE KEY compound_unique (form_version, response, variable_name, user)
 );
+
+CREATE DATABASE IF NOT EXISTS dk_dtu_compute_experience_sampling;
+USE dk_dtu_compute_experience_sampling;
+
+CREATE TABLE IF NOT EXISTS main (
+    id INT NOT NULL AUTO_INCREMENT,
+    timestamp DATETIME,
+    device_id VARCHAR(40),
+    sensible_token VARCHAR(64),
+    timestamp_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    user VARCHAR(64) not null,
+    uuid VARCHAR(64),
+    answer LONGBLOB,
+    answer_type VARCHAR(20),
+    question_type VARCHAR(20)
+    PRIMARY KEY (id)
+);
+CREATE TABLE IF NOT EXISTS developer (
+    id INT NOT NULL AUTO_INCREMENT,
+    timestamp DATETIME,
+    device_id VARCHAR(40),
+    sensible_token VARCHAR(64),
+    timestamp_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    user VARCHAR(64) not null,
+    uuid VARCHAR(64),
+    answer LONGBLOB,
+    answer_type VARCHAR(20),
+    question_type VARCHAR(20)
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS researcher (
+    id INT NOT NULL AUTO_INCREMENT,
+    timestamp DATETIME,
+    device_id VARCHAR(40),
+    sensible_token VARCHAR(64),
+    timestamp_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    user VARCHAR(64) not null,
+    uuid VARCHAR(64),
+    answer LONGBLOB,
+    answer_type VARCHAR(20),
+    question_type VARCHAR(20)
+    PRIMARY KEY (id)
+);

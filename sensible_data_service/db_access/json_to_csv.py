@@ -13,7 +13,7 @@ def json_to_csv(json_obj, probe):
 	if 'questionnaire' in probe:
 		return questionnaire_to_csv(json_obj)
 	raise ValueError(probe + ' is not a valid probe name')	
-	
+
 
 def facebook_birthday_to_csv(json_obj):
 	fields = ['data', 'facebook_id', 'timestamp', 'user']
@@ -47,7 +47,6 @@ def facebook_friends_to_csv(json_obj):
 def facebook_groups_to_csv(json_obj):
 	fields = ['data', 'facebook_id', 'timestamp', 'user']
 	return facebook_to_csv(json_obj, fields, 'groups')
-
 
 def facebook_hometown_to_csv(json_obj):
 	fields = ['data', 'facebook_id', 'timestamp', 'user']
@@ -139,6 +138,7 @@ def funf_to_csv(json_obj, probe):
 	if probe == 'edu_mit_media_funf_probe_builtin_SMSProbe': return funf_sms_to_csv(json_obj)
 	if probe == 'edu_mit_media_funf_probe_builtin_TimeOffsetProbe': return funf_timeoffset_to_csv(json_obj)
 	if probe == 'edu_mit_media_funf_probe_builtin_WifiProbe': return funf_wifi_to_csv(json_obj)
+	if probe == 'edu_mit_media_funf_probe_builtin_ExperienceSamplingProbe': return funf_experience_sampling_to_csv(json_obj)
 
 
 def funf_metadata(json_obj):
@@ -149,6 +149,21 @@ def funf_metadata(json_obj):
 	metadata['user'] = json_obj['user']
 	metadata['uuid'] = json_obj['uuid']
 	return metadata
+
+def funf_experience_sampling_to_csv(json_obj):
+	rows = []
+	metadata = funf_metadata(json_obj)
+
+	row = {}
+	for key in metadata: row[key] = metadata[key]
+	row['question_type'] = json_obj['data'].get('question_type')
+	row['answer_type'] = json_obj['data'].get('answer_type')
+	row['timestamp'] = json_obj['data'].get('timestamp')
+	row['answer'] = base64.b64encode(json_obj['data'].get('answer'))
+	rows.append(row)
+
+	return rows
+
 
 
 def funf_bluetooth_to_csv(json_obj):
