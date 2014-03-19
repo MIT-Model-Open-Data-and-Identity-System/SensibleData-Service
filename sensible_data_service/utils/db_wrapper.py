@@ -25,9 +25,9 @@ class DatabaseHelper:
 		#MySQL
 		if isinstance(self.engine, mysql_wrapper.DBWrapper):
 			payload = []
-			for document in documents:
-				payload += json_to_csv.json_to_csv(document, probe)
 			try:
+				for document in documents:
+					payload += json_to_csv.json_to_csv(document, probe)
 				self.engine.insert(payload, probe, roles)
 			except Exception, e: 
 				audit.Audit().e("MySQL", "insert", {"exception": str(e)})
