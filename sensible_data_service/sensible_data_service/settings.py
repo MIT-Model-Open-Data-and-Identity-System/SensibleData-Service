@@ -208,8 +208,12 @@ LOGGING = {
         }
     },
     'handlers': {
+	'null': {
+                'level': 'DEBUG',
+                'class': 'logging.NullHandler',
+        },
 	'fluentd': {
-		'level': 'INFO',
+		'level': 'DEBUG',
 		'class': 'fluent.handler.FluentHandler',
 		'tag': 'mongo.django',
 		'host': LOGGING['host'],
@@ -222,14 +226,19 @@ LOGGING = {
         }
     },
     'loggers': {
+	'null': {
+            'handlers': ['null'],
+            'propagate': True,
+            'level': 'INFO',
+        },
         'django.request': {
             'handlers': ['mail_admins'],
             'level': 'ERROR',
             'propagate': True,
         },
-	'sensible.connectors.connector_raw.phone_data': {
+	'sensible': {
 		'handlers': ['fluentd'],
-		'level': 'INFO',
+		'level': 'DEBUG',
 		'propagate': True,
 	},
     }
