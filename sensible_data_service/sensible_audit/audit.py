@@ -1,40 +1,29 @@
+from django.http import HttpResponse
+from django.shortcuts import render
+from django.conf import settings
+from authorization_manager import authorization_manager
 import bson.json_util as json
-import time
-
-import log
 import database
-import conf
+import logging
 
-class Audit:
-	db = None
+def getLogger(name):
+    logger = logging.getLogger('sensible.' + name)
+    return logger
 
-	def __init__(self):
-		pass
-	
-	def copyToFile(self, severity, type, doc):
-		doc['type']=type
-		log.log(severity,json.dumps(doc))
+def message(request, data={}, results=[]):
+    req = {}
+    
+    req['path'] = request.get_full_path()
+    req['method'] = request.method
+    req['remote_addr'] = request.META.get('REMOTE_ADDR')
+    #req['remote_host'] = request.META.get('REMOTE_HOST')
+    req['user_agent'] = request.META.get('HTTP_USER_AGENT')
 
-	def shouldCopyToFile(self, severity, type, tag, doc):
-		if severity=='ERROR': return True
-		else: return False	
-
-	def log(self, severity, type, tag, doc, onlyfile):
-		if onlyfile:
-			 self.copyToFile(severity, type, doc)
-		else:
-			self.db = database.Database()
-			doc['TIMESTAMP']= time.time()
-			doc['tag']= tag
-			doc['severity']= severity
-			self.db.insert(doc=doc, collection=type)
-			if self.shouldCopyToFile(severity, type, tag, doc): self.copyToFile(severity, type, doc)
-
-	def d(self, type, tag, doc, onlyfile=True):
-		self.log('DEBUG', type, tag, doc, onlyfile)
-		
-	def w(self, type, tag, doc, onlyfile=False):
-		self.log('WARNING', type, tag, doc, onlyfile)
-
-	def e(self, type, tag, doc, onlyfile=False):
-		self.log('ERROR', type, tag, doc, onlyfile)
+    if hasattr(request, 'user'): req['user'] = request.user.username
+    
+    if 'meta' in data and 'api_call' in data['meta']:
+        if data['meta']['api_call'] is not None and isinstance(data['meta']['api_call'], dict): req.update(data['meta']['api_call'])
+        if data['results'] is not None and isinstance(data['results'], list):
+            queries = [result['_id'] for result in data['results']]
+            req.update({'results': queries})    
+    return req

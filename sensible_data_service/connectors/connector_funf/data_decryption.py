@@ -10,11 +10,11 @@ from django.conf import settings
 from connectors.connector_funf.models import ConnectorFunf 
 import connectors.connector_funf.database_single_population as database_single_population
 import connectors.connectors_config
-from sensible_audit import audit
 import time
-
 import pdb
+from sensible_audit import audit
 
+log = audit.getLogger(__name__)
 myConnector = connectors.connectors_config.CONNECTORS['ConnectorFunf']['config']
 
 key = key_from_password(SECURE_settings.CONNECTORS['connector_funf']['db_pass']);
@@ -62,7 +62,7 @@ def decrypt_file(directory_to_decrypt, f):
 			# decrypt
 			decryption_start = time.time();
 			if decrypt_if_not_db_file(proc_filename, key, extension=None):
-				audit.Audit().d('connector_funf', 'decryption_time', {'dtime': time.time()-decryption_start})
+				log.debug({'dtime': time.time()-decryption_start})
 				decryption_success = True;
 				fail.safe_move(proc_filename, myConnector['decrypted_path'])
 				curr_filename = decrypted_filename
@@ -90,7 +90,7 @@ def decrypt_file(directory_to_decrypt, f):
 			if 'already exists' not in str(e):
 				fail.fail(curr_filename, myConnector['decryption_failed_path'], 'Exception thrown: ' + str(e) + '. While ' + action + ' file: ' + f)
 			else:
-				audit.Audit().e('connector_funf', 'decryption_error', {'error': str(e), 'action': str(action), 'file': str(f)})
+				log.error({'error': str(e), 'action': str(action), 'file': str(f)})
 		
 		except Exception as e1:
 			pass

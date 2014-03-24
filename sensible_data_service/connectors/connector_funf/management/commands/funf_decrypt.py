@@ -1,12 +1,13 @@
 from connectors.connector_funf.data_decryption import *
+from django.core.management.base import NoArgsCommand
 from sensible_audit import audit
 
-from django.core.management.base import NoArgsCommand
+log = audit.getLogger(__name__)
 
 class Command(NoArgsCommand):
 	def handle_noargs(self, **options):
 		try:
-			audit.Audit().d(type='connector_funf', tag='decryption', doc={'message': 'Running FUNF decryption script'})
+			log.debug({'message': 'Running FUNF decryption script'})
 			decrypt()
 		except Exception as e:
-			audit.Audit().e(type='connector_funf', tag='decryption', doc={'message': 'Exception thrown from FUNF decryption script: ' + str(e)})
+			log.debug({'message': 'Exception thrown from FUNF decryption script: ' + str(e)})

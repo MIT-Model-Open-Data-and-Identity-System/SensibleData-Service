@@ -27,6 +27,7 @@ DATABASES = LOCAL_SETTINGS.DATABASES
 PLATFORM = LOCAL_SETTINGS.PLATFORM
 CONNECTORS = LOCAL_SETTINGS.CONNECTORS
 SERVICE_NAME = LOCAL_SETTINGS.SERVICE_NAME
+LOGGING = LOCAL_SETTINGS.LOGGING
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = LOCAL_SETTINGS.SECRET_KEY
@@ -205,20 +206,46 @@ LOGGING = {
             '()': 'django.utils.log.RequireDebugFalse'
         }
     },
-    'handlers': {
-        'mail_admins': {
-            'level': 'ERROR',
-            'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler'
-        }
-    },
-    'loggers': {
-        'django.request': {
-            'handlers': ['mail_admins'],
-            'level': 'ERROR',
-            'propagate': True,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s|%(asctime)s|%(module)s| %(message)s'
         },
-    }
+    },
+    'handlers': {
+        'null': {
+            'level': 'DEBUG',
+            'class': 'logging.NullHandler',
+        },
+        'default': {
+            'level': 'INFO',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'when': 'midnight',
+            'interval': 1,
+            'backupCount': 0,
+            'filename': os.path.join(LOCAL_SETTINGS.DATA_LOG_DIR, 'log'),
+            'formatter': 'verbose',
+        },
+        'fluentd_audit': {
+            'level': 'INFO',
+            'class': 'fluent.handler.FluentHandler',
+            'tag': 'sensible.audit',
+            'host': LOGGING['host'],
+            'port': LOGGING['port']
+        },
+        'fluentd_log': {
+            'level': 'INFO',
+            'class': 'fluent.handler.FluentHandler',
+            'tag': 'sensible.log',
+            'host': LOGGING['host'],
+            'port': LOGGING['port']
+        },
+            'mail_admins': {
+                'level': 'ERROR',
+                'filters': ['require_debug_false'],
+                'class': 'django.utils.log.AdminEmailHandler'
+            }
+    },
+    'loggers': LOCAL_SETTINGS.LOGGING['loggers'],
 }
 
 CACHES = {

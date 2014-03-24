@@ -13,6 +13,9 @@ from connector_utils import *
 from anonymizer.anonymizer import Anonymizer
 from collections import OrderedDict
 from connectors.connector_funf import device_inventory
+from sensible_audit import audit
+
+log = audit.getLogger(__name__)
 
 def wifi(request):
 	return get_data(request, PHONE_DATA_SETTINGS['wifi'])
@@ -38,12 +41,14 @@ def get_data(request, probe_settings):
 
 	if 'error' in auth:
 		response = {'meta':{'status':{'status':'error','code':401,'desc':auth['error']}}}
+		log.error(audit.message(request, response))
 		return HttpResponse(json.dumps(response), status=401, content_type="application/json")
 
 	auth_scopes = set([x for x in auth['scope']])
 
 	if len(accepted_scopes & auth_scopes) == 0:
 		response = {'meta':{'status':{'status':'error','code':401,'desc':'token not authorized for any accepted scope %s'%str(list(accepted_scopes))}}}
+		log.error(audit.message(request, response))
 		return HttpResponse(json.dumps(response), status=401)
 	
 	if ('dummy' in request.REQUEST.keys()):
@@ -60,8 +65,6 @@ def get_data(request, probe_settings):
 
 	own_data = False
 	if len(users_to_return) == 1 and users_to_return[0] == auth['user'].username: own_data = True
-
-
 	return dataBuild(request, probe_settings, users_to_return, decrypted = decrypted, own_data = own_data, roles = roles)
 
 def dataBuild(request, probe_settings, users_to_return, decrypted = False, own_data = False, roles = []):
@@ -140,6 +143,7 @@ def dataBuild(request, probe_settings, users_to_return, decrypted = False, own_d
 
 	if len(callback) > 0:
 		data = '%s(%s);' % (callback, json.dumps(response))
+		log.info(audit.message(request, response))
 		return HttpResponse(data, content_type="text/javascript", status=response['meta']['status']['code'])
 
 	if decrypted:
@@ -151,14 +155,16 @@ def dataBuild(request, probe_settings, users_to_return, decrypted = False, own_d
 	#for data_users in users_results:
 	#	if data_users['user'] not in users_return:
 	#		users_return.append(data_users['user'])
-	
 	if proc_req['format'] == 'pretty':
+		log.info(audit.message(request, response))
 		return render_to_response('pretty_json.html', {'response': json.dumps(response, indent=2)})
         elif proc_req['format'] == 'csv':
 		output = '#' + json.dumps(response['meta'], indent=2).replace('\n','\n#') + '\n'
 		output += array_to_csv(results,probe_settings['collection'])
+		log.info(audit.message(request, response))
 		return HttpResponse(output, content_type="text/plain", status=response['meta']['status']['code'])
 	else:
+		log.info(audit.message(request, response))
 		return HttpResponse(json.dumps(response), content_type="application/json", status=response['meta']['status']['code'])
 	return HttpResponse('hello decrypted')
 

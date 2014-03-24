@@ -4,6 +4,8 @@ import subprocess
 
 from django.core.management.base import NoArgsCommand
 
+log = audit.getLogger(__name__)
+
 class Command(NoArgsCommand):
 	def handle_noargs(self, **options):
 		try:
@@ -14,8 +16,8 @@ class Command(NoArgsCommand):
 
 			if n >= 10: return
 
-
-			audit.Audit().d(type='connector_funf', tag='population', doc={'message': 'Running database population script'})
+			log.debug({'message': 'Running database population script'})
 			load_files()
 		except Exception as e:
-			audit.Audit().e(type='connector_funf', tag='population', doc={'message': 'Exception thrown from database population script: ' + str(e)})
+			log.error({'message': 'Exception thrown from database population script: ' + str(e)})
+

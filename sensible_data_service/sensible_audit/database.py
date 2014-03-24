@@ -1,44 +1,33 @@
 from pymongo import MongoClient
+from sensible_data_service import LOCAL_SETTINGS
 from utils import SECURE_settings
-from django.conf import settings
 
-class Database:
-	client = None
-	db = None
+class AuditDB:
 
-	def __init__(self):
-		self.initDB()
+    def __init__(self, **options):
+        self.database_name = LOCAL_SETTINGS.AUDIT_DATABASE['DATABASE']
+        self.host = LOCAL_SETTINGS.AUDIT_DATABASE['HOST']
+        self.port = LOCAL_SETTINGS.AUDIT_DATABASE['PORT']
+        self.username = SECURE_settings.AUDIT_DATABASE['USERNAME']
+        self.password = SECURE_settings.AUDIT_DATABASE['PASSWORD']
+        self.collection_name = LOCAL_SETTINGS.AUDIT_DATABASE['COLLECTION']
+        self.options = options
+        self._connect()
 
+    def _connect(self):
+        """
+            Establishes a connection to the database.
+        """
+        self.client = MongoClient('mongodb://%s:%s' % (self.host, self.port))
+        self.database = self.client[self.database_name]
+        self.authenticated = self.database.authenticate(self.username, self.password)
+        self.collection = self.database[self.collection_name]
 
-	def initDB(self):
-		if self.client and self.db: return
+    def get_accesses(self, username):
+        query = {}
 
-		try: self.is_replica_set = settings.AUDIT_DATABASE['is_replica_set']
-		except KeyError: self.is_replica_set = False
+        # when researchers have accessed a user in particular or all of them
+        query['users'] = {'$in': [username, 'all']}
 
-		try: self.replica_set = settings.AUDIT_DATABASE['replica_set']
-		except KeyError: self.replica_set = ""
+        return self.collection.find(query)
 
-		try: self.ssl = settings.AUDIT_DATABASE['ssl']
-		except KeyError: self.ssl = False
-
-		try: self.allow_secondary_reads = settings.AUDIT_DATABASE['allow_secondary_reads']
-		except KeyError: self.allow_secondary_reads = False
-
-		self.nodes = settings.AUDIT_DATABASE['nodes']
-		self.database = settings.AUDIT_DATABASE['database']
-
-		if self.is_replica_set:
-			self.client = MongoReplicaSetClient('mongodb://%s/%s'%(','.join(self.nodes), self.database), ssl=self.ssl, replicaSet=self.replica_set)
-			self.db = self.client[settings.AUDIT_DATABASE['database']]
-		else:
-			self.client = MongoClient('mongodb://%s/%s'%(','.join(self.nodes), self.database), ssl=self.ssl)
-			self.db = self.client[settings.AUDIT_DATABASE['database']]
-			
-			
-		self.db.authenticate(SECURE_settings.AUDIT_DATABASE['username'],SECURE_settings.AUDIT_DATABASE['password'])
-
-	def insert(self, doc, collection):
-		coll = self.db[collection]
-		doc_id = coll.insert(doc, continue_on_error=True)
-		return doc_id
