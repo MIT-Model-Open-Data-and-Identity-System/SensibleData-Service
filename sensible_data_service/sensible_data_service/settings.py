@@ -209,8 +209,7 @@ LOGGING = {
     },
     'formatters': {
         'verbose': {
-            'format': '%(levelname)s|%(asctime)s|%(module)s| %(message)s',
-            'datefmt' : "%d/%b/%Y %H:%M:%S"
+            'format': '%(levelname)s|%(asctime)s|%(module)s| %(message)s'
         },
     },
     'handlers': {

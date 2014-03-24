@@ -1,7 +1,3 @@
-SensibleData-Service 0.2.0-devel
+SensibleData-Service 0.2.1
 
-SensibleData-Service 0.2.0
-
-* Added CHANGELOG
-* Support for languages in informed consent
-* Questionnaires endpoint, including human-redeable questions and answers
+* Added new logging framework
