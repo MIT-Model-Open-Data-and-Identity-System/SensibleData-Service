@@ -207,41 +207,47 @@ LOGGING = {
             '()': 'django.utils.log.RequireDebugFalse'
         }
     },
-    'handlers': {
-	'null': {
-                'level': 'DEBUG',
-                'class': 'logging.NullHandler',
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s|%(asctime)s|%(module)s| %(message)s',
+            'datefmt' : "%d/%b/%Y %H:%M:%S"
         },
-	'fluentd': {
-		'level': 'DEBUG',
-		'class': 'fluent.handler.FluentHandler',
-		'tag': 'mongo.django',
-		'host': LOGGING['host'],
-		'port': LOGGING['port']
-	},
-        'mail_admins': {
-            'level': 'ERROR',
-            'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler'
-        }
     },
-    'loggers': {
-	'null': {
-            'handlers': ['null'],
-            'propagate': True,
+    'handlers': {
+        'null': {
+            'level': 'DEBUG',
+            'class': 'logging.NullHandler',
+        },
+        'default': {
             'level': 'INFO',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'when': 'midnight',
+            'interval': 1,
+            'backupCount': 0,
+            'filename': os.path.join(LOCAL_SETTINGS.DATA_LOG_DIR, 'log'),
+            'formatter': 'verbose',
         },
-        'django.request': {
-            'handlers': ['mail_admins'],
-            'level': 'ERROR',
-            'propagate': True,
+        'fluentd_audit': {
+            'level': 'INFO',
+            'class': 'fluent.handler.FluentHandler',
+            'tag': 'sensible.audit',
+            'host': LOGGING['host'],
+            'port': LOGGING['port']
         },
-	'sensible': {
-		'handlers': ['fluentd'],
-		'level': 'DEBUG',
-		'propagate': True,
-	},
-    }
+        'fluentd_log': {
+            'level': 'INFO',
+            'class': 'fluent.handler.FluentHandler',
+            'tag': 'sensible.log',
+            'host': LOGGING['host'],
+            'port': LOGGING['port']
+        },
+            'mail_admins': {
+                'level': 'ERROR',
+                'filters': ['require_debug_false'],
+                'class': 'django.utils.log.AdminEmailHandler'
+            }
+    },
+    'loggers': LOCAL_SETTINGS.LOGGING['loggers'],
 }
 
 CACHES = {
