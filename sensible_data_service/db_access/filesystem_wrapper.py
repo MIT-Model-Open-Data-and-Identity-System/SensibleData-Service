@@ -1,6 +1,8 @@
 import json
+from django.conf import settings
 import os
 import time
+import shutil
 
 
 class FileSystemWrapper:
@@ -8,24 +10,35 @@ class FileSystemWrapper:
 		for document in documents:
 			self.store_document_on_file_server(document, probe, role)
 
-	def store_document_on_file_server(self, document, probe, role):
-		user = document['user']
-		day = time.strftime('%Y-%m-%d', time.gmtime(row['timestamp']))
-		filename = document['_id']
-		with open(filename, 'w') as outfile:
+	def store_document_on_file_server(self, document, probe, role=None):
+		if role is None:
+			role = "main"
+		user_dir = os.path.join(settings.FILESYSTEM_DATABASE["LOCAL_DIR"], probe, role, document['user'])
+		try:
+			filename = document['_id']
+		except KeyError:
+			return
+		if not os.path.exists(user_dir):
+			os.makedirs(user_dir)
+
+		temp_folder_path = os.path.join(user_dir, "temp")
+		if not os.path.exists(temp_folder_path):
+			os.makedirs(temp_folder_path)
+
+		temp_file_path = os.path.join(temp_folder_path, filename)
+		with open(temp_file_path, 'w') as outfile:
 			json.dump(document, outfile)
-
-		os.system(
-			"rsync -azvhe ssh " + filename + " root@162.243.64.42:/home/superlists/file_storage/" + probe + "/" + role + "/")
-
+		final_file_path = os.path.join(user_dir, filename)
+		shutil.copyfile(temp_file_path, final_file_path)
+		os.remove(temp_file_path)
 
 wrapper = FileSystemWrapper()
 
-row = {}
-row["_id"] = "sada"
-row['timestamp'] = 1376414693
-row['data'] = "blabla"
-row['facebook_id'] = '1ac8a623b24d010d42529016c4b49a8f'
-row['user'] = '6d7363df17881d4afef71897a74840'
-
-wrapper.insert([row], 'facebook', "main")
+if __name__ == "__main__":
+	for filename in os.listdir("tests/test_data/"):
+		filename = filename.replace(".json", "").replace("_test", "")
+		# try:
+		wrapper.insert([json.loads(line) for line in open("tests/test_data/" + filename + ".json", "r")], filename, None)
+		# except BaseException, e:
+		#
+		# 	print str(e)
