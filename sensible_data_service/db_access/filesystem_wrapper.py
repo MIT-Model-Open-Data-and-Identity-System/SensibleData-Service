@@ -11,13 +11,13 @@ class FileSystemWrapper:
 			self.store_document_on_file_server(document, probe, role)
 
 	def store_document_on_file_server(self, document, probe, role=None):
-		if role is None:
+		if not 'researcher' in role or not "developer" in role:
 			role = "main"
 		user_dir = os.path.join(settings.FILESYSTEM_DATABASE["LOCAL_DIR"], probe, role, document['user'])
 		try:
 			filename = document['_id']
 		except KeyError:
-			return
+			filename = hashlib.sha1(json.dumps(document)).hexdigest()+'_'+ document['user'] +'_'+str(int(document['timestamp']))
 		if not os.path.exists(user_dir):
 			os.makedirs(user_dir)
 
@@ -32,13 +32,3 @@ class FileSystemWrapper:
 		shutil.copyfile(temp_file_path, final_file_path)
 		os.remove(temp_file_path)
 
-wrapper = FileSystemWrapper()
-
-if __name__ == "__main__":
-	for filename in os.listdir("tests/test_data/"):
-		filename = filename.replace(".json", "").replace("_test", "")
-		# try:
-		wrapper.insert([json.loads(line) for line in open("tests/test_data/" + filename + ".json", "r")], filename, None)
-		# except BaseException, e:
-		#
-		# 	print str(e)
