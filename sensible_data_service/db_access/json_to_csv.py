@@ -105,6 +105,8 @@ def facebook_to_csv(json_obj, fields, type):
 			row[v] = json_obj[v]
 
 	row['data_type'] = type
+	if "timestamp_added" in json_obj:
+		row["timestamp_added"] = json_obj["timestamp_added"]
 	rows.append(row)
 	return rows
 	
@@ -148,6 +150,8 @@ def funf_metadata(json_obj):
 	metadata['sensible_token'] = json_obj['sensible_token']
 	metadata['user'] = json_obj['user']
 	metadata['uuid'] = json_obj['uuid']
+	if "timestamp_added" in json_obj:
+		metadata['timestamp_added'] = json_obj["timestamp_added"]
 	return metadata
 
 
@@ -351,6 +355,8 @@ def questionnaire_to_csv(json_obj):
 	row['timestamp'] = time.mktime(time.strptime(json_obj.get('last_answered')[:19],'%Y-%m-%d %H:%M:%S'))
 	row['response'] = "".join([c for c in json_obj.get('response') if ord(c) < 128])
 	row['user'] = json_obj.get('user')
+	if "timestamp_added" in json_obj:
+		row["timestamp_added"] = json_obj["timestamp_added"]
 	rows.append(row)
 
 	return rows
