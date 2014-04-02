@@ -3,7 +3,7 @@ from operator import itemgetter
 import MySQLdb as mdb
 import time
 from django.conf import settings
-from django.core.cache import cache
+from django.core.cache import cache, get_cache
 from utils import SECURE_settings
 from sensible_audit import audit
 
@@ -11,7 +11,7 @@ class DBWrapper:
 
 	def __init__(self):
 		self.log = audit.getLogger(__name__)
-		self.cache = cache
+		self.cache = get_cache("memory")
 
 	def get_read_db_connection_for_probe(self, probe):
 		return self.__get_db_connection_for_probe(probe, True)
