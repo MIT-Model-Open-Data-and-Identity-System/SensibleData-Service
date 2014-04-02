@@ -7,5 +7,5 @@ class Command(BaseCommand):
 
 	def handle(self, *args, **options):
 		os.system(
-	"rsync --remove-source-files -azvhe ssh --exclude 'temp' " + settings.FILESYSTEM_DATABASE["LOCAL_DIR"] + " " +
+	"rsync --remove-source-files -aze ssh --exclude 'temp' " + settings.FILESYSTEM_DATABASE["LOCAL_DIR"] + " " +
 	settings.FILESYSTEM_DATABASE["REMOTE_HOST"] + ":" + settings.FILESYSTEM_DATABASE["REMOTE_HOST_DIR"])

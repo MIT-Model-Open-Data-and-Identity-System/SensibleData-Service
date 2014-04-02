@@ -208,32 +208,47 @@ LOGGING = {
             '()': 'django.utils.log.RequireDebugFalse'
         }
     },
-    'handlers': {
-	'fluentd': {
-		'level': 'INFO',
-		'class': 'fluent.handler.FluentHandler',
-		'tag': 'mongo.django',
-		'host': LOGGING['host'],
-		'port': LOGGING['port']
-	},
-        'mail_admins': {
-            'level': 'ERROR',
-            'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler'
-        }
-    },
-    'loggers': {
-        'django.request': {
-            'handlers': ['mail_admins'],
-            'level': 'ERROR',
-            'propagate': True,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s|%(asctime)s|%(module)s| %(message)s',
+            'datefmt' : "%d/%b/%Y %H:%M:%S"
         },
-	'sensible.connectors.connector_raw.phone_data': {
-		'handlers': ['fluentd'],
-		'level': 'INFO',
-		'propagate': True,
-	},
-    }
+    },
+    'handlers': {
+        'null': {
+            'level': 'DEBUG',
+            'class': 'logging.NullHandler',
+        },
+        'default': {
+            'level': 'INFO',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'when': 'midnight',
+            'interval': 1,
+            'backupCount': 0,
+            'filename': os.path.join(LOCAL_SETTINGS.DATA_LOG_DIR, 'log'),
+            'formatter': 'verbose',
+        },
+        'fluentd_audit': {
+            'level': 'INFO',
+            'class': 'fluent.handler.FluentHandler',
+            'tag': 'sensible.audit',
+            'host': LOGGING['host'],
+            'port': LOGGING['port']
+        },
+        'fluentd_log': {
+            'level': 'INFO',
+            'class': 'fluent.handler.FluentHandler',
+            'tag': 'sensible.log',
+            'host': LOGGING['host'],
+            'port': LOGGING['port']
+        },
+            'mail_admins': {
+                'level': 'ERROR',
+                'filters': ['require_debug_false'],
+                'class': 'django.utils.log.AdminEmailHandler'
+            }
+    },
+    'loggers': LOCAL_SETTINGS.LOGGING['loggers'],
 }
 
 CACHES = {
