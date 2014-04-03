@@ -165,8 +165,13 @@ class DBWrapper:
 
 		if not constraints:
 			return ""
-		where_clauses_string = " and ".join([constraint["query_string"] for constraint in constraints if constraint])
-		where_clauses_params = tuple([constraint["query_params"] for constraint in constraints if constraint])
+		where_clauses_params = []
+		where_clause_strings = []
+		for constraint in constraints:
+			where_clause_strings.append(constraint["query_string"])
+			where_clauses_params.extend(constraint["query_params"])
+		where_clauses_string = " and ".join(where_clause_strings)
+		where_clauses_params = tuple(where_clauses_params)
 		return " " + "where " + where_clauses_string, where_clauses_params
 
 	def __get_max_id_constraint(self, params, table_name, probe):
@@ -180,7 +185,7 @@ class DBWrapper:
 		if not max_id:
 			max_id = self.__get_table_max_id(table_name, probe)
 			self.cache.set(query_key, max_id)
-		return {"query_string": " id <= %s", "query_params": max_id}
+		return {"query_string": " id <= %s", "query_params": [max_id]}
 
 	def __get_table_max_id(self, table_name, probe):
 		connection = self.get_read_db_connection_for_probe(probe)
@@ -243,7 +248,7 @@ class DBWrapper:
 		return ""
 
 	def execute_query_on_db(self, query, connection, parameters=None):
-		self.log.d({"type": "MYSQL", "tag":"query", "query": query, "query_params": str(parameters) })
+		#self.log.d({"type": "MYSQL", "tag":"query", "query": query, "query_params": str(parameters) })
 		cursor = connection.cursor(mdb.cursors.DictCursor)
 		cursor.execute(query, parameters)
 		return cursor
