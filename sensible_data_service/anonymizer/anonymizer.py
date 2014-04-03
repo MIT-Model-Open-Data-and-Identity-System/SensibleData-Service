@@ -133,30 +133,25 @@ class Anonymizer(object):
 		names = {}
 		if type(documents) == dict:
 			documents = [documents]
+
 		for document in documents:
-			#document['originals'] = []
-			for device in document['data']['DEVICES']:
-				#document['originals'].append(str(device['android_bluetooth_device_extra_DEVICE']['mAddress']))
-				#device['android_bluetooth_device_extra_DEVICE']['mAddress'] = self.decrypt(str(device['android_bluetooth_device_extra_DEVICE']['mAddress']))
-				#continue
-				#document['originals'].append(device)
-				enc_mac = str(device['android_bluetooth_device_extra_DEVICE']['mAddress'])
+			enc_mac = str(document['bt_mac'])
+			try:
+				document['bt_mac'] = addresses[enc_mac]
+			except KeyError:
+				dec_mac = self.decrypt(enc_mac)
+				addresses[enc_mac] = dec_mac
+				document['bt_mac'] = dec_mac
+			try:
+				enc_name = ''
 				try:
-					device['android_bluetooth_device_extra_DEVICE']['mAddress'] = addresses[enc_mac]
-				except KeyError:
-					dec_mac = self.decrypt(enc_mac)
-					addresses[enc_mac] = dec_mac
-					device['android_bluetooth_device_extra_DEVICE']['mAddress'] = dec_mac
-				try:
-					enc_name = ''	
-					try:	
-						enc_name = str(device['android_bluetooth_device_extra_NAME'])
-					except KeyError: continue
-					device['android_bluetooth_device_extra_NAME'] = names[enc_name]
-				except KeyError:
-					dec_name = self.decrypt(enc_name)
-					names[enc_name] = dec_name		
-					device['android_bluetooth_device_extra_NAME'] = dec_name
+					enc_name = str(document['name'])
+				except KeyError: continue
+				document['name'] = names[enc_name]
+			except KeyError:
+				dec_name = self.decrypt(enc_name)
+				names[enc_name] = dec_name
+				document['name'] = dec_name
 		
 		#if len(documents) > 0:
 		#	documents[0]['addresses'] = addresses
