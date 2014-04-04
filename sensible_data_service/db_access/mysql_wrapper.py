@@ -61,6 +61,17 @@ class DBWrapper:
 		cursor = connection.cursor()
 		cursor.executemany(insert_query, values_to_insert)
 		connection.commit()
+
+	def insert_for_connection(self, connection, rows, probe, user_role=None):
+		table_name = self.__get_table_name(user_role, probe)
+                row_max_len, row = max([(len(row.keys()), row) for row in rows], key=itemgetter(0))
+
+                insert_query = self.__get_insert_query(table_name, row.keys())
+
+                values_to_insert = self.__get_values_to_insert(rows, row.keys())
+                cursor = connection.cursor()
+                cursor.executemany(insert_query, values_to_insert)
+                connection.commit()
 	
 	#Notice the small (as in non-capital) letters used for
 	#the query. The query is much slower with capital letters
