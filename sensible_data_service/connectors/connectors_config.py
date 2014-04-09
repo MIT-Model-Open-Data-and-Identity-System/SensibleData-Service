@@ -21,7 +21,7 @@ CONNECTORS = {
 			"connector_type": "client",
 			"grant_url" :  "/sensible-dtu/authorization_manager/connector_economics/auth/grant/",
 			"revoke_url": "/sensible-dtu/authorization_manager/connector_economics/auth/revoke/",
-			"answers_path": DATA_BASE_DIR + "/sensible-data/connector_economics/answers/", #must be www-data writable
+			"answers_path": DATA_BASE_DIR + "sensible-data/connector_economics/answers/", #must be www-data writable
 			},
 		"schedule": {
 

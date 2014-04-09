@@ -103,27 +103,35 @@ def create_game(request):
 
 
 def test(request):
-    auth = authorization_manager.authenticate_token(request, 'connector_economics.submit_data')
-    if 'error' in auth:
-        return HttpResponse(json.dumps(auth), status=401)
-    
-    user = auth['user']
-    participant = user.username
-
-    import tasks
-    log = tasks.populate_answers()
-
-    r = ""
-    for l in log:
-        r += str(l)+"<br/>\n\n"
-
-    return HttpResponse(r)
+    database = Database()
+    games = database.getDocuments(query, collection='dk_dtu_compute_economics_games_current')
+#    games = [clean_game(game) for game in games]
+    dump = []
+    for game in games:
+        for participant in game['participants']:
+            sendGameStartedNotification(participant, clean_game(game))
+            dump.append((participant, clean_game(game)))
+    return HttpResponse(json.dumps(dump))
+#    auth = authorization_manager.authenticate_token(request, 'connector_economics.submit_data')
+#    if 'error' in auth:
+#        return HttpResponse(json.dumps(auth), status=401)
+#    
+#    user = auth['user']
+#    participant = user.username
+#
+#    import tasks
+#    log = tasks.populate_answers()
+#
+#    r = ""
+#    for l in log:
+#        r += str(l)+"<br/>\n\n"
+#
+#    return HttpResponse(r)
 
 
 
 #TODO: Find type (get_game) check allowed answers
 #TODO: Get codes from somewhere (make sure not to select the same twice)
-@csrf_exempt
 def answer(request):
     auth = authorization_manager.authenticate_token(request, 'connector_economics.submit_data')
     if 'error' in auth:
