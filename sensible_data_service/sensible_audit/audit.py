@@ -10,25 +10,34 @@ def getLogger(name):
     logger = logging.getLogger('sensible.' + name)
     return logger
 
+log = getLogger(__name__)
+
 def message(request, data={}, results=[]):
     req = {}
     
     req['path'] = request.get_full_path()
     req['method'] = request.method
-    req['remote_addr'] = request.META.get('REMOTE_ADDR')
+    #req['remote_addr'] = request.META.get('REMOTE_ADDR')
     #req['remote_host'] = request.META.get('REMOTE_HOST')
-    req['user_agent'] = request.META.get('HTTP_USER_AGENT')
+    #req['user_agent'] = request.META.get('HTTP_USER_AGENT')
 
     if hasattr(request, 'user'): req['user'] = request.user.username
     
     if 'meta' in data and 'api_call' in data['meta']:
-        if data['meta']['api_call'] is not None and isinstance(data['meta']['api_call'], dict): req.update(data['meta']['api_call'])
-        if data['results'] is not None and isinstance(data['results'], list):
-            queries = [result['_id'] for result in data['results']]
-            req.update({'results': queries})    
-    return req
 
-log = getLogger(__name__)
+        req_audited = req.copy()
+        req_audited['accesses'] = {}
+
+        if data['meta']['api_call'] is not None and isinstance(data['meta']['api_call'], dict): 
+            req_audited.update(data['meta']['api_call'])
+        if data['results'] is not None and isinstance(data['results'], list):
+            for result in data['results']:
+                req_audited['accesses'].setdefault(result['user'],[]).append(result['_id'])
+            log.info(req_audited)
+        req.update(data['meta'])
+    else:
+        req.update(data)  
+    return req
 
 def accesses(request):
     """
@@ -56,20 +65,20 @@ def response_error(request, auth):
 
 
 def dashboard(request):
-	# authenticate token
-	auth = authorization_manager.authenticate_token(request)
+    # authenticate token
+    auth = authorization_manager.authenticate_token(request)
 
-	if 'error' in auth:
-		response = {'meta': {'status': 'error', 'code': 401, 'desc': auth['error']}}
-		log.error(message(request, response))
-		return HttpResponse(json.dumps(response), status=401, content_type='application/json')
+    if 'error' in auth:
+        response = {'meta': {'status': 'error', 'code': 401, 'desc': auth['error']}}
+        log.error(message(request, response))
+        return HttpResponse(json.dumps(response), status=401, content_type='application/json')
 
-	# read accesses from the database
-	accesses = dataBuild(request, request.user.username)
+    # read accesses from the database
+    accesses = dataBuild(request, request.user.username)
 
-	# build response
-	context = {'accesses': accesses, 'bearer_token': request.REQUEST.get('bearer_token')}
-	return render(request, 'sensible_audit/audit.html', context)
+    # build response
+    context = {'accesses': accesses, 'bearer_token': request.REQUEST.get('bearer_token')}
+    return render(request, 'sensible_audit/audit.html', context)
 
 def accesses2(request):
     """
@@ -81,7 +90,7 @@ def accesses2(request):
         response = {'meta': {'status':
                             {'status': 'error', 'code': 401,
                              'desc': auth['error']}}}
-    	return HttpResponse(json.dumps(response),
+        return HttpResponse(json.dumps(response),
                             status=401, content_type="application/json")
 
     accesses = dataBuild(request, request.user.username)
