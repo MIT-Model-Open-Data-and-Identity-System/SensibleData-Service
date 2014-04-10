@@ -3,7 +3,7 @@ import SECURE_settings
 from django.conf import settings
 import pymongo
 from utils import database
-from db_access import mysql_wrapper
+from db_access import mysql_wrapper, filesystem_wrapper
 from db_access import json_to_csv
 from sensible_audit import audit
 
@@ -13,6 +13,7 @@ class DatabaseHelper:
 		self.log = audit.getLogger(__name__)
 		if engine == 'mysql':
 			self.engine = mysql_wrapper.DBWrapper()
+			self.filestorage_wrapper = filesystem_wrapper.FileSystemWrapper()
 		elif engine == 'mongo':
 			self.engine = database.Database()
 		else:
@@ -26,12 +27,17 @@ class DatabaseHelper:
 		#MySQL
 		if isinstance(self.engine, mysql_wrapper.DBWrapper):
 			payload = []
-			for document in documents:
-				payload += json_to_csv.json_to_csv(document, probe)
 			try:
+				for document in documents:
+					payload += json_to_csv.json_to_csv(document, probe)
 				self.engine.insert(payload, probe, roles)
 			except Exception, e: 
 				self.log.e({'type': 'MYSQL', 'tag': 'insert', 'exception': str(e)})
+
+			try:
+				self.filestorage_wrapper.insert(documents, probe, roles)
+			except Exception, e:
+				self.log.e({'type': 'FileStorage', 'tag': 'insert', 'exception': str(e)})
 		
 		#Mongo
 		#TODO REMOVE WHEN MYSQL MIGRATION IS COMPLETE

@@ -1,6 +1,6 @@
 from pymongo import MongoClient
-from sensible_data_service.sensible_data_service import LOCAL_SETTINGS
-
+from sensible_data_service import LOCAL_SETTINGS
+from utils import SECURE_settings
 
 class AuditDB:
 
@@ -8,8 +8,8 @@ class AuditDB:
         self.database_name = LOCAL_SETTINGS.AUDIT_DATABASE['DATABASE']
         self.host = LOCAL_SETTINGS.AUDIT_DATABASE['HOST']
         self.port = LOCAL_SETTINGS.AUDIT_DATABASE['PORT']
-        self.username = LOCAL_SETTINGS.AUDIT_DATABASE['USERNAME']
-        self.password = LOCAL_SETTINGS.AUDIT_DATABASE['PASSWORD']
+        self.username = SECURE_settings.AUDIT_DATABASE['USERNAME']
+        self.password = SECURE_settings.AUDIT_DATABASE['PASSWORD']
         self.collection_name = LOCAL_SETTINGS.AUDIT_DATABASE['COLLECTION']
         self.options = options
         self._connect()
