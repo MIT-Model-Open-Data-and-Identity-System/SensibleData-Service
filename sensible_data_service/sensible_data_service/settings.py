@@ -219,7 +219,7 @@ LOGGING = {
             'class': 'logging.NullHandler',
         },
         'default': {
-            'level': 'INFO',
+            'level': 'DEBUG',
             'class': 'logging.handlers.TimedRotatingFileHandler',
             'when': 'midnight',
             'interval': 1,
