@@ -1,6 +1,6 @@
 UNIQUE_FIELDS = {
 	"dk_dtu_compute_facebook": [],
-	"dk_dtu_compute_questionnaire": ["form_version", "response", "variable_name", "user"],
+	"dk_dtu_compute_questionnaire": ["form_version", "response", "user", "variable_name"],
 	"edu_mit_media_funf_probe_builtin_BluetoothProbe": ["bt_mac", "timestamp", "user"],
 	"edu_mit_media_funf_probe_builtin_CallLogProbe": ["number", "type", "timestamp", "user"],
 	"edu_mit_media_funf_probe_builtin_CellProbe": ["cid", "lac", "psc", "type", "timestamp", "user"],
