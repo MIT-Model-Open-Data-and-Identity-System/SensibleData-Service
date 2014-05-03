@@ -1,5 +1,3 @@
-import base64
-import json
 from pymongo import MongoClient, MongoReplicaSetClient
 import SECURE_settings
 from django.conf import settings
@@ -34,11 +32,12 @@ class DatabaseHelper:
 					payload += json_to_csv.json_to_csv(document, probe)
 				self.engine.insert(payload, probe, roles)
 			except Exception, e: 
-				self.log.e({'type': 'MYSQL', 'tag': 'insert', 'exception': str(e)})
+				self.log.error({'type': 'MYSQL', 'tag': 'insert', 'exception': str(e)})
+
 			try:
 				self.filestorage_wrapper.insert(documents, probe, roles)
 			except Exception, e:
-				self.log.e({'type': 'FileStorage', 'tag': 'insert', 'exception': str(e)})
+				self.log.error({'type': 'FileStorage', 'tag': 'insert', 'exception': str(e)})
 		
 		#Mongo
 		#TODO REMOVE WHEN MYSQL MIGRATION IS COMPLETE

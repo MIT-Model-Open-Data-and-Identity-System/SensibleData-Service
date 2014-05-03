@@ -1,11 +1,14 @@
 import hashlib
 from operator import itemgetter
 import MySQLdb as mdb
+#import SECURE_settings
 import time
 from django.conf import settings
+from db_access import PROBE_SETTINGS
 from django.core.cache import cache, get_cache
 from utils import SECURE_settings
 from sensible_audit import audit
+import json
 
 class DBWrapper:
 
@@ -14,10 +17,10 @@ class DBWrapper:
 		self.cache = get_cache("memory")
 
 	def get_read_db_connection_for_probe(self, probe):
-		return self.__get_db_connection_for_probe(probe, True)
+		return self.get_db_connection_for_probe(probe, True)
 
 	def get_write_db_connection_for_probe(self, probe):
-		return self.__get_db_connection_for_probe(probe, False)
+		return self.get_db_connection_for_probe(probe, False)
 
 	def __get_connection_parameters(self, probe, is_read_connection):
 		params = {}
@@ -28,7 +31,7 @@ class DBWrapper:
 
 		return params
 
-	def __get_db_connection_for_probe(self, probe, is_read_connection):
+	def get_db_connection_for_probe(self, probe, is_read_connection):
 
 		database_name = settings.DATA_DATABASE_SQL["DATABASES"][probe]
 
@@ -44,7 +47,7 @@ class DBWrapper:
 		try:
 			connection = mdb.connect(hostname, username, password, database_name, ssl=ssl, charset="utf8", use_unicode=True)
 		except mdb.Error, e:
-			self.log.e({'type': 'MYSQL', 'tag': 'connect', 'exception': str(e)})
+			self.log.error({'type': 'MYSQL', 'tag': 'connect', 'exception': str(e)})
 
 		return connection
 
@@ -52,10 +55,11 @@ class DBWrapper:
 		connection = self.get_write_db_connection_for_probe(probe)
 		table_name = self.__get_table_name(user_role, probe)
 		row_max_len, row = max([(len(row.keys()), row) for row in rows], key=itemgetter(0))
+		keys = row.keys()
+		keys.append("uniqueness_hash")
+		insert_query = self.__get_insert_query(table_name, keys)
 
-		insert_query = self.__get_insert_query(table_name, row.keys())
-
-		values_to_insert = self.__get_values_to_insert(rows, row.keys())
+		values_to_insert = self.get_values_to_insert(rows, keys, PROBE_SETTINGS.UNIQUE_FIELDS[settings.DATA_DATABASE_SQL["DATABASES"][probe]])
 		cursor = connection.cursor()
 		try:
 			cursor.executemany(insert_query, values_to_insert)
@@ -63,6 +67,18 @@ class DBWrapper:
 			if "Deadlock" in str(e):
 				cursor.executemany(insert_query, values_to_insert)
 		connection.commit()
+
+	def insert_for_connection(self, connection, rows, probe, user_role=None):
+		table_name = self.__get_table_name(user_role, probe)
+                row_max_len, row = max([(len(row.keys()), row) for row in rows], key=itemgetter(0))
+		keys = row.keys()
+                keys.append("uniqueness_hash")
+                insert_query = self.__get_insert_query(table_name, keys)
+
+                values_to_insert = self.get_values_to_insert(rows, keys, PROBE_SETTINGS.UNIQUE_FIELDS[settings.DATA_DATABASE_SQL["DATABASES"][probe]])
+                cursor = connection.cursor()
+                cursor.executemany(insert_query, values_to_insert)
+                connection.commit()
 	
 	#Notice the small (as in non-capital) letters used for
 	#the query. The query is much slower with capital letters
@@ -76,7 +92,7 @@ class DBWrapper:
 
 		return query
 
-	def __get_values_to_insert(self, rows, keys):
+	def get_values_to_insert(self, rows, keys, unique_keys):
 		insert_values = []
 		for row in rows:
 			if not row: continue
@@ -84,7 +100,8 @@ class DBWrapper:
 				row['timestamp'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(row['timestamp']))
 			if 'timestamp_added' in row and not type(row['timestamp_added']) == str:
 				row['timestamp_added'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(row['timestamp_added']))
-
+			if unique_keys:
+				row["uniqueness_hash"] = hashlib.sha1("".join(str(row[unique_key]) for unique_key in unique_keys)).digest()
 			insert_values.append(tuple([row.get(x) for x in keys]))
 
 		return insert_values
