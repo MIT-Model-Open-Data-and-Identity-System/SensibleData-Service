@@ -1,3 +1,5 @@
+import base64
+import json
 from pymongo import MongoClient, MongoReplicaSetClient
 import SECURE_settings
 from django.conf import settings

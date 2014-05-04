@@ -181,7 +181,7 @@ class DBWrapper:
 		if specific_constraints: constraints.extend(specific_constraints)
 
 		if not constraints:
-			return ""
+			return "", None
 		where_clauses_params = []
 		where_clause_strings = []
 		for constraint in constraints:
