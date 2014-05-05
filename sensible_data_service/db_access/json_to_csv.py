@@ -157,15 +157,13 @@ def funf_metadata(json_obj):
 def funf_experience_sampling_to_csv(json_obj):
 	rows = []
 	metadata = funf_metadata(json_obj)
-
+	
 	row = {}
 	for key in metadata: row[key] = metadata[key]
 	row['question_type'] = json_obj['data'].get('question_type')
 	row['answer_type'] = json_obj['data'].get('answer_type')
-	row['timestamp'] = json_obj['data'].get('timestamp')
 	row['answer'] = base64.b64encode(json_obj['data'].get('answer'))
 	rows.append(row)
-
 	return rows
 
 
