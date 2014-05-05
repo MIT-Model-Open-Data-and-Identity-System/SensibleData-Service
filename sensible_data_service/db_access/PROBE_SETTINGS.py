@@ -10,5 +10,6 @@ UNIQUE_FIELDS = {
 	"edu_mit_media_funf_probe_builtin_ScreenProbe": ["screen_on", "timestamp", "user"],
 	"edu_mit_media_funf_probe_builtin_SMSProbe": ["type", "body", "address", "timestamp", "user"],
 	"edu_mit_media_funf_probe_builtin_TimeOffsetProbe": ["time_offset", "timestamp", "user"],
-	"edu_mit_media_funf_probe_builtin_WifiProbe": ["bssid", "level", "timestamp", "user"]
+	"edu_mit_media_funf_probe_builtin_WifiProbe": ["bssid", "level", "timestamp", "user"],
+	"edu_mit_media_funf_probe_builtin_ExperienceSamplingProbe": []
 }
