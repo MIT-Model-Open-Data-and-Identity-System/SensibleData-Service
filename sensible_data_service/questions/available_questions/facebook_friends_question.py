@@ -6,11 +6,18 @@ import sys
 from django.conf import settings
 from utils import SECURE_settings
 from anonymizer.anonymizer import Anonymizer
+import datetime
 
 NAME = "facebook_friends_question"
 
 def run():
-        pass
+	conn, cursor = get_cursor()
+	collections = ['main', 'developer', 'researcher']
+	for collection in collections:
+		ids = get_facebook_ids(cursor, collection)
+		edges = build_network(cursor, collection, ids)
+		update_question_db(conn, cursor, collection, edges)
+	pass
 
 def get_friends_connections(request, user, scopes, users_to_return, user_roles, own_data):
 	collection = 'main'
@@ -59,11 +66,9 @@ def build_network(cursor, collection, users):
 	dummy = cursor.fetchone()
 	counter = 0 
 	while dummy:
-		#pdb.set_trace()
 		if not counter % 100: myprint(str(counter) + '/' + str(total))
 		counter +=1
-		if dummy['facebook_id'] in covered_users: 
-			#print len(covered_users)
+		if dummy['facebook_id'] in covered_users:
 			dummy = cursor.fetchone()
 			continue
 		else: 
@@ -77,7 +82,6 @@ def build_network(cursor, collection, users):
 		dummy = cursor.fetchone()
 	return edges
 
-import datetime
 def update_question_db(connection, cursor, collection, edges):
 	timenow = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 	base = 'insert into question_facebook_friends.' + collection + ' (friend_a, friend_b, timestamp_last_seen) values '
@@ -96,10 +100,10 @@ def update_question_db(connection, cursor, collection, edges):
 def _get_ego_network(cursor, collection, facebook_id):
 	cursor.execute("select friend_b from question_facebook_friends." + collection + " where friend_a='" + facebook_id + "'")
 	friends = []
-	dummy = cursor.fetchone()
-	while dummy:
-		friends.append(dummy['friend_b'])
-		dummy = cursor.fetchone()
+	friend_row = cursor.fetchone()
+	while friend_row:
+		friends.append(friend_row['friend_b'])
+		friend_row = cursor.fetchone()
 	friends_str = '(' + ','.join("'" + f + "'" for f in friends) + ')'
 	edges = set()
 	query = "select friend_a, friend_b from question_facebook_friends." + collection + " where friend_a in " + friends_str + " and friend_b in " + friends_str

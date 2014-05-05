@@ -650,7 +650,7 @@ CREATE TABLE IF NOT EXISTS main (
     uuid VARCHAR(64),
     answer LONGBLOB,
     answer_type VARCHAR(20),
-    question_type VARCHAR(20)
+    question_type VARCHAR(20),
     uniqueness_hash BINARY(20),
     PRIMARY KEY (id)
 );
@@ -664,7 +664,7 @@ CREATE TABLE IF NOT EXISTS developer (
     uuid VARCHAR(64),
     answer LONGBLOB,
     answer_type VARCHAR(20),
-    question_type VARCHAR(20)
+    question_type VARCHAR(20),
     uniqueness_hash BINARY(20),
     PRIMARY KEY (id)
 );
