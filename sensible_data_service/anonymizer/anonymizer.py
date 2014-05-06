@@ -103,6 +103,7 @@ class Anonymizer(object):
 		self.key = key.decode("hex")
 
 		if probe == 'edu_mit_media_funf_probe_builtin_BluetoothProbe': document = self.deanonymizeBluetooth(document)
+		elif probe == 'dk_dtu_compute_facebook_friends': document = self.deanonymizeFacebookFriendsConnections(document)
 		return document
 				
 	def anonymizeBatteryProbe(self, document):
@@ -128,6 +129,7 @@ class Anonymizer(object):
 				device['android_bluetooth_device_extra_NAME'] = self.encrypt(device['android_bluetooth_device_extra_NAME'])
 			except KeyError: pass
 	
+		
 	def deanonymizeBluetooth(self, documents):
 		addresses = {}
 		names = {}
@@ -218,6 +220,17 @@ class Anonymizer(object):
 		for ps in document:
 			ps['id'] = self.encrypt(ps['id'])
 			ps['name'] = self.encrypt(ps['name'])
+	
+	def deanonymizeFacebookFriendsConnections(self, document):
+		response = {'connections':[], 'friends':[]}
+		cache = {}
+		for friend in document['friends']:
+			cache[friend] = self.decrypt(friend)
+		response['friends'] = cache.values()
+		for dyad in document['connections']:
+			response['connections'].append([cache[dyad[0]], cache[dyad[1]]])
+		return response
+		
 	
 	def anonymizeFacebookFriendrequests(self, document):
 		for rq in document:
