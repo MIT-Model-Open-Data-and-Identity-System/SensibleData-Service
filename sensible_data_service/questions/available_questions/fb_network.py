@@ -103,7 +103,7 @@ def insert_network(question_collection, filtered_network):
 
 
 
-def fb_network(request, user, scopes, users_to_return, user_roles, own_data):
+def answer(request, user, scopes, users_to_return, user_roles, own_data):
     db = DBWrapper()
 
     params = {

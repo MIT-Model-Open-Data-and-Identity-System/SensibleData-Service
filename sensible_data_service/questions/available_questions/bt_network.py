@@ -107,7 +107,7 @@ def run():
     #     del cursor
 
 #TODO: I need three different databases for this to work with the DBWrapper
-def bt_network(request, user, scopes, users_to_return, user_roles, own_data):
+def answer(request, user, scopes, users_to_return, user_roles, own_data):
     db = DBWrapper()
 
     params = {

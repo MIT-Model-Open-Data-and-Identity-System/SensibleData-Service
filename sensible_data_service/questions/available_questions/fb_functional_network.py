@@ -91,7 +91,7 @@ def run():
 
 
 
-def fb_functional_network(request, user, scopes, users_to_return, user_roles, own_data):
+def answer(request, user, scopes, users_to_return, user_roles, own_data):
     db = DBWrapper()
 
     params = {
