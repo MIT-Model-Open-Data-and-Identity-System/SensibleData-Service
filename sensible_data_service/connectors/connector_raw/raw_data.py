@@ -184,9 +184,9 @@ def dataBuild(request, probe_settings, users_to_return, decrypted = False, own_d
 def array_to_csv(results):
 	if not results: return ''
 	fields = results[0].keys()
-	output = ['\t'.join(fields)]
+	output = [','.join(fields)]
 	for result in results:
-		output += '\t'.join([str(result[k]) for k in fields]) 
+		output.append(','.join([str(result[k]) for k in fields]))
 	return '\n'.join(output)
 		
 
