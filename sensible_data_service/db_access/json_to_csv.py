@@ -13,7 +13,7 @@ def json_to_csv(json_obj, probe):
 	if 'questionnaire' in probe:
 		return questionnaire_to_csv(json_obj)
 	raise ValueError(probe + ' is not a valid probe name')	
-	
+
 
 def facebook_birthday_to_csv(json_obj):
 	fields = ['data', 'facebook_id', 'timestamp', 'user']
@@ -47,7 +47,6 @@ def facebook_friends_to_csv(json_obj):
 def facebook_groups_to_csv(json_obj):
 	fields = ['data', 'facebook_id', 'timestamp', 'user']
 	return facebook_to_csv(json_obj, fields, 'groups')
-
 
 def facebook_hometown_to_csv(json_obj):
 	fields = ['data', 'facebook_id', 'timestamp', 'user']
@@ -141,6 +140,7 @@ def funf_to_csv(json_obj, probe):
 	if probe == 'edu_mit_media_funf_probe_builtin_SMSProbe': return funf_sms_to_csv(json_obj)
 	if probe == 'edu_mit_media_funf_probe_builtin_TimeOffsetProbe': return funf_timeoffset_to_csv(json_obj)
 	if probe == 'edu_mit_media_funf_probe_builtin_WifiProbe': return funf_wifi_to_csv(json_obj)
+	if probe == 'edu_mit_media_funf_probe_builtin_ExperienceSamplingProbe': return funf_experience_sampling_to_csv(json_obj)
 
 
 def funf_metadata(json_obj):
@@ -153,6 +153,19 @@ def funf_metadata(json_obj):
 	if "timestamp_added" in json_obj:
 		metadata['timestamp_added'] = json_obj["timestamp_added"]
 	return metadata
+
+def funf_experience_sampling_to_csv(json_obj):
+	rows = []
+	metadata = funf_metadata(json_obj)
+	
+	row = {}
+	for key in metadata: row[key] = metadata[key]
+	row['question_type'] = json_obj['data'].get('question_type')
+	row['answer_type'] = json_obj['data'].get('answer_type')
+	row['answer'] = base64.b64encode(json_obj['data'].get('answer'))
+	rows.append(row)
+	return rows
+
 
 
 def funf_bluetooth_to_csv(json_obj):
@@ -349,8 +362,8 @@ def questionnaire_to_csv(json_obj):
 	row['form_version'] = json_obj.get('form_version')
 	row['variable_name'] = json_obj.get('variable_name')
 	if not json_obj['variable_name'].startswith("_"):
-		row['human_readable_question'] = json_obj['human_readable_question'].encode('utf-8')
-		row['human_readable_response'] = json_obj['human_readable_response'].encode('utf-8')
+		row['human_readable_question'] = json_obj.get('human_readable_question', "").encode('utf-8')
+		row['human_readable_response'] = json_obj.get('human_readable_response', "").encode('utf-8')
 
 	row['timestamp'] = time.mktime(time.strptime(json_obj.get('last_answered')[:19],'%Y-%m-%d %H:%M:%S'))
 	row['response'] = "".join([c for c in json_obj.get('response') if ord(c) < 128])
