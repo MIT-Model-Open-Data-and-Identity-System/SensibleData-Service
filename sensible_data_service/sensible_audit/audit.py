@@ -1,10 +1,13 @@
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.conf import settings
+from collections import defaultdict
 from authorization_manager import authorization_manager
+import bson
 import bson.json_util as json
-import database
 import logging
+import database
+import re
 
 def getLogger(name):
     logger = logging.getLogger('sensible.' + name)
@@ -12,105 +15,72 @@ def getLogger(name):
 
 log = getLogger(__name__)
 
-def message(request, data={}, results=[]):
+def message(request, data={}):
     req = {}
-    
-    req['path'] = request.get_full_path()
-    req['method'] = request.method
-    #req['remote_addr'] = request.META.get('REMOTE_ADDR')
-    #req['remote_host'] = request.META.get('REMOTE_HOST')
-    #req['user_agent'] = request.META.get('HTTP_USER_AGENT')
+    req['path'] = request.path
 
     if hasattr(request, 'user'): req['user'] = request.user.username
-    
+
     if 'meta' in data and 'api_call' in data['meta']:
 
         req_audited = req.copy()
         req_audited['accesses'] = {}
 
-        if data['meta']['api_call'] is not None and isinstance(data['meta']['api_call'], dict): 
-            req_audited.update(data['meta']['api_call'])
-        if data['results'] is not None and isinstance(data['results'], list):
+        if data['meta']['api_call'] is not None and isinstance(data['meta']['api_call'], dict):
+            req_audited['meta'] = data['meta']['api_call']
+            req_audited['count'] = data['meta']['results_count']
+        if data['results'] is not None and isinstance(data['results'], list) and data['meta']['results_count'] > 0:
+
+            # extend 'path' field to make it more 'querieble'
+            connector_regex = re.compile('.*\/connectors\/(\w*)\/v1\/(\w*)\/')
+            pattern = connector_regex.match(request.path)
+
+            if pattern is not None:
+                connector = {}
+                req_audited['connector'] = pattern.group(1)
+                req_audited['probe'] = pattern.group(2)
+
+            accesses_per_user = defaultdict(int)
             for result in data['results']:
-                req_audited['accesses'].setdefault(result['user'],[]).append(result['_id'])
+                accesses_per_user[result['user']] += 1
+
+            accesses = []
+            for user, count in accesses_per_user.iteritems():
+              accesses.append({'user' : user, 'count' : count})
+
+            req_audited['accesses'] = accesses
+
             log.info(req_audited)
-        req.update(data['meta'])
+        req['meta'] = data['meta']
     else:
-        req.update(data)  
+        req.update(data)
     return req
 
 def accesses(request):
-    """
-        Queries the database and returns aggregated accesses by researcher.
-    """
 
-    # authenticate token
-    auth = authorization_manager.authenticate_token(request)
+  # authenticate the request
+  auth = authorization_manager.authenticate_token(request)
 
-    if 'error' in auth: 
-        return response_error(request, auth)
-
-    # read accesses from database
-    db = database.AuditDB()
-    accesses = db.get_accesses_by_researcher(request.user.username)
-
-    # build response
-    context = {'accesses': accesses}
-    return HttpResponse(json.dumps(accesses))
-
-def response_error(request, auth):
-    response = {'meta': {'status': 'error', 'code': 401, 'desc': auth['error']}}
+  if 'error' in auth:
+    response = {'meta':{'status':{'status':'error','code':401,'desc':auth['error']}}}
     log.error(message(request, response))
-    return HttpResponse(json.dumps(response), status=401, content_type='application/json')
+    return HttpResponse(json.dumps(response), status=401, content_type="application/json")
 
+  db = database.AuditDB()
+  docs = db.get_agg_accesses_researcher_for_user(request.user.username)
+  return HttpResponse(json.dumps(docs), content_type="application/json", status=200)
 
-def dashboard(request):
-    # authenticate token
-    auth = authorization_manager.authenticate_token(request)
+def researchers(request):
 
-    if 'error' in auth:
-        response = {'meta': {'status': 'error', 'code': 401, 'desc': auth['error']}}
-        log.error(message(request, response))
-        return HttpResponse(json.dumps(response), status=401, content_type='application/json')
+  # authenticate the request
+  auth = authorization_manager.authenticate_token(request)
 
-    # read accesses from the database
-    accesses = dataBuild(request, request.user.username)
+  if 'error' in auth:
+    response = {'meta':{'status':{'status':'error','code':401,'desc':auth['error']}}}
+    log.error(message(request, response))
+    return HttpResponse(json.dumps(response), status=401, content_type="application/json")
 
-    # build response
-    context = {'accesses': accesses, 'bearer_token': request.REQUEST.get('bearer_token')}
-    return render(request, 'sensible_audit/audit.html', context)
+  db = database.AuditDB()
 
-def accesses2(request):
-    """
-     Shows information about who has access the user's data.
-    """
-    auth = authorization_manager.authenticate_token(request)
-
-    if 'error' in auth:
-        response = {'meta': {'status':
-                            {'status': 'error', 'code': 401,
-                             'desc': auth['error']}}}
-        return HttpResponse(json.dumps(response),
-                            status=401, content_type="application/json")
-
-    accesses = dataBuild(request, request.user.username)
-    return HttpResponse(json.dumps(accesses), status=200, content_type="application/json")
-    
-
-def dataBuild(request, user):
-    db = database.AuditDB()
-    accesses = db.get_accesses(user)
-    return accesses
-
-class BadRequestException(Exception):
-    def __init__(self, value):
-        self.value = value
-    
-    def __init__(self, status, code, description):
-        self.value = {}
-        self.value['status'] = status
-        self.value['code'] = code
-        self.value['desc'] = description
-    
-    def __str__(self):
-        return repr(self.value)
+  docs = db.get_agg_accesses_researcher()
+  return HttpResponse(json.dumps(docs), content_type="application/json", status=200)
