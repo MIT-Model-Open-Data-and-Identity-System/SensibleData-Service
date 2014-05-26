@@ -14,14 +14,14 @@ from collections import defaultdict
 
 from pprint import pprint
 
+#TODO: Add timestamp row to fb tables
 
-question_collection = 'question_lasse_fb_network'
+question_collection = 'question_lasse_facebook_network'
 
 def run():
     db = DatabaseHelper()
 
     collection = 'dk_dtu_compute_facebook_friends'
-    question_name = 'fb'
 
     db.execute_named_query(NAMED_QUERIES['question_lasse_facebook_network_create_table'], None)
         
@@ -78,28 +78,38 @@ def run():
 
     # pprint(dict(filtered_network))
 
-    insert_network(question_name, filtered_network)
+    insert_network(question_collection, filtered_network)
 
 
 #TODO: with three db's this can use DBWrapper.insert instead
 def insert_network(question_collection, filtered_network):
     db = DBWrapper()
-    question_connection = db.get_write_db_connection_for_probe(question_collection)
 
-    keys = ('user_from', 'user_to', 'week')
-    val_strings = []
-    parameters = []
+    documents = []
     for week, week_network in filtered_network.iteritems():
         for user, friends in week_network.iteritems():
             for friend in friends:
-                val_strings.append("("+",".join(["%s" for key in keys])+")")
-                parameters.append(user)
-                parameters.append(friend)
-                parameters.append(week)
-    value_string = ','.join(val_strings)
+                documents.append({'user_from': user, 'user_to': friend, 'week': week})
 
-    cur = db.execute_query_on_db("""insert ignore into main ({}) values {}""".format(','.join(keys), value_string), question_connection, parameters)
-    question_connection.commit()
+    db.insert(documents, question_collection)
+
+    # db = DBWrapper()
+    # question_connection = db.get_write_db_connection_for_probe(question_collection)
+
+    # keys = ('user_from', 'user_to', 'week')
+    # val_strings = []
+    # parameters = []
+    # for week, week_network in filtered_network.iteritems():
+    #     for user, friends in week_network.iteritems():
+    #         for friend in friends:
+    #             val_strings.append("("+",".join(["%s" for key in keys])+")")
+    #             parameters.append(user)
+    #             parameters.append(friend)
+    #             parameters.append(week)
+    # value_string = ','.join(val_strings)
+
+    # cur = db.execute_query_on_db("""insert ignore into main ({}) values {}""".format(','.join(keys), value_string), question_connection, parameters)
+    # question_connection.commit()
 
 
 

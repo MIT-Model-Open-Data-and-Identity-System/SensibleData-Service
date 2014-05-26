@@ -43,7 +43,7 @@ NAMED_QUERIES = {
 	"get_device_inventory_with_device_id": {
 		"query": "select * from device_inventory where device_id = %s order by timestamp desc",
 		"database": "common_admin"
-	}
+	},
 
     "question_lasse_bluetooth_network_create_table": {
         "query": """
@@ -69,7 +69,7 @@ NAMED_QUERIES = {
                 date(timestamp) as date
             from edu_mit_media_funf_probe_builtin_BluetoothProbe.main join common_admin.device_inventory on device_inventory.bt_mac = main.bt_mac
             where 
-                bt_mac != '-1' and (
+                main.bt_mac != '-1' and (
                     hour(timestamp) < %s or 
                     hour(timestamp) >= %s
                 )
