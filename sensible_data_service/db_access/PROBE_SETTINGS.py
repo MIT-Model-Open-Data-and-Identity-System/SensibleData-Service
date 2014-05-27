@@ -12,7 +12,7 @@ UNIQUE_FIELDS = {
 	"edu_mit_media_funf_probe_builtin_TimeOffsetProbe": ["time_offset", "timestamp", "user"],
 	"edu_mit_media_funf_probe_builtin_WifiProbe": ["bssid", "level", "timestamp", "user"],
 	"edu_mit_media_funf_probe_builtin_ExperienceSamplingProbe": [],
-	"question_lasse_facebook_network": ['week', 'user_to','user_from'],
-	"question_lasse_facebook_functional_network": ['week', 'user_to','user_from'],
-	"question_lasse_bluetooth_network": ['date', 'user_to','user_from']
+	"question_lasse_fb_network": ['week', 'user_to','user_from'],
+	"question_lasse_fb_functional_network": ['week', 'user_to','user_from'],
+	"question_lasse_bluetooth_network": ['timestamp', 'user_to','user_from']
 }

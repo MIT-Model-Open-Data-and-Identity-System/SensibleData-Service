@@ -11,13 +11,19 @@ from connectors.connector_funf import device_inventory
 import json
 from collections import defaultdict
 import _mysql_exceptions
-# import base64
+import bson.json_util as json
+from connectors.connector_raw.raw_data import processApiCall
+from bt_network import _auth
+from django.http import HttpResponse
+from sensible_audit import audit
 
 from pprint import pprint
 
+log = audit.getLogger(__name__)
+
 #TODO: Add timestamp row to fb tables
 
-question_collection = 'question_lasse_facebook_network'
+question_collection = 'question_lasse_fb_network'
 
 def run():
     db = DatabaseHelper()
@@ -40,7 +46,7 @@ def run():
             latest_timestamp = row['timestamp']
     except Exception, e:
         try:
-            db.execute_named_query(NAMED_QUERIES['question_lasse_facebook_network_create_table'], None)
+            db.execute_named_query(NAMED_QUERIES['question_lasse_fb_network_create_table'], None)
         except _mysql_exceptions.Warning, e:
             pass
     
@@ -146,22 +152,26 @@ def insert_network(collection, filtered_network):
 
 
 def answer(request, user, scopes, users_to_return, user_roles, own_data):
-    db = DBWrapper()
+    auth = _auth(request)
+    if auth == True:
+        db = DatabaseHelper()
 
-    probe_settings = {'scope': 'connector_raw.all_data_researcher',
-        'collection': question_collection,
-        'default_fields': ['id','user_from','user_to','week']}
+        probe_settings = {'scope': 'connector_raw.all_data_researcher',
+            'collection': question_collection,
+            'default_fields': ['id','user_from','user_to','week']}
 
-    params = processApiCall(request, probe_settings, users_to_return)
-    
+        params = processApiCall(request, probe_settings, users_to_return)
+        
 
-    # Limit to some users
-    # if not 'all' in users_to_return:
-    #     params['users'] = users_to_return
+        # Limit to some users
+        # if not 'all' in users_to_return:
+        #     params['users'] = users_to_return
 
-    cursor = db.retrieve(params=params, collection=question_collection)
+        cursor = db.retrieve(params=params, collection=question_collection)
 
-    return [c for c in cursor]
+        return HttpResponse(json.dumps([c for c in cursor]), content_type="application/json")
+    else:
+        return auth
 
 
 

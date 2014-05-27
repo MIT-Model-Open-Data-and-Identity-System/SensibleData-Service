@@ -12,11 +12,18 @@ import json
 from collections import defaultdict
 from fb_network import insert_network
 import _mysql_exceptions
-# import base64
+import bson.json_util as json
+from connectors.connector_raw.raw_data import processApiCall
+from bt_network import _auth
+from django.http import HttpResponse
+from sensible_audit import audit
+
 from pprint import pprint
 
 
-question_collection = 'question_lasse_facebook_functional_network'
+log = audit.getLogger(__name__)
+
+question_collection = 'question_lasse_fb_functional_network'
 
 
 def run():
@@ -25,8 +32,8 @@ def run():
     collection = 'dk_dtu_compute_facebook_feed'
 
     try:
-        print NAMED_QUERIES['question_lasse_facebook_functional_network_create_table']
-        c = db.execute_named_query(NAMED_QUERIES['question_lasse_facebook_functional_network_create_table'], None)
+        print NAMED_QUERIES['question_lasse_fb_functional_network_create_table']
+        c = db.execute_named_query(NAMED_QUERIES['question_lasse_fb_functional_network_create_table'], None)
     except _mysql_exceptions.Warning, e:
         print e
         pass
@@ -98,21 +105,25 @@ def run():
 
 
 def answer(request, user, scopes, users_to_return, user_roles, own_data):
-    db = DBWrapper()
+    auth = _auth(request)
+    if auth == True:
+        db = DatabaseHelper()
 
-    probe_settings = {'scope': 'connector_raw.all_data_researcher',
-        'collection': question_collection,
-        'default_fields': ['id','user_from','user_to','week']}
+        probe_settings = {'scope': 'connector_raw.all_data_researcher',
+            'collection': question_collection,
+            'default_fields': ['id','user_from','user_to','week']}
 
-    params = processApiCall(request, probe_settings, users_to_return)
-    
-    # Limit to some users
-    # if not 'all' in users_to_return:
-    #     params['users'] = users_to_return
+        params = processApiCall(request, probe_settings, users_to_return)
 
-    cursor = db.retrieve(params=params, collection=question_collection)
+        # Limit to some users
+        # if not 'all' in users_to_return:
+        #     params['users'] = users_to_return
 
-    return [c for c in cursor]
+        cursor = db.retrieve(params=params, collection=question_collection)
+
+        return HttpResponse(json.dumps([c for c in cursor]), content_type="application/json")
+    else:
+        return auth
 
 
 if __name__ == "__main__":

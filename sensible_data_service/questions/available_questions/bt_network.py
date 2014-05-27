@@ -9,11 +9,16 @@ from datetime import date, datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from connectors.connector_funf import device_inventory
 from connectors.connector_raw.raw_data import processApiCall
+from authorization_manager import authorization_manager
+import bson.json_util as json
+from django.http import HttpResponse
+from sensible_audit import audit
 
 from pprint import pprint
 
 question_collection = 'question_lasse_bluetooth_network'
 
+log = audit.getLogger(__name__)
 
 def run():
     
@@ -22,10 +27,10 @@ def run():
     latest_timestamp = 0
     try:
         # Delete the previous 4 days to be sure that late uploads are considered
-        print "Removed", dbHelper.execute_named_query(NAMED_QUERIES['question_lasse_bluetooth_network_delete_dates'], (date.today()-timedelta(days=4), date.today())).rowcount
+        dbHelper.execute_named_query(NAMED_QUERIES['question_lasse_bluetooth_network_delete_dates'], (date.today()-timedelta(days=4), date.today()))
         # dbHelper.execute_named_query(NAMED_QUERIES['question_lasse_bluetooth_network_delete_dates'], (date(2014, 4, 8), date.today())).rowcount
     except Exception, e:
-        # print e
+        print e
         try:
             print "creating table question_lasse_bluetooth_network.main"
             dbHelper.execute_named_query(NAMED_QUERIES['question_lasse_bluetooth_network_create_table'], None)
@@ -114,22 +119,47 @@ def run():
 
     #     del cursor
 
+def _auth(request):
+    auth = authorization_manager.authenticate_token(request)
+
+    if 'error' in auth:
+        response = {'meta':{'status':{'status':'error','code':401,'desc':auth['error']}}}
+        log.error(audit.message(request, response))
+        return HttpResponse(json.dumps(response), status=401, content_type="application/json")
+
+    is_researcher = False
+    for s in auth_scopes:
+        if s == 'connector_raw.all_data_researcher': is_researcher = True
+
+    if is_researcher:
+        return True
+    else:
+        response = {'meta':{'status':{'status':'error','code':401,'desc':'Only access for researchers'}}}
+        log.error(audit.message(request, response))
+        return HttpResponse(json.dumps(response), status=401, content_type="application/json")
+
+
+
 #TODO: I need three different databases for this to work with the DBWrapper
 def answer(request, user, scopes, users_to_return, user_roles, own_data):
-    db = DBWrapper()
-    probe_settings = {'scope': 'connector_raw.all_data_researcher',
-        'collection': question_collection,
-        'default_fields': ['id','user_from','user_to','date','occurrences']}
+    auth = _auth(request)
+    if auth == True:
+        db = DatabaseHelper()
+        probe_settings = {'scope': 'connector_raw.all_data_researcher',
+            'collection': question_collection,
+            'default_fields': ['id','user_from','user_to','timestamp','occurrences']}
 
-    params = processApiCall(request, probe_settings, users_to_return)
+        params = processApiCall(request, probe_settings, users_to_return)
 
-    # Limit to some users
-    # if not 'all' in users_to_return:
-    #     params['users'] = users_to_return
+        # Limit to some users
+        # if not 'all' in users_to_return:
+        #     params['users'] = users_to_return
 
-    cursor = db.retrieve(params=params, collection=question_collection)
+        cursor = db.retrieve(params=params, collection=question_collection)
 
-    return [c for c in cursor]
+        return HttpResponse(json.dumps([c for c in cursor]), content_type="application/json")
+    else:
+        return auth
 
 
 if __name__ == "__main__":
