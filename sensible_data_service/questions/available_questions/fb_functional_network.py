@@ -46,10 +46,10 @@ def run():
             'sortby': 'id',
             'order': 1
         }, collection=collection)
-        print 
-        print "Query:"
-        print cursor._last_executed
-        print
+        # print 
+        # print "Query:"
+        # print cursor._last_executed
+        # print
 
         more_pages = cursor.rowcount > 0
 

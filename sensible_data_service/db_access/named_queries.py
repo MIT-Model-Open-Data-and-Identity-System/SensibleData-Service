@@ -46,42 +46,44 @@ NAMED_QUERIES = {
 	},
 
     "question_lasse_bluetooth_network_create_table": {
-        "query": """
-        drop table if exists question_lasse_bluetooth_network.main;
-        create table if not exists question_lasse_bluetooth_network.main (
+        "query": """create table if not exists main (
   `id` int(11) not null auto_increment,
   `date` date not null,
   `user_from` varchar(64) not null,
   `user_to` varchar(64) not null,
   `occurrences` int(11) not null default '1',
+  `latest_timestamp` timestamp not null,
   primary key (`id`),
   unique key `date_to_from` (`date`, `user_to`,`user_from`)
-)""",
-        "database": "question_lasse_bluetooth_network"
+);""",
+        "database": "question_lasse_bluetooth_network",
+        "write": True
     },
 
     "question_lasse_bluetooth_network": {
-        "query": """
-        insert into question_lasse_bluetooth_network.main (user_from, user_to, date)
+        "query": """insert into question_lasse_bluetooth_network.main (user_from, user_to, date, latest_timestamp)
             (select 
                 main.user as user_from, 
                 device_inventory.user as user_to, 
-                date(timestamp) as date
+                date(timestamp) as date,
+                timestamp as latest_timestamp
             from edu_mit_media_funf_probe_builtin_BluetoothProbe.main join common_admin.device_inventory on device_inventory.bt_mac = main.bt_mac
             where 
                 main.bt_mac != '-1' and (
                     hour(timestamp) < %s or 
                     hour(timestamp) >= %s
-                )
+                ) and
+                timestamp > %s
 			)
             on duplicate key update 
-                occurrences = occurrences+1""",
-        "database": "question_lasse_bluetooth_network"
+                occurrences = occurrences+1,
+                latest_timestamp = timestamp""",
+        "database": "question_lasse_bluetooth_network",
+        "write": True
     },
 
     "question_lasse_facebook_network_create_table": {
-        "query": """drop table if exists main; 
-create table if not exists main (
+        "query": """create table if not exists main (
   `id` int(11) not null auto_increment,
   `week` int(11) not null,
   `user_from` varchar(64) not null,
@@ -89,12 +91,12 @@ create table if not exists main (
   primary key (`id`),
   unique key `week_to_from` (`week`, `user_to`,`user_from`)
 )""",
-        "database": "question_lasse_facebook_network"
+        "database": "question_lasse_facebook_network",
+        "write": True
     },
 
     "question_lasse_facebook_functional_network_create_table": {
-         "query": """drop table if exists main; 
-create table if not exists main (
+         "query": """create table if not exists main (
   `id` int(11) not null auto_increment,
   `week` int(11) not null,
   `user_from` varchar(64) not null,
@@ -102,6 +104,7 @@ create table if not exists main (
   primary key (`id`),
   unique key `week_to_from` (`week`, `user_to`,`user_from`)
 )""",
-        "database": "question_lasse_facebook_functional_network"
+        "database": "question_lasse_facebook_functional_network",
+        "write": True 
     }
 }

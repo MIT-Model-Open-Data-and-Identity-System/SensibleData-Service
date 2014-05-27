@@ -11,21 +11,41 @@ from connectors.connector_funf import device_inventory
 
 from pprint import pprint
 
-question_collection = 'question_lasse_bt_network'
+question_collection = 'question_lasse_bluetooth_network'
 
 
 def run():
-    db = DBWrapper()
-
-    probe = 'edu_mit_media_funf_probe_builtin_BluetoothProbe'
-    question_name = 'bt'
     
     dbHelper = DatabaseHelper()
-    dbHelper.execute_named_query(NAMED_QUERIES['question_lasse_bluetooth_network_create_table'], None)
 
-    dbHelper.execute_named_query(NAMED_QUERIES['question_lasse_bluetooth_network'], (8, 17))
-
+    latest_timestamp = 0
+    try:
+        cursor = dbHelper.retrieve(params={
+                'limit': 1,
+                'after': 0,
+                'sortby': 'latest_timestamp',
+                'order': -1
+            }, collection=question_collection)
+        print dir(cursor)
+        print cursor.rowcount
+        if cursor.rowcount > 0:
+            print 'getting latest timestamp'
+            row = cursor.fetchone()
+            latest_timestamp = row['latest_timestamp']
+    except Exception, e:
+        print e
+        print "creating table"
+        cursor = dbHelper.execute_named_query(NAMED_QUERIES['question_lasse_bluetooth_network_create_table'], None)
+        print cursor, cursor.rowcount
+    print "executing big query", latest_timestamp
+    cursor = dbHelper.execute_named_query(NAMED_QUERIES['question_lasse_bluetooth_network'], (8, 17, latest_timestamp))
+    print cursor.rowcount
+    print "done"
     # Code below does the same as the query above
+
+    # db = DBWrapper()
+    
+    # probe = 'edu_mit_media_funf_probe_builtin_BluetoothProbe'
 
     # question_connection = db.get_write_db_connection_for_probe('question_lasse')
     # connection = db.get_read_db_connection_for_probe(probe)
