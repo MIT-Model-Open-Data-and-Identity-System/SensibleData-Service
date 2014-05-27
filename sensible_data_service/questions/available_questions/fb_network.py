@@ -10,6 +10,7 @@ from dateutil.relativedelta import relativedelta
 from connectors.connector_funf import device_inventory
 import json
 from collections import defaultdict
+import _mysql_exceptions
 # import base64
 
 from pprint import pprint
@@ -22,9 +23,33 @@ def run():
     db = DatabaseHelper()
 
     collection = 'dk_dtu_compute_facebook_friends'
+    
+    latest_timestamp = 0
 
-    db.execute_named_query(NAMED_QUERIES['question_lasse_facebook_network_create_table'], None)
+    try:
+        cursor = dbHelper.retrieve(params={
+                'limit': 1,
+                'after': 0,
+                'sortby': 'timestamp',
+                'order': -1
+            }, collection=question_collection)
         
+        if cursor.rowcount > 0:
+            print 'getting latest timestamp'
+            row = cursor.fetchone()
+            latest_timestamp = row['timestamp']
+    except Exception, e:
+        try:
+            db.execute_named_query(NAMED_QUERIES['question_lasse_facebook_network_create_table'], None)
+        except _mysql_exceptions.Warning, e:
+            pass
+    
+    # Look at the either the last 4 days or since previous update
+    if latest_timestamp and latest_timestamp <= datetime.today() - timedelta(days=4):
+        start_date = latest_timestamp - timedelta(days=1)
+    else:
+        start_date = datetime.today() - timedelta(days=4)
+
     page=-1
     page_size = 10000
 
@@ -41,8 +66,9 @@ def run():
         cursor = db.retrieve(params={
             'limit': page_size,
             'after': page,
+            'start_date': time.mktime(start_date.timetuple()),
             'where': {'data_type': 'friends'},
-            'sortby': 'id',
+            'sortby': 'timestamp',
             'order': 1
         }, collection=collection)
         # print 
@@ -62,7 +88,11 @@ def run():
                 friends = row['data']
                 for friend in friends:
                     if 'id' in friend:
-                        week = row['timestamp'].isocalendar()[1]
+                        week = row['timestamp'] - timedelta(days=row['timestamp'].weekday())
+                        week = week.replace(hour=0, minute=0, second=0, microsecond=0)
+                        # week = row['timestamp'].isocalendar()[1]
+                        if not isinstance(week, (datetime, date, time)):
+                            print "weird week", week
                         network[week][row['user']].add(friend['id'])
                 # print row['data']
         del cursor
@@ -82,19 +112,21 @@ def run():
 
 
 #TODO: with three db's this can use DBWrapper.insert instead
-def insert_network(question_collection, filtered_network):
+def insert_network(collection, filtered_network):
+    print "inserting network to", collection
     db = DBWrapper()
 
     documents = []
     for week, week_network in filtered_network.iteritems():
         for user, friends in week_network.iteritems():
             for friend in friends:
-                documents.append({'user_from': user, 'user_to': friend, 'week': week})
+                documents.append({'user_from': user, 'user_to': friend, 'week': week.isocalendar()[1], 'timestamp': week})
 
-    db.insert(documents, question_collection)
+    if documents:
+        db.insert(documents, collection)
 
     # db = DBWrapper()
-    # question_connection = db.get_write_db_connection_for_probe(question_collection)
+    # question_connection = db.get_write_db_connection_for_probe(collection)
 
     # keys = ('user_from', 'user_to', 'week')
     # val_strings = []
@@ -116,20 +148,16 @@ def insert_network(question_collection, filtered_network):
 def answer(request, user, scopes, users_to_return, user_roles, own_data):
     db = DBWrapper()
 
-    params = {
-        'limit': page_size,
-        'after': page,
-        # 'where': {'data_type': 'feed'},
-        'sortby': 'id',
-        'order': 1
-    }
-    # roles_to_use = []
-    # if own_data and 'researcher' in user_roles: roles_to_use = ['researcher']
-    # if own_data and 'developer' in user_roles: roles_to_use = ['developer']
+    probe_settings = {'scope': 'connector_raw.all_data_researcher',
+        'collection': question_collection,
+        'default_fields': ['id','user_from','user_to','week']}
+
+    params = processApiCall(request, probe_settings, users_to_return)
+    
 
     # Limit to some users
-    if not 'all' in users_to_return:
-        params['users'] = users_to_return
+    # if not 'all' in users_to_return:
+    #     params['users'] = users_to_return
 
     cursor = db.retrieve(params=params, collection=question_collection)
 

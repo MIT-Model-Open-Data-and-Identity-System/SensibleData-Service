@@ -45,22 +45,21 @@ NAMED_QUERIES = {
 		"database": "common_admin"
 	},
 
-    "question_lasse_bluetooth_network_create_table": {
+  "question_lasse_bluetooth_network_create_table": {
         "query": """create table if not exists main (
-  `id` int(11) not null auto_increment,
-  `date` date not null,
-  `user_from` varchar(64) not null,
-  `user_to` varchar(64) not null,
-  `occurrences` int(11) not null default '1',
-  `latest_timestamp` timestamp not null,
-  primary key (`id`),
-  unique key `date_to_from` (`date`, `user_to`,`user_from`)
-);""",
+                    `id` int(11) not null auto_increment,
+                    `date` date not null,
+                    `user_from` varchar(64) not null,
+                    `user_to` varchar(64) not null,
+                    `occurrences` int(11) not null default '1',
+                    `latest_timestamp` timestamp not null,
+                    primary key (`id`),
+                    unique key `date_to_from` (`date`, `user_to`,`user_from`))""",
         "database": "question_lasse_bluetooth_network",
         "write": True
     },
 
-    "question_lasse_bluetooth_network": {
+  "question_lasse_bluetooth_network": {
         "query": """insert into question_lasse_bluetooth_network.main (user_from, user_to, date, latest_timestamp)
             (select 
                 main.user as user_from, 
@@ -74,7 +73,7 @@ NAMED_QUERIES = {
                     hour(timestamp) >= %s
                 ) and
                 timestamp > %s
-			)
+      )
             on duplicate key update 
                 occurrences = occurrences+1,
                 latest_timestamp = timestamp""",
@@ -82,29 +81,39 @@ NAMED_QUERIES = {
         "write": True
     },
 
-    "question_lasse_facebook_network_create_table": {
-        "query": """create table if not exists main (
-  `id` int(11) not null auto_increment,
-  `week` int(11) not null,
-  `user_from` varchar(64) not null,
-  `user_to` varchar(64) not null,
-  primary key (`id`),
-  unique key `week_to_from` (`week`, `user_to`,`user_from`)
-)""",
-        "database": "question_lasse_facebook_network",
-        "write": True
-    },
+  "question_lasse_bluetooth_network_delete_dates": {
+      "query": """delete from main
+                  where date between %s and %s""",
+      "database": "question_lasse_bluetooth_network",
+      "write": True
+  },
 
-    "question_lasse_facebook_functional_network_create_table": {
-         "query": """create table if not exists main (
-  `id` int(11) not null auto_increment,
-  `week` int(11) not null,
-  `user_from` varchar(64) not null,
-  `user_to` varchar(64) not null,
-  primary key (`id`),
-  unique key `week_to_from` (`week`, `user_to`,`user_from`)
-)""",
+  "question_lasse_facebook_network_create_table": {
+      "query": """create table if not exists main (
+                  `id` int(11) not null auto_increment,
+                  `week` int(11) not null,
+                  `timestamp` timestamp not null,
+                  `user_from` varchar(64) not null,
+                  `user_to` varchar(64) not null,
+                  uniqueness_hash binary(20) default null,
+                  primary key (`id`),
+                  unique key `week_to_from` (`week`, `user_to`,`user_from`))""",
+      "database": "question_lasse_facebook_network",
+      "write": True
+  },
+
+  "question_lasse_facebook_functional_network_create_table": {
+      "query": """create table if not exists main (
+                  `id` int(11) not null auto_increment,
+                  `week` int(11) not null,
+                  `timestamp` timestamp not null,
+                  `user_from` varchar(64) not null,
+                  `user_to` varchar(64) not null,
+                  uniqueness_hash binary(20) default null,
+                  primary key (`id`),
+                  unique key `week_to_from` (`week`, `user_to`,`user_from`))""",
         "database": "question_lasse_facebook_functional_network",
         "write": True 
-    }
+    },
+
 }

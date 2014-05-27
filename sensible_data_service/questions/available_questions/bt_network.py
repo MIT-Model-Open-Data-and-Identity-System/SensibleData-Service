@@ -8,6 +8,7 @@ import time
 from datetime import date, datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from connectors.connector_funf import device_inventory
+from connectors.connector_raw.raw_data import processApiCall
 
 from pprint import pprint
 
@@ -20,27 +21,33 @@ def run():
 
     latest_timestamp = 0
     try:
-        cursor = dbHelper.retrieve(params={
-                'limit': 1,
-                'after': 0,
-                'sortby': 'latest_timestamp',
-                'order': -1
-            }, collection=question_collection)
-        print dir(cursor)
-        print cursor.rowcount
-        if cursor.rowcount > 0:
-            print 'getting latest timestamp'
-            row = cursor.fetchone()
-            latest_timestamp = row['latest_timestamp']
+        # Delete the previous 4 days to be sure that late uploads are considered
+        print "Removed", dbHelper.execute_named_query(NAMED_QUERIES['question_lasse_bluetooth_network_delete_dates'], (date.today()-timedelta(days=4), date.today())).rowcount
+        # dbHelper.execute_named_query(NAMED_QUERIES['question_lasse_bluetooth_network_delete_dates'], (date(2014, 4, 8), date.today())).rowcount
     except Exception, e:
-        print e
-        print "creating table"
-        cursor = dbHelper.execute_named_query(NAMED_QUERIES['question_lasse_bluetooth_network_create_table'], None)
-        print cursor, cursor.rowcount
-    print "executing big query", latest_timestamp
+        # print e
+        try:
+            print "creating table question_lasse_bluetooth_network.main"
+            dbHelper.execute_named_query(NAMED_QUERIES['question_lasse_bluetooth_network_create_table'], None)
+        except _mysql_exceptions.Warning, e:
+            pass
+    
+    cursor = dbHelper.retrieve(params={
+            'limit': 1,
+            'after': 0,
+            'sortby': 'latest_timestamp',
+            'order': -1
+        }, collection=question_collection)
+
+    if cursor.rowcount > 0:
+        print 'getting latest timestamp',
+        row = cursor.fetchone()
+        latest_timestamp = row['latest_timestamp']
+        print latest_timestamp
+    
+
     cursor = dbHelper.execute_named_query(NAMED_QUERIES['question_lasse_bluetooth_network'], (8, 17, latest_timestamp))
     print cursor.rowcount
-    print "done"
     # Code below does the same as the query above
 
     # db = DBWrapper()
@@ -110,21 +117,15 @@ def run():
 #TODO: I need three different databases for this to work with the DBWrapper
 def answer(request, user, scopes, users_to_return, user_roles, own_data):
     db = DBWrapper()
+    probe_settings = {'scope': 'connector_raw.all_data_researcher',
+        'collection': question_collection,
+        'default_fields': ['id','user_from','user_to','date','occurrences']}
 
-    params = {
-        'limit': page_size,
-        'after': page,
-        # 'where': {'data_type': 'feed'},
-        'sortby': 'id',
-        'order': 1
-    }
-    # roles_to_use = []
-    # if own_data and 'researcher' in user_roles: roles_to_use = ['researcher']
-    # if own_data and 'developer' in user_roles: roles_to_use = ['developer']
+    params = processApiCall(request, probe_settings, users_to_return)
 
     # Limit to some users
-    if not 'all' in users_to_return:
-        params['users'] = users_to_return
+    # if not 'all' in users_to_return:
+    #     params['users'] = users_to_return
 
     cursor = db.retrieve(params=params, collection=question_collection)
 

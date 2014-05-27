@@ -11,23 +11,28 @@ from connectors.connector_funf import device_inventory
 import json
 from collections import defaultdict
 from fb_network import insert_network
+import _mysql_exceptions
 # import base64
 from pprint import pprint
 
 
-question_collection = 'question_lasse_fb_functional_network'
+question_collection = 'question_lasse_facebook_functional_network'
 
 
 def run():
     db = DatabaseHelper()
 
     collection = 'dk_dtu_compute_facebook_feed'
-    question_name = 'fb_func'
 
-    db.execute_named_query(NAMED_QUERIES['question_lasse_facebook_functional_network_create_table'], None)
+    try:
+        print NAMED_QUERIES['question_lasse_facebook_functional_network_create_table']
+        c = db.execute_named_query(NAMED_QUERIES['question_lasse_facebook_functional_network_create_table'], None)
+    except _mysql_exceptions.Warning, e:
+        print e
+        pass
        
     page=-1
-    page_size = 1000
+    page_size = 10000
 
     more_pages = True
 
@@ -43,7 +48,7 @@ def run():
             'limit': page_size,
             'after': page,
             'where': {'data_type': 'feed'},
-            'sortby': 'id',
+            'sortby': 'timestamp',
             'order': 1
         }, collection=collection)
         # print 
@@ -55,7 +60,7 @@ def run():
 
         if more_pages:
             for row in cursor:
-              fb_id_to_user[row['facebook_id']] = row['user']
+                fb_id_to_user[row['facebook_id']] = row['user']
             
             for row in cursor:
                 # print row['data']
@@ -70,8 +75,9 @@ def run():
                             for temp in status[tag_type].values():
                                 for tag in temp.values():
                                     # If right kind of tag and the tag is not the user itself (often is)
-                                    if 'type' in tag and tag['type']=='user' and 'id' in tag and not (tag['id'] in fb_id_to_user and row['facebook_id'] == tag['id']):
-                                        week = row['timestamp'].isocalendar()[1]
+                                    if 'type' in tag and tag['type']=='user' and 'id' in tag and not row['facebook_id'] == tag['id']:
+                                        week = row['timestamp'] - timedelta(days=row['timestamp'].weekday())
+                                        week = week.replace(hour=0, minute=0, second=0, microsecond=0)
                                         network[week][row['user']].add(tag['id'])
             
         del cursor
@@ -94,20 +100,15 @@ def run():
 def answer(request, user, scopes, users_to_return, user_roles, own_data):
     db = DBWrapper()
 
-    params = {
-        'limit': page_size,
-        'after': page,
-        # 'where': {'data_type': 'feed'},
-        'sortby': 'id',
-        'order': 1
-    }
-    # roles_to_use = []
-    # if own_data and 'researcher' in user_roles: roles_to_use = ['researcher']
-    # if own_data and 'developer' in user_roles: roles_to_use = ['developer']
+    probe_settings = {'scope': 'connector_raw.all_data_researcher',
+        'collection': question_collection,
+        'default_fields': ['id','user_from','user_to','week']}
 
+    params = processApiCall(request, probe_settings, users_to_return)
+    
     # Limit to some users
-    if not 'all' in users_to_return:
-        params['users'] = users_to_return
+    # if not 'all' in users_to_return:
+    #     params['users'] = users_to_return
 
     cursor = db.retrieve(params=params, collection=question_collection)
 
