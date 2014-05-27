@@ -79,5 +79,8 @@ class DatabaseHelper:
 	def execute_named_query(self, named_query, params):
 		if isinstance(self.engine, mysql_wrapper.DBWrapper):
 			connection = self.engine.get_write_db_connection_for_probe(named_query["database"])
-			return self.engine.execute_query_on_db(named_query["query"], connection, params)
+			cursor = self.engine.execute_query_on_db(named_query["query"], connection, params)
+			if 'write' in named_query and named_query['write']:
+				connection.commit()
+			return cursor
 
