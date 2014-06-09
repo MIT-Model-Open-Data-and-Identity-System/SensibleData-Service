@@ -140,7 +140,7 @@ class DBWrapper:
 		query += self.__limit(params)
 
 		print query
-		connection = self.get_write_db_connection_for_probe(probe)
+		connection = self.get_read_db_connection_for_probe(probe)
 		return self.execute_query_on_db(query, connection, where_query_params)
 
 	def __limit(self, params):
