@@ -1,6 +1,8 @@
+import calendar
 from django.http import HttpResponse
 import bson.json_util as json
 from authorization_manager import authorization_manager
+from sensible_audit import audit
 from utils import db_wrapper
 from django.shortcuts import render_to_response
 from accounts.models import UserRole
@@ -21,6 +23,7 @@ It merges the phone_data and facebook_data
 
 
 
+log = audit.getLogger(__name__)
 
 def wifi(request):
 	return get_data(request, PHONE_DATA_SETTINGS['wifi'])
@@ -32,8 +35,6 @@ def calllog(request):
 	return get_data(request, PHONE_DATA_SETTINGS['calllog'])
 def sms(request):
 	return get_data(request, PHONE_DATA_SETTINGS['sms'])
-def wifi(request):
-	return get_data(request, PHONE_DATA_SETTINGS['wifi'])
 def questionnaire(request):
 	return get_data(request,QUESTIONNAIRE_DATA_SETTINGS['questionnaire'])
 def birthday(request):
@@ -61,8 +62,7 @@ def religion(request):
 def work(request):
 	return get_data(request, FACEBOOK_DATA_SETTINGS['work'])
 
-
-def authenticate(request, decrypted, probe_settings):
+def get_data(request, probe_settings):
 	decrypted = booleanize(request.REQUEST.get('decrypted', False))
 
 	if decrypted:
@@ -70,55 +70,40 @@ def authenticate(request, decrypted, probe_settings):
 	else:
 		accepted_scopes = set([probe_settings['scope'], 'connector_raw.all_data', 'connector_raw.all_data_researcher'])
 
-	return accepted_scopes
 	auth = authorization_manager.authenticate_token(request)
 
 	if 'error' in auth:
-		raise BadRequestException('error',401,auth['error'])
+		response = {'meta':{'status':{'status':'error','code':401,'desc':auth['error']}}}
+		log.error(audit.message(request, response))
+		return HttpResponse(json.dumps(response), status=401, content_type="application/json")
 
 	auth_scopes = set([x for x in auth['scope']])
 
 	if len(accepted_scopes & auth_scopes) == 0:
-		raise BadRequestException('error', 401, 'token not authorized for any accepted scope %s'%str(list(accepted_scopes)))
-	
-	#return auth_scopes
-	return list(accepted_scopes.union(auth_scopes))
+		response = {'meta':{'status':{'status':'error','code':401,'desc':'token not authorized for any accepted scope %s'%str(list(accepted_scopes))}}}
+		log.error(audit.message(request, response))
+		return HttpResponse(json.dumps(response), status=401)
 
-
-
-
-def get_data(request, probe_settings):
-	decrypted = booleanize(request.REQUEST.get('decrypted', False))
-	# try authentication
-	try:
-		auth_scopes = authenticate(request, decrypted, probe_settings)
-	except BadRequestException as e:
-		return HttpResponse(json.dumps(e.value), status = e.value['code'], content_type="application/json")
-		
-	# return dummy to show we are up
 	if ('dummy' in request.REQUEST.keys()):
 		return HttpResponse('[]', content_type="application/json")
-	
-	# check the users to return
-	# is_researcher = False
-	is_researcher = True
+
+	is_researcher = False
 	for s in auth_scopes:
 		if s == 'connector_raw.all_data_researcher': is_researcher = True
 
-	#users_to_return = buildUsersToReturn(auth['user'], request, is_researcher = is_researcher)
-	users_to_return = []
-	#roles = []
-	#try: roles = [x.role for x in UserRole.objects.get(user=auth['user']).roles.all()]
-	#except: pass
-	#own_data = False
-	#if len(users_to_return) == 1 and users_to_return[0] == auth['user'].username: own_data = True
+	users_to_return = buildUsersToReturn(auth['user'], request, is_researcher = is_researcher)
+	roles = []
+	try: roles = [x.role for x in UserRole.objects.get(user=auth['user']).roles.all()]
+	except: pass
+
 	own_data = False
-	roles =	[] 
-	# build response
+	if len(users_to_return) == 1 and users_to_return[0] == auth['user'].username: own_data = True
 	return dataBuild(request, probe_settings, users_to_return, decrypted = decrypted, own_data = own_data, roles = roles)
 		
 
-def dataBuild(request, probe_settings, users_to_return, decrypted = False, own_data = False, roles = []):
+def dataBuild(request, probe_settings, users_to_return, decrypted = False, own_data = False, roles = None):
+	if roles == None:
+		roles = []
 	_start_time = time.time()
 	
 	results = None
@@ -128,8 +113,8 @@ def dataBuild(request, probe_settings, users_to_return, decrypted = False, own_d
 	response['meta'] = {}
 
 	try:
-		#if not users_to_return:
-		#	raise BadRequestException('error',403,'The current token does not allow to view data from any users')
+		if not users_to_return:
+			raise BadRequestException('error',403,'The current token does not allow to view data from any users')
 		proc_req = processApiCall(request, probe_settings, users_to_return)
 		roles_to_use = []
                 if own_data and 'researcher' in roles: roles_to_use = ['researcher']
@@ -137,7 +122,7 @@ def dataBuild(request, probe_settings, users_to_return, decrypted = False, own_d
 		
 		try:
 			db = db_wrapper.DatabaseHelper()
-			docs = db.retrieve(proc_req, probe_settings['collection'], roles)
+			docs = db.retrieve(proc_req, probe_settings['collection'], roles_to_use)
 			#raise BadRequestException('error',200,json.dumps({'proc_req':proc_req,'probe_settings':probe_settings['collection'],'roles':roles}))
 			results = cursorToArray(docs, decrypted = decrypted,\
 					probe=probe_settings['collection'],\
@@ -154,16 +139,17 @@ def dataBuild(request, probe_settings, users_to_return, decrypted = False, own_d
 		response['results'] = results
 
 		if len(results) > 0:
-			response['meta']['paging'] = {}
-			response['meta']['paging']['cursors'] = {}
-			response['meta']['paging']['cursors']['after'] = results[-1]['id']
 			if results_count == proc_req['limit']:
-				if proc_req['after'] is not None:	
+				response['meta']['paging'] = {}
+				response['meta']['paging']['cursors'] = {}
+
+				if proc_req['after'] is not None:
+					response['meta']['paging']['cursors']['after'] = str(int(proc_req['after']) + 1)
 					response['meta']['paging']['links'] =\
 						{'next':re.sub('&after=[^ &]+','&after=' + str(response['meta']['paging']['cursors']['after']),request.build_absolute_uri())}
 				else:
 					response['meta']['paging']['links'] = \
-						{'next':request.build_absolute_uri() + '&after=' + str(response['meta']['paging']['cursors']['after'])}
+						{'next':request.build_absolute_uri() + '&after=' + str(1)}
 	except BadRequestException as e:
 		response['meta']['status'] = e.value
 		proc_req = {'format':'json'}
@@ -179,11 +165,11 @@ def dataBuild(request, probe_settings, users_to_return, decrypted = False, own_d
 		pass
 	
 
-	#users_return=[]
-	#users_results = cursorToArray(results, decrypted = decrypted, probe=probe_settings['collection'])
-	#for data_users in users_results:
-	#	if data_users['user'] not in users_return:
-	#		users_return.append(data_users['user'])
+	# users_return=[]
+	# users_results = cursorToArray(results, decrypted = decrypted, probe=probe_settings['collection'])
+	# for data_users in users_results:
+	# 	if data_users['user'] not in users_return:
+	# 		users_return.append(data_users['user'])
 	
 	if proc_req['format'] == 'pretty':
 		return render_to_response('pretty_json.html', {'response': json.dumps(response, indent=2)})
@@ -199,15 +185,22 @@ def dataBuild(request, probe_settings, users_to_return, decrypted = False, own_d
 def array_to_csv(results):
 	if not results: return ''
 	fields = results[0].keys()
-	output = ['\t'.join(fields)]
+	output = [','.join(fields)]
 	for result in results:
-		output += '\t'.join([str(result[k]) for k in fields]) 
+		output.append(','.join([str(result[k]) for k in fields]))
 	return '\n'.join(output)
 		
 
 
 def cursorToArray(cursor, decrypted = False, probe = '', is_researcher=False, map_to_users=False):
-	array = [doc for doc in cursor]
+	array = []
+	for row in cursor:
+		if 'timestamp' in row:
+			row['timestamp'] = int(calendar.timegm(row['timestamp'].timetuple()))
+		if 'timestamp_added' in row:
+			row['timestamp_added'] = int(calendar.timegm(row['timestamp_added'].timetuple()))
+		array.append(row)
+
 	if 'BluetoothProbe' not in probe: return array
 	if decrypted:
 		anonymizer = Anonymizer()
@@ -221,7 +214,7 @@ def cursorToArray(cursor, decrypted = False, probe = '', is_researcher=False, ma
 					doc['user'] = user_temp
 				else:
 					doc['user'] = ''
-			except KeyError: device['user'] = ''
+			except KeyError: doc['user'] = ''
 	return array
 
 def buildUsersToReturn(auth_user, request, is_researcher = False):
@@ -269,14 +262,14 @@ def processApiCall(request, probe_settings, users_to_return):
 	
 	### deal with fields
 	fields_string = request.REQUEST.get('fields', '')
+	print fields_string
 	if len(fields_string) > 0:
 		response['fields'] = ['id', 'user', 'timestamp']
 		response['fields'] += [field for field in fields_string.split(',') if len(field) > 0 and field != 'sensible_token']
-	
+		print response['fields']
 	# default set of fields
 	else:
-		response['fields'] = probe_settings['default_fields'] 
-
+		response['fields'] = set(probe_settings['default_fields'])
 		
 	### deal with start_date and end_date
 	if request.REQUEST.get('start_date',None) is not None:
@@ -320,6 +313,7 @@ def processApiCall(request, probe_settings, users_to_return):
 				response['map_to_users'] = True
 
 	### return
+	response['bearer_token'] = request.REQUEST.get('bearer_token')
 	return response
 
 

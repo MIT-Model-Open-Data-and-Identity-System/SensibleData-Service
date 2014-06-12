@@ -3,12 +3,12 @@ from authorization_manager.models import Authorization
 from application_manager.models import Application
 from collections import defaultdict
 from anonymizer import anonymizer
-from utils import database
+from utils import db_wrapper
 
 class Command(NoArgsCommand):
 	def handle_noargs(self, **options):
 		anonymizerObject = anonymizer.Anonymizer()
-		db = database.Database()
+		db = db_wrapper.DatabaseHelper()
 
 		authorizations = Authorization.objects.filter(application=Application.objects.get(name="Phone Data Collector"))
 		print len(authorizations)
@@ -42,14 +42,13 @@ class Command(NoArgsCommand):
 			for u in mapping[device_id]:
 				a_device_id = anonymizerObject.anonymizeValue('device_id', device_id)
 				hardware_info = None
-				try: 
-#					hardware_info = db.getDocuments(query={'device_id':a_device_id}, collection='edu_mit_media_funf_probe_builtin_HardwareInfoProbe')[0]
-					for v in db.getDocuments(query={'device_id':a_device_id}, collection='edu_mit_media_funf_probe_builtin_HardwareInfoProbe').sort('timestamp', -1):
-						if v['timestamp_added'] < v['timestamp']: continue
-						hardware_info = v
-						break
+				try:
+				    for v in db.retrieve({'where': {'device_id':a_device_id}, "sortby": "timestamp", "order": -1}, 'edu_mit_media_funf_probe_builtin_HardwareInfoProbe'):
+					    if v['timestamp_added'] < v['timestamp']: continue
+					    hardware_info = v
+					    break
 
-				except: 
+				except:
 					continue
 				if not hardware_info: continue
 				doc = {}
@@ -64,7 +63,6 @@ class Command(NoArgsCommand):
 				doc['a_wifi_mac'] = hardware_info['data']['WIFI_MAC']
 				doc['sensible_version'] = hardware_info['uuid'].split('-')[-2]
 				doc['funf_version'] = hardware_info['uuid'].split('-')[-1]
-
-				collection = 'device_inventory'
-				(db.getDatabase(collection))[collection].update(spec={'_id':doc['_id']}, document=doc, upsert=True)
+				print doc
+				db.update_device_info(doc)
 

@@ -1,5 +1,6 @@
 from django.core.management.base import NoArgsCommand
-from utils import database
+from db_access.named_queries import NAMED_QUERIES
+from utils import db_wrapper
 from collections import defaultdict
 
 class Command(NoArgsCommand):
@@ -8,8 +9,8 @@ class Command(NoArgsCommand):
 		conflicts = []
 		duplicates = []
 		jj = 0
-		db = database.Database()
-		for doc in db.getDocuments(query={}, collection='dk_dtu_compute_questionnaire'):
+		db = db_wrapper.DatabaseHelper()
+		for doc in db.execute_named_query(NAMED_QUERIES["select_questionnaires"], None):
 			jj += 1
 			if not jj%1000: print jj
 			try:
