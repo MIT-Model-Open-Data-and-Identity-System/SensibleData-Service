@@ -12,11 +12,12 @@ NAME = "facebook_friends_question"
 
 def run():
 	conn, cursor = get_cursor()
-	collections = ['main', 'developer', 'researcher']
+	#collections = ['main', 'developer', 'researcher']
+	collections = ['main','developer', 'researcher']
 	for collection in collections:
 		ids = get_facebook_ids(cursor, collection)
-		edges = build_network(cursor, collection, ids)
-		update_question_db(conn, cursor, collection, edges)
+		edges = build_network(conn.cursor(mdb.cursors.DictCursor), collection, ids)
+		update_question_db(conn, conn.cursor(mdb.cursors.DictCursor), collection, edges)
 	pass
 
 def get_friends_connections(request, user, scopes, users_to_return, user_roles, own_data):
@@ -36,7 +37,7 @@ def myprint(data):
 	sys.stdout.flush()
 
 def get_cursor():
-	connection = mdb.connect(settings.DATA_DATABASE_SQL["READ_HOST"], SECURE_settings.DATA_DATABASE_SQL["username"], SECURE_settings.DATA_DATABASE_SQL["password"], "question_facebook_friends")
+	connection = mdb.connect(settings.DATA_DATABASE_SQL["READ_HOST"], SECURE_settings.DATA_DATABASE_SQL["username"], SECURE_settings.DATA_DATABASE_SQL["password"], "question_facebook_friends", ssl=SECURE_settings.DATA_DATABASE_SQL["ssl"], charset="utf8", use_unicode=True)
 	cursor = connection.cursor(mdb.cursors.DictCursor)
 	return connection, cursor
 
@@ -44,7 +45,7 @@ def deblob(data):
 	return json.loads(base64.b64decode(data['data']))
 
 def get_id_facebook_matching(cursor, collection):
-	cursor.execute("select user, facebook_id from " +  collection + " where data_type='friends'")
+	cursor.execute("select user, facebook_id from dk_dtu_compute_facebook." +  collection + " where data_type='friends'")
 	mapping = dict()
 	dummy = cursor.fetchone()
 	while dummy:
@@ -59,10 +60,15 @@ def get_facebook_ids(cursor, collection):
 		ids.add(d['facebook_id'])
 	return ids
 
+import datetime
+import time
 def build_network(cursor, collection, users):
+	# only look at last two weeks of data
+	timestamp = str(datetime.date.fromtimestamp(time.time()-2*7*24*60*60))
 	covered_users = set()
 	edges = set()
-	total = cursor.execute("select facebook_id, data from " + collection + " where (data_type='friends') and (timestamp>'2014-04-01') and (timestamp<'2014-04-14')  order by timestamp desc")
+	#total = cursor.execute("select facebook_id, data from " + collection + " where (data_type='friends') and (timestamp>'2014-04-01') and (timestamp<'2014-04-14')  order by timestamp desc")
+	total = cursor.execute("select facebook_id, data from dk_dtu_compute_facebook." + collection + " where (data_type='friends') and (timestamp >= '" + timestamp + "') order by timestamp desc")
 	dummy = cursor.fetchone()
 	counter = 0 
 	while dummy:
@@ -104,6 +110,7 @@ def _get_ego_network(cursor, collection, facebook_id):
 	while friend_row:
 		friends.append(friend_row['friend_b'])
 		friend_row = cursor.fetchone()
+	if not friends: return ([], [], )
 	friends_str = '(' + ','.join("'" + f + "'" for f in friends) + ')'
 	edges = set()
 	query = "select friend_a, friend_b from question_facebook_friends." + collection + " where friend_a in " + friends_str + " and friend_b in " + friends_str
