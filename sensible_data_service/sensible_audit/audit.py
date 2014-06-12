@@ -5,19 +5,21 @@ from authorization_manager import authorization_manager
 import bson.json_util as json
 import database
 import logging
+import re
+from collections import defaultdict
+import bson
+
 
 def getLogger(name):
     logger = logging.getLogger('sensible.' + name)
     return logger
 
-def message(request, data={}, results=[]):
+log = getLogger(__name__)
+
+def message(request, data={}):
     req = {}
     
-    req['path'] = request.get_full_path()
-    req['method'] = request.method
-    req['remote_addr'] = request.META.get('REMOTE_ADDR')
-    #req['remote_host'] = request.META.get('REMOTE_HOST')
-    req['user_agent'] = request.META.get('HTTP_USER_AGENT')
+    req['path'] = request.path
 
     if hasattr(request, 'user'): req['user'] = request.user.username
     
