@@ -66,6 +66,8 @@ class DBWrapper:
 		except mdb.Error, e:
 			if "Deadlock" in str(e):
 				cursor.executemany(insert_query, values_to_insert)
+			else:
+				self.log.error({'type': 'MYSQL', 'tag': 'executemany', 'exception': str(e)})
 		connection.commit()
 
 	def insert_for_connection(self, connection, rows, probe, user_role=None):

@@ -45,6 +45,11 @@ class DatabaseHelper:
 		#TODO REMOVE WHEN MYSQL MIGRATION IS COMPLETE
 		database.Database().insert(documents, collection, roles)
 
+	def insert_rows(self, rows, collection, roles = None):
+		try:
+			self.engine.insert(rows, collection, roles)
+		except Exception, e:
+			self.log.error({'type': 'MYSQL', 'tag': 'insert', 'exception': str(e)})
 
 	def retrieve(self, params, collection, roles = None, from_secondary = True):
 		"""params: dictionary used to construct engine specific query. Keys:
