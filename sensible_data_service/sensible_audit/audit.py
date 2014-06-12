@@ -1,13 +1,14 @@
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.conf import settings
-from collections import defaultdict
 from authorization_manager import authorization_manager
-import bson
 import bson.json_util as json
-import logging
 import database
+import logging
 import re
+from collections import defaultdict
+import bson
+
 
 def getLogger(name):
     logger = logging.getLogger('sensible.' + name)
@@ -17,10 +18,11 @@ log = getLogger(__name__)
 
 def message(request, data={}):
     req = {}
+    
     req['path'] = request.path
 
     if hasattr(request, 'user'): req['user'] = request.user.username
-
+    
     if 'meta' in data and 'api_call' in data['meta']:
 
         req_audited = req.copy()
