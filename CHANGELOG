@@ -1,4 +1,4 @@
-SensibleData-Service 0.2.3
+SensibleData-Service 0.2.4
 
 * Added CHANGELOG
 * Support for languages in informed consent
@@ -6,4 +6,4 @@ SensibleData-Service 0.2.3
 * Added logging using fluentd
 * Added support for experience sampling
 * Added support for audit info requests. Performance improvement for fluentd logging
-
+* The retrieval API now uses MySQL as a backend
