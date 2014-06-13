@@ -4,6 +4,8 @@ urlpatterns = patterns('',
 	 url(r'^upload/', 'connectors.connector_funf.connector_funf.upload'),
 	 url(r'^config/', 'connectors.connector_funf.connector_funf.config'),
 	 url(r'^rescue/', 'connectors.connector_funf.connector_funf.rescue'),
+
+         url(r'^usage/', 'connectors.connector_funf.connector_usage.on_post'),
 	
 	 url(r'^auth/grant/', 'connectors.connector_funf.auth.grant'),
 	 url(r'^auth/gcm/', 'connectors.connector_funf.auth.gcm'),
