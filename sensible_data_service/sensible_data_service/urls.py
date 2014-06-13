@@ -5,7 +5,6 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
 	url(r'^connectors/', include('connectors.urls')),
-	url(r'^questions/', include('questions.urls')),
 	url(r'^authorization_manager/', include('authorization_manager.urls')),
 	url(r'^platform_api/', include('platform_manager.urls')),
 	url(r'^audit/', include('sensible_audit.urls')),

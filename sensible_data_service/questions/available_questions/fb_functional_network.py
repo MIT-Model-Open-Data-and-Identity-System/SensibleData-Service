@@ -14,7 +14,6 @@ from fb_network import insert_network
 import _mysql_exceptions
 import bson.json_util as json
 from connectors.connector_raw.raw_data import processApiCall
-from bt_network import _auth
 from django.http import HttpResponse
 from sensible_audit import audit
 
@@ -30,14 +29,30 @@ def run():
     db = DatabaseHelper()
 
     collection = 'dk_dtu_compute_facebook_feed'
+    latest_timestamp = 0
 
     try:
-        print NAMED_QUERIES['question_lasse_fb_functional_network_create_table']
-        c = db.execute_named_query(NAMED_QUERIES['question_lasse_fb_functional_network_create_table'], None)
-    except _mysql_exceptions.Warning, e:
-        print e
-        pass
-       
+        # Getting latest timestamp
+        cursor = db.retrieve(params={
+                'limit': 1,
+                'after': 0,
+                'sortby': 'timestamp',
+                'order': -1
+            }, collection=question_collection)
+        
+        if cursor.rowcount > 0:
+            row = cursor.fetchone()
+            latest_timestamp = row['timestamp']
+    except Exception, e:
+        log.error({'type': 'question_lasse', 'tag': 'fb_func_latest_timestamp', 'exception': str(e)})
+    
+    # Look at the either the last 4 days or since previous update
+    if latest_timestamp and latest_timestamp <= datetime.today() - timedelta(days=4):
+        start_date = latest_timestamp - timedelta(days=1)
+    else:
+        start_date = datetime.today() - timedelta(days=4)
+
+
     page=-1
     page_size = 10000
 
@@ -54,14 +69,12 @@ def run():
         cursor = db.retrieve(params={
             'limit': page_size,
             'after': page,
+            'start_date': time.mktime(start_date.timetuple()),
             'where': {'data_type': 'feed'},
             'sortby': 'timestamp',
             'order': 1
         }, collection=collection)
-        # print 
-        # print "Query:"
-        # print cursor._last_executed
-        # print
+
 
         more_pages = cursor.rowcount > 0
 
@@ -70,10 +83,8 @@ def run():
                 fb_id_to_user[row['facebook_id']] = row['user']
             
             for row in cursor:
-                # print row['data']
                 # wall = json.loads(row['data'].decode('base64'))
                 wall = row['data']
-                # pprint(wall)
                 for status in wall.itervalues():
                     # story_tags is deprecated, but some data in the db are captured from before
                     for tag_type in ('story_tags', 'message_tags'): 
@@ -105,26 +116,26 @@ def run():
 
 
 def answer(request, user, scopes, users_to_return, user_roles, own_data):
-    auth = _auth(request)
-    if auth == True:
-        db = DatabaseHelper()
+    # collection = 'main'
+    # if 'researcher' in user_roles: collection = 'researcher'
+    # elif 'developer' in user_roles: collection = 'developer'
 
-        probe_settings = {'scope': 'connector_raw.all_data_researcher',
-            'collection': question_collection,
-            'default_fields': ['id','user_from','user_to','week']}
+    db = DatabaseHelper()
 
-        params = processApiCall(request, probe_settings, users_to_return)
+    probe_settings = {'scope': 'connector_raw.all_data_researcher',
+        'collection': question_collection,
+        'default_fields': ['id','user_from','user_to','week']}
 
-        # Limit to some users
-        # if not 'all' in users_to_return:
-        #     params['users'] = users_to_return
+    params = processApiCall(request, probe_settings, users_to_return)
 
-        cursor = db.retrieve(params=params, collection=question_collection)
+    # Limit to some users
+    # if not 'all' in users_to_return:
+    #     params['users'] = users_to_return
 
-        return HttpResponse(json.dumps([c for c in cursor]), content_type="application/json")
-    else:
-        return auth
+    cursor = db.retrieve(params=params, collection=question_collection, roles=user_roles)
 
+    return HttpResponse(json.dumps([c for c in cursor]), content_type="application/json")
+    
 
 if __name__ == "__main__":
     run()
