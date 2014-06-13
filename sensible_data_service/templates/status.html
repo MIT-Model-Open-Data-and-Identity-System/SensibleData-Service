@@ -23,15 +23,15 @@
 		<p class="lead">Informed Consents: <span id="users_informed_consent_no"></span></p>
 		<p>Last refreshed: <span id="users_last_refreshed"></span></p>
 	</div>
-	
-	<div class="well span">
-		<h2>Database</h2>
-		<hr>
-		<p class="lead">Status: <span id="database_status"></span></p>
-		<p class="lead">Config: <span id="database_config"></span></p>
-		<p class="lead">Databases: <span id="database_databases"></span></p>
-		<p>Last refreshed: <span id="database_last_refreshed"></span></p>
-	</div>
+
+{#	<div class="well span">#}
+{#		<h2>Database</h2>#}
+{#		<hr>#}
+{#		<p class="lead">Status: <span id="database_status"></span></p>#}
+{#		<p class="lead">Config: <span id="database_config"></span></p>#}
+{#		<p class="lead">Databases: <span id="database_databases"></span></p>#}
+{#		<p>Last refreshed: <span id="database_last_refreshed"></span></p>#}
+{#	</div>#}
 </div>
 <div class="row">	
 	<div class="well span">
@@ -325,7 +325,7 @@
 
 	function refresh() {
 		refreshUsers();
-		refreshDatabase();
+		//refreshDatabase();
 		refreshQuestionnaires();
 		refreshFacebook();
 		refreshMobile();
@@ -369,7 +369,7 @@
 		for (var d in database['database_stats']) {
 			if (d == 'test') continue;
 			document.getElementById('database_databases').innerHTML += '<h4>'+d+'</h4>';
-			document.getElementById('database_databases').innerHTML += 'Data Size: '+Math.round(database['database_stats'][d]['dataSize']/1048576.0)+'MB';
+			document.getElementById('database_databases').innerHTML += 'Data Size: '+Math.round(database['database_stats'][d]['Data_length']/1048576.0)+'MB';
 			document.getElementById('database_databases').innerHTML += '</br>'
 			document.getElementById('database_databases').innerHTML += 'Storage Size: '+Math.round(database['database_stats'][d]['storageSize']/1048576.0)+'MB';
 			document.getElementById('database_databases').innerHTML += '</br>'

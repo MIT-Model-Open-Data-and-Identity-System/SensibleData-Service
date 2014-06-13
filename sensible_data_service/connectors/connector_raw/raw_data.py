@@ -1,3 +1,4 @@
+import calendar
 from django.http import HttpResponse
 import bson.json_util as json
 from authorization_manager import authorization_manager
@@ -184,15 +185,22 @@ def dataBuild(request, probe_settings, users_to_return, decrypted = False, own_d
 def array_to_csv(results):
 	if not results: return ''
 	fields = results[0].keys()
-	output = ['\t'.join(fields)]
+	output = [','.join(fields)]
 	for result in results:
-		output += '\t'.join([str(result[k]) for k in fields]) 
+		output.append(','.join([str(result[k]) for k in fields]))
 	return '\n'.join(output)
 		
 
 
 def cursorToArray(cursor, decrypted = False, probe = '', is_researcher=False, map_to_users=False):
-	array = [doc for doc in cursor]
+	array = []
+	for row in cursor:
+		if 'timestamp' in row:
+			row['timestamp'] = int(calendar.timegm(row['timestamp'].timetuple()))
+		if 'timestamp_added' in row:
+			row['timestamp_added'] = int(calendar.timegm(row['timestamp_added'].timetuple()))
+		array.append(row)
+
 	if 'BluetoothProbe' not in probe: return array
 	if decrypted:
 		anonymizer = Anonymizer()
