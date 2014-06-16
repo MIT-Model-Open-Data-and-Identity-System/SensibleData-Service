@@ -42,11 +42,13 @@ class DatabaseHelper:
 				self.log.error({'type': 'FileStorage', 'tag': 'insert', 'exception': str(e)})
 		
 
+
 	def insert_rows(self, rows, collection, roles = None):
 		try:
 			self.engine.insert(rows, collection, roles)
 		except Exception, e:
 			self.log.error({'type': 'MYSQL', 'tag': 'insert', 'exception': str(e)})
+
 
 	def retrieve(self, params, collection, roles = None, from_secondary = True):
 		"""params: dictionary used to construct engine specific query. Keys:
@@ -78,8 +80,13 @@ class DatabaseHelper:
 		if isinstance(self.engine, mysql_wrapper.DBWrapper):
 			self.engine.update_device_info(device_info_document)
 
-	def execute_named_query(self, named_query, params):
-		if isinstance(self.engine, mysql_wrapper.DBWrapper):
-			connection = self.engine.get_write_db_connection_for_probe(named_query["database"])
-			return self.engine.execute_query_on_db(named_query["query"], connection, params)
-
+        def execute_named_query(self, named_query, params, readonly=True):
+                if isinstance(self.engine, mysql_wrapper.DBWrapper):
+                        if readonly:
+                                connection = self.engine.get_read_db_connection_for_probe(named_query["database"])
+                        else:
+                                connection = self.engine.get_write_db_connection_for_probe(named_query["database"])
+                        cur = self.engine.execute_query_on_db(named_query["query"], connection, params)
+                        if not readonly:
+                                connection.commit()
+                        return cur

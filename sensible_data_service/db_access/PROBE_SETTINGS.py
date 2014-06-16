@@ -1,4 +1,7 @@
 UNIQUE_FIELDS = {
+        "resampled_location": [],
+        "question_stop_locations": [],
+	"app_usage_statistics": [],
 	"dk_dtu_compute_facebook": [],
 	"dk_dtu_compute_questionnaire": ["form_version", "response", "user", "variable_name"],
 	"edu_mit_media_funf_probe_builtin_BluetoothProbe": ["bt_mac", "timestamp", "user"],
