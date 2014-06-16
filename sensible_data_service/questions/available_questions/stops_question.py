@@ -72,7 +72,7 @@ def get_users(db, role):
         return allusers
 
 
-def dorun(role):
+def run_for_role(role):
         log.debug({'type': 'stops_question', 'message': 'starting'})
         db = db_wrapper.DatabaseHelper()
         users = get_users(db, role)
@@ -129,3 +129,8 @@ def stops_answer(request, user, scopes, users_to_return, user_roles, own_data):
         )
         rows = [r for r in cur]
         return rows
+
+
+def run():
+        for role in ['researcher','developer','main']:
+                run_for_role(role)

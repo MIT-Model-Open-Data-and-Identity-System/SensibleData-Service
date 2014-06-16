@@ -68,3 +68,8 @@ def run_incremental(role):
         # recalculate last week
         now = int(time.time())
         recalculate(now - 7*24*60*60, now, role)
+
+
+def run():
+        for role in ['researcher','developer','main']:
+                run_incremental(role)
