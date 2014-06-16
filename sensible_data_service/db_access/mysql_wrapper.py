@@ -63,6 +63,7 @@ class DBWrapper:
 		cursor = connection.cursor()
 		try:
 			cursor.executemany(insert_query, values_to_insert)
+			self.log.debug({'type': 'MYSQL', 'tag': 'insert', 'database': probe, 'rows': str(len(values_to_insert))})
 		except mdb.Error, e:
 			if "Deadlock" in str(e):
 				cursor.executemany(insert_query, values_to_insert)
