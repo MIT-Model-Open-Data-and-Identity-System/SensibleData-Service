@@ -41,9 +41,6 @@ class DatabaseHelper:
 			except Exception, e:
 				self.log.error({'type': 'FileStorage', 'tag': 'insert', 'exception': str(e)})
 		
-		#Mongo
-		#TODO REMOVE WHEN MYSQL MIGRATION IS COMPLETE
-		database.Database().insert(documents, collection, roles)
 
 	def insert_rows(self, rows, collection, roles = None):
 		try:
