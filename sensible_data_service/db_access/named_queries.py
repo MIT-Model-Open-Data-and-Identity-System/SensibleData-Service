@@ -30,6 +30,8 @@ NAMED_QUERIES = {
 		"database": "edu_mit_media_funf_probe_builtin_BluetoothProbe"
 	},
 
+        ### get_unique_users_locationprobe
+
         "get_unique_users_locationprobe_developer": {
 		"query": "select distinct user from developer",
 		"database": "edu_mit_media_funf_probe_builtin_LocationProbe"
@@ -45,6 +47,8 @@ NAMED_QUERIES = {
 		"database": "edu_mit_media_funf_probe_builtin_LocationProbe"
 	},
 
+        ### delete_stops
+
         "delete_stops_developer": {
                 "query": "delete from developer where user = %s",
 		"database": "question_stop_locations"
@@ -59,6 +63,8 @@ NAMED_QUERIES = {
                 "query": "delete from main where user = %s",
 		"database": "question_stop_locations"
         },
+
+        ### delete_resampled_location
 
         "delete_resampled_location_developer": {
                 "query": "delete from developer where (timestamp between %s and %s)",

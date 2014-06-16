@@ -1,13 +1,16 @@
 import pandas as pd
 from questions.available_questions import dateutils
+from sensible_audit import audit
 from utils import db_wrapper
 from db_access.named_queries import NAMED_QUERIES
 import time
-import numpy as np
+
+
+log = audit.getLogger(__name__)
 
 
 def recalculate(start, end, role):
-        print 'starting'
+        log.debug({'type': 'resampled_location', 'message': 'starting'})
         db = db_wrapper.DatabaseHelper()
         current = start
         DELTAT = 24*60*60
@@ -17,7 +20,6 @@ def recalculate(start, end, role):
                                        (dateutils.epoch_to_mysql_string(current),
                                         dateutils.epoch_to_mysql_string(current + DELTAT)),
                                        readonly=False)
-                print 'deleted'
                 rows = []
                 page = 0
                 while True:
@@ -36,14 +38,16 @@ def recalculate(start, end, role):
                         rows.extend(newrows)
                         page += 1
 
-                print 'fetched %d (%d rows/s)' % (len(rows), len(rows)/(time.time() - t))
+                log.debug({'type': 'resampled_location',
+                           'message': 'fetched %d (%d rows/s)' % (len(rows), len(rows)/(time.time() - t))})
 
                 if len(rows) > 0:
                         alllocs = pd.DataFrame(rows)
                         resampled_rows = []
                         for uid, grp in alllocs.groupby('user'):
                                 resampled = grp.drop('user',1).set_index('timestamp').resample('15min', how='median').dropna()
-                                print 'resampled (%.1f%%)' % (100. * len(resampled) / len(grp))
+                                log.debug({'type': 'resampled_location',
+                                           'message': 'resampled (%.1f%%)' % (100. * len(resampled) / len(grp))})
                                 resampled['user'] = uid
                                 resampled['timestamp'] = resampled.index
                                 resampled['timestamp'] = resampled['timestamp'].apply(dateutils.datetime_to_string)
@@ -51,7 +55,8 @@ def recalculate(start, end, role):
                         db.insert_rows(resampled_rows, 'resampled_location', roles=[role])
                 current += DELTAT
 
-        print 'done in %ds' % (int(time.time() - t))
+        log.debug({'type': 'resampled_location',
+                                           'message': 'done in %ds' % (int(time.time() - t))})
 
 
 def run_all(role):

@@ -6,8 +6,13 @@ import time
 import pytz
 from sklearn.cluster import DBSCAN
 from questions.available_questions import dateutils
+from sensible_audit import audit
 from utils import db_wrapper
 from db_access.named_queries import NAMED_QUERIES
+
+
+NAME = 'stops_question'
+log = audit.getLogger(__name__)
 
 
 def groupwhile(df, fwhile):
@@ -68,20 +73,20 @@ def get_users(db, role):
 
 
 def dorun(role):
-        print 'starting'
+        log.debug({'type': 'stops_question', 'message': 'starting'})
         db = db_wrapper.DatabaseHelper()
         users = get_users(db, role)
-        for iu, uid in enumerate(users):
-                print ('%d/%d') % (iu,len(users))
-                startt = time.time()
-                db.execute_named_query(NAMED_QUERIES['delete_stops_'+role], (uid,), readonly=False)
+        for idx, username in enumerate(users):
+                print ('%d/%d') % (idx,len(users))
+                start_time = time.time()
+                db.execute_named_query(NAMED_QUERIES['delete_stops_'+role], (username,), readonly=False)
                 page = 0
                 rows = []
                 while True:
                         cur = db.retrieve({'limit': 100000,
                                            'after': page,
                                            'fields': ['timestamp', 'lon', 'lat'],
-                                           'users': [uid]},
+                                           'users': [username]},
                                           'resampled_location',
                                           roles=[role]
                         )
@@ -94,16 +99,15 @@ def dorun(role):
                         epoch = [dateutils.mysql_datetime_to_epoch(r['timestamp']) for r in rows]
                         df = pd.DataFrame(rows)
                         df['timestamp'] = epoch
-                        stops = getstops_dbscan(uid, df)
+                        stops = getstops_dbscan(username, df)
                         if stops is not None:
                                 stops['timestamp'] = [dateutils.epoch_to_mysql_string(t) for t in stops.arrival]
                                 db.insert_rows(stops.to_dict(outtype='records'),
                                                'question_stop_locations',
                                                roles=[role])
-                                print '%s: found %d stops in %ds' % (uid, len(stops), int(time.time() - startt))
-        print 'done'
-
-NAME = 'stops_question'
+                                log.debug({'type': 'stops_question',
+                                           'message': '%s: found %d stops in %ds' % (username, len(stops), int(time.time() - start_time))})
+        log.debug({'type': 'stops_question', 'message': 'done'})
 
 
 def stops_answer(request, user, scopes, users_to_return, user_roles, own_data):
@@ -112,7 +116,6 @@ def stops_answer(request, user, scopes, users_to_return, user_roles, own_data):
         start_date = request.GET.get('start_date', 0)
         end_date = request.GET.get('end_date', now)
         db = db_wrapper.DatabaseHelper()
-        print page
         cur = db.retrieve({'limit': 100,
                            'after': page,
                            'fields': ['arrival', 'departure', 'lon', 'lat', 'label'],
@@ -125,5 +128,4 @@ def stops_answer(request, user, scopes, users_to_return, user_roles, own_data):
                           roles=user_roles
         )
         rows = [r for r in cur]
-        print 'fetched %d in %ds' % (len(rows), int(time.time() - now))
         return rows
