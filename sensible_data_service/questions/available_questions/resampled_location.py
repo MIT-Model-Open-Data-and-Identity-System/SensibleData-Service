@@ -46,8 +46,6 @@ def recalculate(start, end, role):
                         resampled_rows = []
                         for uid, grp in alllocs.groupby('user'):
                                 resampled = grp.drop('user',1).set_index('timestamp').resample('15min', how='median').dropna()
-                                log.debug({'type': 'resampled_location',
-                                           'message': 'resampled (%.1f%%)' % (100. * len(resampled) / len(grp))})
                                 resampled['user'] = uid
                                 resampled['timestamp'] = resampled.index
                                 resampled['timestamp'] = resampled['timestamp'].apply(dateutils.datetime_to_string)
