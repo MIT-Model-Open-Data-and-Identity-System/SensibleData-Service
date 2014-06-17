@@ -232,7 +232,7 @@ def buildUsersToReturn(auth_user, request, is_researcher = False):
 def processApiCall(request, probe_settings, users_to_return):
 	
 	response = {}
-	api_params = ['bearer_token','sortby','decrypted','order','fields','start_date','end_date','limit','users','after','callback', 'format', 'map_to_users']
+	api_params = ['bearer_token','sortby','decrypted','order','fields','start_date','end_date','limit','users','after','callback', 'format', 'map_to_users', 'questions']
 	for k in request.REQUEST.keys():
 		if k not in api_params:
 			raise BadRequestException('error',400, str(k) + ' is not a legal API parameter.'\
@@ -311,6 +311,10 @@ def processApiCall(request, probe_settings, users_to_return):
 		else:
 			if request.REQUEST.get('map_to_users',None) == '1':
 				response['map_to_users'] = True
+	#deal with questionnaire queries
+	questionnaire_questions = request.REQUEST.get("questions")
+	if questionnaire_questions:
+		response["where"] = {"variable_name" : [question for question in questionnaire_questions.split(",") if len(question) > 0]}
 
 	### return
 	response['bearer_token'] = request.REQUEST.get('bearer_token')
