@@ -61,7 +61,7 @@ class DatabaseHelper:
 			'limit',how many rows to pass
 			'users',list of users
 			'after', id of the last returned document, used for paging
-			'where', constraints on the query; so far only '..where column = 'string-value'..' type constraints are supported
+			'where', constraints on the query; so far only '..where column = ['value 1', 'value 2', ..] type constraints are supported
 			'bearer_token', uniquely identifies the user, passed on solely
 							for handling query paging
 			"""

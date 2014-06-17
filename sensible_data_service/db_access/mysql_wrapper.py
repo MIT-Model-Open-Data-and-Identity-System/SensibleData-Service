@@ -215,8 +215,10 @@ class DBWrapper:
 		query_formatted_constraints = []
 		constraints = params.get("where", {})
 		for constraint in constraints:
-				query_formatted_constraints.append({"query_string": constraint + " = %s", "query_params": [str(constraints[constraint])]})
 
+				#query_formatted_constraints.append({"query_string": constraint + " = %s", "query_params": [str(constraints[constraint])]})
+				query_formatted_list_elements = ",".join(["%s" for element in constraints[constraint]])
+				query_formatted_constraints.append({"query_string": constraint + " in " + "(" + query_formatted_list_elements + ")", "query_params": constraints[constraint]})
 		return query_formatted_constraints
 
 	def __check_columns_valid_for_table(self, params, probe, table_name):
