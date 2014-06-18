@@ -115,17 +115,20 @@ def stops_answer(request, user, scopes, users_to_return, user_roles, own_data):
         page = request.GET.get('page', 0)
         start_date = request.GET.get('start_date', 0)
         end_date = request.GET.get('end_date', now)
+        roles_to_use = []
+        if own_data and 'researcher' in user_roles: roles_to_use = ['researcher']
+        if own_data and 'developer' in user_roles: roles_to_use = ['developer']
         db = db_wrapper.DatabaseHelper()
         cur = db.retrieve({'limit': 100,
                            'after': page,
-                           'fields': ['arrival', 'departure', 'lon', 'lat', 'label'],
+                           'fields': ['user','arrival', 'departure', 'lon', 'lat', 'label'],
                            'start_date': float(start_date),
                            'end_date': float(end_date),
-                           'users': [user],
+                           'users': users_to_return,
                            'sortby': 'timestamp',
                           },
                           'question_stop_locations',
-                          roles=user_roles
+                          roles=roles_to_use
         )
         rows = [r for r in cur]
         return rows
