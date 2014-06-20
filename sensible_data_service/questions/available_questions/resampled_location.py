@@ -8,7 +8,7 @@ import time
 
 log = audit.getLogger(__name__)
 
-
+NAME = "resampled_location"
 def recalculate(start, end, role):
         log.debug({'type': 'resampled_location', 'message': 'starting'})
         db = db_wrapper.DatabaseHelper()
