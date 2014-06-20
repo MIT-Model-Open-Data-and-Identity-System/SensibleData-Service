@@ -68,7 +68,7 @@ class DatabaseHelper:
 		if 'facebook' in collection:
 			print collection
 			facebook_data_type = collection.split("_")[4]
-			params['where'] = {"data_type": facebook_data_type}
+			params['where'] = {"data_type": [facebook_data_type]}
 		results = self.engine.retrieve(params, collection, roles)
 		if isinstance(self.engine, mysql_wrapper.DBWrapper):
 			if 'facebook' in collection:
