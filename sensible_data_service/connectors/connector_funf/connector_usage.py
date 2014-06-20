@@ -42,7 +42,7 @@ def on_post(request):
                                      'user': user,
                                      'timestamp': dateutils.epoch_to_mysql_string(e[0]),
                                      'event': e[1]})
-        except:
+        except Exception as e:
                 log.error({'type': 'connector_usage', 'message': str(e)})
                 return HttpResponse(content='malformed request', status=400)
 
