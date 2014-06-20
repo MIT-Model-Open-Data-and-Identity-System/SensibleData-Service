@@ -211,10 +211,10 @@ def cursorToArray(cursor, decrypted = False, probe = '', is_researcher=False, ma
 			try:
 				user_temp = deviceInventory.mapBtToUser(doc['bt_mac'], doc['timestamp'], use_mac_if_empty=False)
 				if user_temp is not None:
-					doc['user'] = user_temp
+					doc['scanned_user'] = user_temp
 				else:
-					doc['user'] = ''
-			except KeyError: doc['user'] = ''
+					doc['scanned_user'] = ''
+			except KeyError: doc['scanned_user'] = ''
 	return array
 
 def buildUsersToReturn(auth_user, request, is_researcher = False):
