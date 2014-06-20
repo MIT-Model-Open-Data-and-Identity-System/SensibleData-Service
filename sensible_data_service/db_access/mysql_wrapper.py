@@ -147,13 +147,13 @@ class DBWrapper:
 		return self.execute_query_on_db(query, connection, where_query_params)
 
 	def __limit(self, params):
-		limit = params.get("limit", -1)
-		try: limit = int(limit)
-		except: limit = -1
+		limit = params.get("limit")
+		try:
+			limit = int(limit)
+		except:
+			limit = -1
 		try: page_number = int(params.get("after", 0))
 		except: page_number = 0
-		if limit < 0:
-			return ""
 		return " limit " + str(page_number * limit) + ", " + str(limit)
 
 	def __order(self, params):
