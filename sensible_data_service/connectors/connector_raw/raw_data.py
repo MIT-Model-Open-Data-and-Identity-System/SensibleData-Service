@@ -215,10 +215,10 @@ def cursorToArray(cursor, decrypted = False, probe = '', is_researcher=False, ma
 			try:
 				user_temp = deviceInventory.mapBtToUser(doc['bt_mac'], doc['timestamp'], use_mac_if_empty=False)
 				if user_temp is not None:
-					doc['user'] = user_temp
+					doc['scanned_user'] = user_temp
 				else:
-					doc['user'] = ''
-			except KeyError: doc['user'] = ''
+					doc['scanned_user'] = ''
+			except KeyError: doc['scanned_user'] = ''
 	return array
 
 def buildUsersToReturn(auth_user, request, is_researcher = False):
@@ -252,6 +252,7 @@ def processApiCall(request, probe_settings, users_to_return):
 	response['after'] = None
 	response['format'] = 'json'
 	response['map_to_users'] = False
+	response['where'] = {}
 
 	### deal with sorting
 	# sorting will be supported later. Now, we can only sort by data.TIMESTAMP, either asc or desc
@@ -318,7 +319,10 @@ def processApiCall(request, probe_settings, users_to_return):
 	#deal with questionnaire queries
 	questionnaire_questions = request.REQUEST.get("questions")
 	if questionnaire_questions:
-		response["where"] = {"variable_name" : [question for question in questionnaire_questions.split(",") if len(question) > 0]}
+		response["where"]["variable_name"] = [question for question in questionnaire_questions.split(",") if len(question) > 0]
+	questionnaire_form_version = request.REQUEST.get("form_version")
+	if questionnaire_form_version:
+		response["where"]["form_version"] = [questionnaire_form_version]
 
 	### return
 	response['bearer_token'] = request.REQUEST.get('bearer_token')

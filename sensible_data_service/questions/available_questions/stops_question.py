@@ -111,15 +111,22 @@ def run_for_role(role):
 
 
 def stops_answer(request, user, scopes, users_to_return, user_roles, own_data):
-        now = time.time()
         page = request.GET.get('page', 0)
         start_date = request.GET.get('start_date', 0)
-        end_date = request.GET.get('end_date', now)
+        end_date = request.GET.get('end_date', time.time())
+
+        try:
+                limit = int(request.GET.get('limit', 1000))
+                if limit <= 0 or limit > 1000:
+                        limit = 1000
+        except:
+                limit = 1000
+
         roles_to_use = []
         if own_data and 'researcher' in user_roles: roles_to_use = ['researcher']
         if own_data and 'developer' in user_roles: roles_to_use = ['developer']
         db = db_wrapper.DatabaseHelper()
-        cur = db.retrieve({'limit': 100,
+        cur = db.retrieve({'limit': limit,
                            'after': page,
                            'fields': ['user','arrival', 'departure', 'lon', 'lat', 'label'],
                            'start_date': float(start_date),
