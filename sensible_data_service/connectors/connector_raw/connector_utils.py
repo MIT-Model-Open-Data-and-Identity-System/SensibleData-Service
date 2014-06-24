@@ -139,7 +139,16 @@ FACEBOOK_DATA_SETTINGS = {\
 	'work':{\
 		'scope':'connector_raw.work',
 		'collection':'dk_dtu_compute_facebook_work', 
-		'default_fields':['id','user','timestamp','facebook_id','data_type','data']}
+		'default_fields':['id','user','timestamp','facebook_id','data_type','data']},
+
+	'statuses': {\
+                'scope':'connector_raw.statuses',
+                'collection':'dk_dtu_compute_facebook_statuses',
+                'default_fields':['id','user','timestamp','facebook_id','data_type','data']},
+	'feed':{\
+                'scope':'connector_raw.feed',
+                'collection':'dk_dtu_compute_facebook_feed',
+                'default_fields':['id','user','timestamp','facebook_id','data_type','data']}
 
 	}
 
