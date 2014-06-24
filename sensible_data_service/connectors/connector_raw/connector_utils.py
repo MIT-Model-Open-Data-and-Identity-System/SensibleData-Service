@@ -156,5 +156,5 @@ QUESTIONNAIRE_DATA_SETTINGS = {\
 	'questionnaire':{\
 		'scope':'connector_raw.questionnaire',
 		'collection':'dk_dtu_compute_questionnaire',
-		'default_fields':['id','user','timestamp','variable_name','response']}
+		'default_fields':['id','user','timestamp','variable_name','response', 'form_version']}
 }
