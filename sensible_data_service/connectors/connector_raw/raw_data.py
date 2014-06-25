@@ -61,6 +61,10 @@ def religion(request):
 	return get_data(request, FACEBOOK_DATA_SETTINGS['religion'])
 def work(request):
 	return get_data(request, FACEBOOK_DATA_SETTINGS['work'])
+def statuses(request):
+        return get_data(request, FACEBOOK_DATA_SETTINGS['statuses'])
+def feed(request):
+        return get_data(request, FACEBOOK_DATA_SETTINGS['feed'])
 
 def get_data(request, probe_settings):
 	decrypted = booleanize(request.REQUEST.get('decrypted', False))
@@ -232,7 +236,7 @@ def buildUsersToReturn(auth_user, request, is_researcher = False):
 def processApiCall(request, probe_settings, users_to_return):
 	
 	response = {}
-	api_params = ['bearer_token','sortby','decrypted','order','fields','start_date','end_date','limit','users','after','callback', 'format', 'map_to_users', 'questions']
+	api_params = ['bearer_token','sortby','decrypted','order','fields','start_date','end_date','limit','users','after','callback', 'format', 'map_to_users', 'questions', 'form_version']
 	for k in request.REQUEST.keys():
 		if k not in api_params:
 			raise BadRequestException('error',400, str(k) + ' is not a legal API parameter.'\
