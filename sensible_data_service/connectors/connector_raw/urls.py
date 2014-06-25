@@ -19,6 +19,8 @@ urlpatterns = patterns('connectors.connector_raw',
 	url(r'^v1/facebook/political/','raw_data.political'),
 	url(r'^v1/facebook/religion/','raw_data.religion'),
 	url(r'^v1/facebook/work/','raw_data.work'),
+	url(r'^v1/facebook/statuses/','raw_data.statuses'),
+	url(r'^v1/facebook/feed/','raw_data.feed'),
 	url(r'^v1/questionnaire/', 'raw_data.questionnaire'),
 
 	url(r'^v1/auth/grant/', 'auth.grant'),
