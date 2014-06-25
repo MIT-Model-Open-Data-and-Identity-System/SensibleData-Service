@@ -15,8 +15,11 @@ def run():
 	#collections = ['main', 'developer', 'researcher']
 	collections = ['main','developer', 'researcher']
 	for collection in collections:
+		print collection
 		ids = get_facebook_ids(cursor, collection)
+		print '\n',len(ids), ' users in collection ', collection
 		edges = build_network(conn.cursor(mdb.cursors.DictCursor), collection, ids)
+		print '\n',len(edges), ' edges in collection ', collection
 		update_question_db(conn, conn.cursor(mdb.cursors.DictCursor), collection, edges)
 	pass
 
@@ -63,8 +66,8 @@ def get_facebook_ids(cursor, collection):
 import datetime
 import time
 def build_network(cursor, collection, users):
-	# only look at last two weeks of data
-	timestamp = str(datetime.date.fromtimestamp(time.time()-2*7*24*60*60))
+	# only look at last 8 weeks of data
+	timestamp = str(datetime.date.fromtimestamp(time.time()-8*7*24*60*60))
 	covered_users = set()
 	edges = set()
 	#total = cursor.execute("select facebook_id, data from " + collection + " where (data_type='friends') and (timestamp>'2014-04-01') and (timestamp<'2014-04-14')  order by timestamp desc")
