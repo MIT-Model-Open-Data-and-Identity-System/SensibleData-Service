@@ -1,3 +1,4 @@
+import base64
 import calendar
 from django.http import HttpResponse
 import bson.json_util as json
@@ -37,6 +38,8 @@ def sms(request):
 	return get_data(request, PHONE_DATA_SETTINGS['sms'])
 def questionnaire(request):
 	return get_data(request,QUESTIONNAIRE_DATA_SETTINGS['questionnaire'])
+def experience_sampling(request):
+	return get_data(request, PHONE_DATA_SETTINGS['experience_sampling'])
 def birthday(request):
 	return get_data(request, FACEBOOK_DATA_SETTINGS['birthday'])
 def education(request):
@@ -204,6 +207,10 @@ def cursorToArray(cursor, decrypted = False, probe = '', is_researcher=False, ma
 		if 'timestamp_added' in row:
 			row['timestamp_added'] = int(calendar.timegm(row['timestamp_added'].timetuple()))
 		array.append(row)
+
+	if 'ExperienceSamplingProbe' in probe:
+		for doc in array:
+			doc['answer'] = base64.b64decode(doc['answer'])
 
 	if 'BluetoothProbe' not in probe: return array
 	if decrypted:
