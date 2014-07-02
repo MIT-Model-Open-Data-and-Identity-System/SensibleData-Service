@@ -78,6 +78,7 @@ class Anonymizer(object):
 		elif probe == 'edu_mit_media_funf_probe_builtin_HardwareInfoProbe': self.anonymizeHardwareProbe(document)
 		elif probe == 'edu_mit_media_funf_probe_builtin_ContactProbe': self.anonymizeContactProbe(document)
 		elif probe == 'edu_mit_media_funf_probe_builtin_BatteryProbe': document = self.anonymizeBatteryProbe(document)
+		elif probe == 'edu_mit_media_funf_probe_builtin_ExperienceSamplingProbe': document = self.anonymizeExperienceSamplingProbe(document)
 		
 		
 		
@@ -106,6 +107,13 @@ class Anonymizer(object):
 		elif probe == 'dk_dtu_compute_facebook_friends': document = self.deanonymizeFacebookFriendsConnections(document)
 		return document
 				
+	def anonymizeExperienceSamplingProbe(self, document):
+		if document['answer']['question_type'] == 'SOCIAL_RATE_TWO_FRIENDS' or document['answer']['question_type'] == 'SOCIAL_CLOSER_FRIEND':
+			document['answer']['friend_one_uid'] = self.encrypt(document['answer']['friend_one_uid'])
+			document['answer']['friend_two_uid'] = self.encrypt(document['answer']['friend_two_uid'])
+		#elif document['answer']['question_type'] ==
+		return document
+
 	def anonymizeBatteryProbe(self, document):
 		document.pop('icon-small', None)
 		document.pop('invalid_charger',None)
