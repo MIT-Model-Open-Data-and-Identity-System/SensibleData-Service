@@ -12,13 +12,8 @@ def run():
 
 def how_many_people_did_i_see_answer(request, user, scopes, users_to_return, user_roles, own_data):
     """The response for how_many_people_did_i_see request. Returns the number of people seen within a given time"""
-    parsed_request = wdisq.parse_request(request)
-    if isinstance(parsed_request, dict) or (isinstance(parsed_request, list) and len(parsed_request) != 4):
-        return parsed_request
-    [username, from_date, end_date, output_type] = parsed_request
-    db_connection = wdisq.connect_to_db()
-    
-    users_list = wdisq.get_users_list(db_connection, username, from_date, end_date)
+    [db_connection, collection, user, from_date, end_date, output_type] = wdisq.prepare_to_answer(request, user_roles, user)    
+    users_list = wdisq.get_users_list(db_connection, collection, user, from_date, end_date)
     return wdisq.prepare_answer(output_type, _get_users_number(users_list, from_date, end_date))
 
 def _get_users_number(users_list, from_date, end_date):
@@ -36,7 +31,7 @@ def _get_users_number_daily(users_list, from_date, end_date):
     i = 0
     while(start_range < end_date):
         count = 0
-        while(users_list[i][1] > start_range and users_list[i][1] < end_range):
+        while(users_list[i]['timestamp'] > start_range and users_list[i]['timestamp'] < end_range):
             count += 1
             i += 1
         if(count > 0):
@@ -53,7 +48,7 @@ def _get_users_number_hourly(users_list, from_date, end_date):
     i = 0
     while(start_range < end_date):
         count = 0
-        while(users_list[i][1] > start_range and users_list[i][1] < end_range):
+        while(users_list[i]['timestamp'] > start_range and users_list[i]['timestamp'] < end_range):
             count += 1
             i += 1
         if(count > 0):
