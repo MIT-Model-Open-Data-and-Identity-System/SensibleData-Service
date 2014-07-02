@@ -78,7 +78,13 @@ PHONE_DATA_SETTINGS = {\
 	'timeoffset':{\
 		'scope':'connector_raw.timeoffset',\
 		'collection':'edu_mit_media_funf_probe_builtin_TimeOffsetProbe',
-		'default_fields':['id','user','timestamp','timeoffest']}
+		'default_fields':['id','user','timestamp','timeoffest']},
+
+	'experience_sampling': {
+		'scope': 'connector_raw.experience_sampling',
+		'collection': 'edu_mit_media_funf_probe_builtin_ExperienceSamplingProbe',
+		'default_fields': ['timestamp', 'user', 'answer', 'answer_type', 'question_type']
+	}
 
 	}
 
