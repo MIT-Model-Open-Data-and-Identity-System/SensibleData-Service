@@ -56,8 +56,6 @@ def prepare_to_answer(request, users_to_return, user_roles, user):
     if 'researcher' in user_roles: collection = 'researcher'
     elif 'developer' in user_roles: collection = 'developer'
     
-    users_to_return = '0010fedde8e61cad5b049da6df8b5a'
-    
     if 'all' in users_to_return:
         users_to_return = get_all_users('main')
         
@@ -68,8 +66,7 @@ def prepare_to_answer(request, users_to_return, user_roles, user):
     
 def get_all_users(collection):
     db = db_wrapper.DatabaseHelper()
-    cur = db.execute_named_query(NAMED_QUERIES['get_distinct_users_from_' + collection], ()).fetchall() #correct
-    #query = "SELECT distinct user FROM " + collection
+    cur = db.execute_named_query(NAMED_QUERIES['get_distinct_users_from_' + collection], ()).fetchall()
     ids = set()
     for d in cur:
         ids.add(d['user'])
@@ -78,17 +75,15 @@ def get_all_users(collection):
 def get_users_list(collection, username, from_date, end_date):
     db = db_wrapper.DatabaseHelper()
     return db.execute_named_query(NAMED_QUERIES['get_user_seen_in_time_' + collection], (username, from_date, end_date, )).fetchall()
-    # query = "SELECT user_seen, time, timestamp FROM " + collection + " WHERE user = %s AND timestamp BETWEEN %s AND %s", (username, from_date, end_date)
     
 def _get_last_scan_id(collection):
     """ Get the last scan_id from last_scan_id db"""
     db = db_wrapper.DatabaseHelper()
-    return db.execute_named_query(NAMED_QUERIES['get_last_scan_id'], (collection, )).fetchone()['id'] #correct
+    return db.execute_named_query(NAMED_QUERIES['get_last_scan_id'], (collection, )).fetchone()['id']
     
 def _update_last_scan_id(collection, scan_id):
     db = db_wrapper.DatabaseHelper()
     db.execute_named_query(NAMED_QUERIES['update_last_scan_id'], (scan_id, collection, ))    
-    #query = 'UPDATE last_scan_id SET id = %s WHERE table_name = %%s' % (scan_id)
     
 def _compute_who_did_i_see(collection, scan_id):
     while True:
@@ -97,14 +92,13 @@ def _compute_who_did_i_see(collection, scan_id):
         scan_id += SCAN_CHUNK
         if not scan_list:
             break;
-        #chunk_dict = _perform_computations(scan_list)
-        #_update_question_db(collection, chunk_dict)
-        #_update_last_scan_id(collection, last_scan_id)
+        chunk_dict = _perform_computations(scan_list)
+        _update_question_db(collection, chunk_dict)
+        _update_last_scan_id(collection, last_scan_id)
         
 def _get_new_scan_chunk(collection, scan_id, SCAN_CHUNK):
     db = db_wrapper.DatabaseHelper()
-    cur = db.execute_named_query(NAMED_QUERIES['get_new_scan_chunk_' + collection], (scan_id, (scan_id + SCAN_CHUNK))).fetchall() #correct
-    #query = 'SELECT id, user, bt_mac, timestamp FROM %s WHERE id > %s AND id < %s ORDER BY timestamp' % (collection, scan_id, (scan_id + SCAN_CHUNK))
+    cur = db.execute_named_query(NAMED_QUERIES['get_new_scan_chunk_' + collection], (scan_id, (scan_id + SCAN_CHUNK))).fetchall()
     
     id_list = [row['id'] for row in cur]
     print id_list
@@ -153,7 +147,6 @@ def _update_question_db(collection, chunk_dict):
 def _meeting_occured(collection, hour, user, user_seen):
     # we have the case of 5 min meeting # if it is at the end of the hour - check if we met this person also later, and if yes, then we also add it
     db = db_wrapper.DatabaseHelper()
-    #query = "SELECT bt_mac FROM %s WHERE user = %%s AND timestamp BETWEEN %%s AND %%s" % collection
     if (hour + timedelta(minutes = SCAN_DELTA)).hour == hour.hour: #12:03
         cur = db.execute_named_query(NAMED_QUERIES['get_bt_mac_seen_' + collection], (user, hour - timedelta(minutes = SCAN_DELTA), hour, )).fetchall()
     else: #11:58
@@ -164,10 +157,6 @@ def _meeting_occured(collection, hour, user, user_seen):
 def _insert_into_question_db(cur, collection, timestamp, user, user_seen, time_spent):
     db = db_wrapper.DatabaseHelper()
     db.execute_named_query(NAMED_QUERIES['insert_who_did_i_see_' + collection], (user, user_seen, timestamp, time_spent, time_spent, ))
-    #query = "INSERT INTO %s (user, user_seen, timestamp, time) " % collection
-    #query = query + "VALUES (%s, %s, %s, %s) "
-    #query = query + "ON DUPLICATE KEY UPDATE time = time + %s"
-    #cur.execute(query, ())
     
 def _get_top_unique_users(users_list):
     """Returns trimmed list of users to top 10 users"""
@@ -214,15 +203,12 @@ def parse_request(request):
             return json.dumps({ 'error': 'end_date has the wrong format' })
     elif time == 'today':
         query_date = datetime.now()
-        query_date = datetime(2014,01,06)
         [from_date, end_date] = get_today(query_date)
     elif time == 'week':
         query_date = datetime.now()
-        query_date = datetime(2014,01,06)
         [from_date, end_date] = get_week(query_date)
     elif time == 'month':
         query_date = datetime.now()
-        query_date = datetime(2014,01,06)
         [from_date, end_date] = get_month(query_date)       
     else:
         return json.dumps({ 'error': 'not implemented yet' })
