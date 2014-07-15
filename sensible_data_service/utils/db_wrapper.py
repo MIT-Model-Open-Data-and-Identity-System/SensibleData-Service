@@ -1,3 +1,5 @@
+import base64
+import json
 from pymongo import MongoClient, MongoReplicaSetClient
 import SECURE_settings
 from django.conf import settings
@@ -39,50 +41,52 @@ class DatabaseHelper:
 			except Exception, e:
 				self.log.error({'type': 'FileStorage', 'tag': 'insert', 'exception': str(e)})
 		
-		#Mongo
-		#TODO REMOVE WHEN MYSQL MIGRATION IS COMPLETE
-		database.Database().insert(documents, collection, roles)
-		# # if it's the mysql wrapper, the documents have to be transformed into lists of rows
-		# if isinstance(self.engine, mysql_wrapper.DBWrapper):
-		# 	payload = []
-		# 	for document in documents:
-		# 		#pdb.set_trace()
-		# 		payload += json_to_csv.json_to_csv(document, probe)
-		# 	if 'facebook' in probe: probe = 'facebook'
-		# 	self.engine.insert(payload, probe, roles)
-		# elif isinstance(self.engine, database.Database):
-		# 	self.engine.insert(documents, collection, roles)
-	
-	""" 
-	params: dictionary used to construct engine specific query. Keys:
-	'sortby' - column to sort by (enforced to timestamp)
-	'decrypted',
-	'order', - +1 for ASCENDING, -1 for DESCENDING
-	'fields', projection
-	'start_date',minimum value of timestamp (inclusive)
-	'end_date',maximum value of timestamp (inclusive)
-	'limit',how many rows to pass
-	'users',list of users
-	'after', id of the last returned document, used for paging
-	'where' list dictionaries with a field and value(s), for example: 
-		params['where'] = [{'device_id':['devid1', 'devid2']},{'timestamp':123345}]
-	"""
-	# def retrieve(self, params, collection, roles = None, from_secondary = True):
-	# 	return self.engine.retrieve(params, collection, roles)
+
+
+	def insert_rows(self, rows, collection, roles = None):
+		try:
+			self.engine.insert(rows, collection, roles)
+		except Exception, e:
+			self.log.error({'type': 'MYSQL', 'tag': 'insert', 'exception': str(e)})
+
+
+	def retrieve(self, params, collection, roles = None, from_secondary = True):
+		"""params: dictionary used to construct engine specific query. Keys:
+			'sortby' - column to sort by (enforced to timestamp)
+			'decrypted',
+			'order', - +1 for ASCENDING, -1 for DESCENDING
+			'fields', projection
+			'start_date',minimum value of timestamp (inclusive)
+			'end_date',maximum value of timestamp (inclusive)
+			'limit',how many rows to pass
+			'users',list of users
+			'after', id of the last returned document, used for paging
+			'where', constraints on the query; so far only '..where column = ['value 1', 'value 2', ..] type constraints are supported
+			'bearer_token', uniquely identifies the user, passed on solely
+							for handling query paging
+			"""
+		if 'facebook' in collection:
+			print collection
+			facebook_data_type = collection.split("_")[4]
+			params['where'] = {"data_type": [facebook_data_type]}
+		results = self.engine.retrieve(params, collection, roles)
+		if isinstance(self.engine, mysql_wrapper.DBWrapper):
+			if 'facebook' in collection:
+				for result in results:
+					result['data'] = json.loads(base64.b64decode(result['data']))
+		return results
 
 	def update_device_info(self, device_info_document):
 		if isinstance(self.engine, mysql_wrapper.DBWrapper):
 			self.engine.update_device_info(device_info_document)
 
-	def getDocuments(self, query, collection, roles = None, from_secondary = True):
-		# data retrieval not yet implemented in mysql, switching to mongo if necessary
-		if isinstance(self.engine, mysql_wrapper.Wrapper):
-			self.engine = database.Database()
-		return self.engine.getDocuments(query, collection, roles, from_secondary)
-
-	#to be merged with getDocuments with default fields argument
-	def getDocumentsCustom(self, query, collection, fields, roles = None, from_secondary = True):
-		# data retrieval not yet implemented in mysql, switching to mongo if necessary
-		if isinstance(self.engine, mysql_wrapper.Wrapper):
-			self.engine = database.Database()
-		return self.engine.getDocumentsCustom(query, collection, fields, roles, from_secondary)
+        def execute_named_query(self, named_query, params, readonly=True):
+                if isinstance(self.engine, mysql_wrapper.DBWrapper):
+                        if readonly:
+                                connection = self.engine.get_read_db_connection_for_probe(named_query["database"])
+                        else:
+                                connection = self.engine.get_write_db_connection_for_probe(named_query["database"])
+                        cur = self.engine.execute_query_on_db(named_query["query"], connection, params)
+                        if not readonly:
+                                connection.commit()
+                        return cur

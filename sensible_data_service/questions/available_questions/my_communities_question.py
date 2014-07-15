@@ -1,8 +1,11 @@
 import who_did_i_see_question as wdisq
 import networkx as nx
 import community
+import json
+from bson import json_util
 
 #http://raman.imm.dtu.dk:8086/magda/sensible-dtu/connectors/connector_answer/v1/my_communities_question/my_communities_answer/?bearer_token=c9af1c97a08500ba33635cf2568ce1&username=331f9e3859ae7f3c457498d423d29d&type=today
+#http://raman.imm.dtu.dk:8086/magda/sensible-dtu/connectors/connector_answer/v1/my_communities_question/my_communities_answer/?bearer_token=f3b4144993be90bd3e701c716dd1de&time=month
 
 NAME = "my_communities_question"
 
@@ -12,10 +15,12 @@ def run():
 
 def my_communities_answer(request, user, scopes, users_to_return, user_roles, own_data):
     """The response for my_communities request. Returns the users communities."""
-    [db_connection, collection, user, from_date, end_date, output_type] = wdisq.prepare_to_answer(request, user_roles, user)    
-    users_list = wdisq.get_users_list(db_connection, collection, user, from_date, end_date)
-    result = _get_my_communities(users_list, user)
-    return result
+    [collection, user, from_date, end_date, output_type] = wdisq.prepare_to_answer(request, users_to_return, user_roles, user) 
+    result = {}
+    for single_user in user:
+        users_list = wdisq.get_users_list(collection, single_user, from_date, end_date)
+        result[single_user] = _get_my_communities(users_list, single_user)
+    return json.dumps(result, default=json_util.default)
 
 def _get_my_network(users_list, my_username):
     """Returns the users network of people which he/she met within a given time."""
