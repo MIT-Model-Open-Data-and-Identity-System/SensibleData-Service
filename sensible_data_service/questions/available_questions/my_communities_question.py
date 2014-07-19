@@ -4,9 +4,6 @@ import community
 import json
 from bson import json_util
 
-#http://raman.imm.dtu.dk:8086/magda/sensible-dtu/connectors/connector_answer/v1/my_communities_question/my_communities_answer/?bearer_token=c9af1c97a08500ba33635cf2568ce1&username=331f9e3859ae7f3c457498d423d29d&type=today
-#http://raman.imm.dtu.dk:8086/magda/sensible-dtu/connectors/connector_answer/v1/my_communities_question/my_communities_answer/?bearer_token=f3b4144993be90bd3e701c716dd1de&time=month
-
 NAME = "my_communities_question"
 
 def run():
@@ -42,6 +39,7 @@ def _get_my_communities(users_list, my_username):
     return community.best_partition(my_network)
     
 def _add_friends_edges(users_list):
+    """Returns the networkx graph with users friends as nodes and connections between them when they were met during the same timestamp"""
     my_network = nx.Graph()
     #add edges between users to the graph
     sorted(users_list, key=lambda user: user['time'])

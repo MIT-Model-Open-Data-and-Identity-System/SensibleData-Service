@@ -4,9 +4,6 @@ import who_did_i_see_question as wdisq
 import json
 from bson import json_util
 
-#http://raman.imm.dtu.dk:8086/magda/sensible-dtu/connectors/connector_answer/v1/how_many_people_did_i_see_question/how_many_people_did_i_see_answer/?bearer_token=c9af1c97a08500ba33635cf2568ce1&username=331f9e3859ae7f3c457498d423d29d&type=week
-#http://raman.imm.dtu.dk:8086/magda/sensible-dtu/connectors/connector_answer/v1/how_many_people_did_i_see_question/how_many_people_did_i_see_answer/?bearer_token=f3b4144993be90bd3e701c716dd1de&time=today
-
 NAME = "how_many_people_did_i_see_question"
 
 def run():
@@ -35,9 +32,9 @@ def _get_users_number_daily(users_list, from_date, end_date):
     start_range = from_date
     end_range = start_range + timedelta(days = 1)
     i = 0
-    while(start_range < end_date):
+    while(start_range < end_date and i < len(users_list)):
         count = 0
-        while(users_list[i]['timestamp'] > start_range and users_list[i]['timestamp'] < end_range):
+        while(i < len(users_list) and users_list[i]['timestamp'] > start_range and users_list[i]['timestamp'] < end_range):
             count += 1
             i += 1
         if(count > 0):
@@ -52,9 +49,9 @@ def _get_users_number_hourly(users_list, from_date, end_date):
     start_range = from_date
     end_range = start_range + timedelta(hours = 1)
     i = 0
-    while(start_range < end_date):
+    while(start_range < end_date and i < len(users_list)):
         count = 0
-        while(users_list[i]['timestamp'] > start_range and users_list[i]['timestamp'] < end_range):
+        while(i < len(users_list) and users_list[i]['timestamp'] > start_range and users_list[i]['timestamp'] < end_range):
             count += 1
             i += 1
         if(count > 0):
