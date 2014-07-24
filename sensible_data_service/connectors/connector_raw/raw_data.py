@@ -209,10 +209,8 @@ def cursorToArray(cursor, decrypted = False, probe = '', is_researcher=False, ma
 		array.append(row)
 
 	if 'ExperienceSamplingProbe' in probe:
-		anonymizer = Anonymizer()
 		for doc in array:
 			doc['answer'] = json.loads(base64.b64decode(doc['answer']))
-			anonymizer.anonymizeDocument(doc, probe)
 
 
 	if 'BluetoothProbe' not in probe: return array
