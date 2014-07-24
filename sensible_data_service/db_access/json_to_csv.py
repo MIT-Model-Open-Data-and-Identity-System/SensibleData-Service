@@ -141,6 +141,7 @@ def funf_to_csv(json_obj, probe):
 	if probe == 'edu_mit_media_funf_probe_builtin_TimeOffsetProbe': return funf_timeoffset_to_csv(json_obj)
 	if probe == 'edu_mit_media_funf_probe_builtin_WifiProbe': return funf_wifi_to_csv(json_obj)
 	if probe == 'edu_mit_media_funf_probe_builtin_ExperienceSamplingProbe': return funf_experience_sampling_to_csv(json_obj)
+	if probe == 'edu_mit_media_funf_probe_builtin_EpidemicProbe': return funf_epidemic_to_csv(json_obj)
 
 
 def funf_metadata(json_obj):
@@ -166,7 +167,15 @@ def funf_experience_sampling_to_csv(json_obj):
 	rows.append(row)
 	return rows
 
+def funf_epidemic_to_csv(json_obj):
+	rows = []
+	metadata = funf_metadata(json_obj)
 
+	row = {}
+	for key in metadata: row[key] = metadata[key]
+	row['data'] = base64.b64encode(json.dumps(json_obj['data']))
+	rows.append(row)
+	return rows
 
 def funf_bluetooth_to_csv(json_obj):
 	rows = []

@@ -40,6 +40,8 @@ def questionnaire(request):
 	return get_data(request,QUESTIONNAIRE_DATA_SETTINGS['questionnaire'])
 def experience_sampling(request):
 	return get_data(request, PHONE_DATA_SETTINGS['experience_sampling'])
+def epidemic(request):
+	return get_data(request, PHONE_DATA_SETTINGS['epidemic'])
 def birthday(request):
 	return get_data(request, FACEBOOK_DATA_SETTINGS['birthday'])
 def education(request):
@@ -212,6 +214,9 @@ def cursorToArray(cursor, decrypted = False, probe = '', is_researcher=False, ma
 		for doc in array:
 			doc['answer'] = json.loads(base64.b64decode(doc['answer']))
 
+	if 'EpidemicProbe' in probe:
+		for doc in array:
+			doc['data'] = json.loads(base64.b64decode(doc['data']))
 
 	if 'BluetoothProbe' not in probe: return array
 	if decrypted:
