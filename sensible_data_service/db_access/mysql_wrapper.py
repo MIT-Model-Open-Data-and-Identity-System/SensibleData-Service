@@ -250,7 +250,7 @@ class DBWrapper:
 			end_date = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(params['end_date']))
 
 		if start_date and end_date:
-			return {"query_string": "timestamp BETWEEN %s AND %s", "query_params": [start_date, end_date]}
+			return {"query_string": "timestamp >= %s AND timestamp <= %s", "query_params": [start_date, end_date]}
 		elif start_date and not end_date:
 			return {"query_string": "timestamp >= %s", "query_params": [start_date]}
 		elif end_date and not start_date:

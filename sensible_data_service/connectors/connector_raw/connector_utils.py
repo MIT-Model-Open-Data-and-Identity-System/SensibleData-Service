@@ -84,6 +84,12 @@ PHONE_DATA_SETTINGS = {\
 		'scope': 'connector_raw.experience_sampling',
 		'collection': 'edu_mit_media_funf_probe_builtin_ExperienceSamplingProbe',
 		'default_fields': ['timestamp', 'user', 'answer', 'answer_type', 'question_type']
+	},
+
+	'epidemic': {
+		'scope': 'connector_raw.epidemic',
+		'collection': 'edu_mit_media_funf_probe_builtin_EpidemicProbe',
+		'default_fields': ['timestamp', 'user', 'data']
 	}
 
 	}
