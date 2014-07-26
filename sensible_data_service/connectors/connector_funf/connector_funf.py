@@ -88,7 +88,10 @@ def write_file(filepath, file):
 
 def config(request):
 	access_token = request.REQUEST.get('access_token', '')
-	config = readConfig('dummy')
+	request.bearer_token = access_token #needed as authorization manager expects bearer_token not access_token
+	try: user = authorization_manager.authorization_manager.authenticate_token(request)['user']
+	except: user = None
+	config = readConfig(user)
 	if config:
 		return HttpResponse(config)
 	else:
@@ -97,11 +100,9 @@ def config(request):
 def readConfig(user):
 	config = None
 	try:
-		with open(myConnector['config_path']) as config_file:
-			config = config_file.read()
-	except IOError: pass
+		with open(myConnector['config_path']+'_'+user.username) as config_file: config = config_file.read()
+	except:
+		try:
+			with open(myConnector['config_path']) as config_file: config = config_file.read()
+		except: pass
 	return config
-
-def chooseConfig(user):
-	return "config.json"
-
