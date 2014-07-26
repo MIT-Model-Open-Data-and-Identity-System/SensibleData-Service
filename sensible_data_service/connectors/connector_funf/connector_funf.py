@@ -19,6 +19,7 @@ import connectors.connectors_config
 import authorization_manager
 
 from subprocess import Popen, PIPE
+from django.shortcuts import redirect
 
 # bug fix
 # see http://stackoverflow.com/questions/13193278/understand-python-threading-bug
@@ -87,8 +88,14 @@ def write_file(filepath, file):
 
 
 def config(request):
-	access_token = request.REQUEST.get('access_token', '')
-	request.bearer_token = access_token #needed as authorization manager expects bearer_token not access_token
+	access_token = request.REQUEST.get('access_token', None)
+	bearer_token = request.REQUEST.get('bearer_token', None)
+
+	if not bearer_token and access_token:
+		current_url = request.build_absolute_uri()
+		url = current_url.replace('access_token', 'bearer_token')
+		return redirect(url) 
+
 	try: user = authorization_manager.authorization_manager.authenticate_token(request)['user']
 	except: user = None
 	config = readConfig(user)
