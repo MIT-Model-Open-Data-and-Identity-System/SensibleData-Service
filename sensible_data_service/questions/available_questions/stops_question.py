@@ -1,14 +1,13 @@
-import calendar
 from math import radians, cos, sin, asin, sqrt
-from datetime import datetime
-import pandas as pd
 import time
-import pytz
+
 from sklearn.cluster import DBSCAN
+
+import pandas as pd
 from questions.available_questions import dateutils
 from sensible_audit import audit
 from utils import db_wrapper
-from db_access.named_queries import NAMED_QUERIES
+from db_access.named_queries.named_queries import NAMED_QUERIES
 
 
 NAME = 'stops_question'

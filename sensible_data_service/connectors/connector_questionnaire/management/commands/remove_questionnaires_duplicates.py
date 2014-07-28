@@ -1,7 +1,10 @@
-from django.core.management.base import NoArgsCommand
-from db_access.named_queries import NAMED_QUERIES
-from utils import db_wrapper
 from collections import defaultdict
+
+from django.core.management.base import NoArgsCommand
+
+from db_access.named_queries.named_queries import NAMED_QUERIES
+from utils import db_wrapper
+
 
 class Command(NoArgsCommand):
 	def handle_noargs(self, **options):

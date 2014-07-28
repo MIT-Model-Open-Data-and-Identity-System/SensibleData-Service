@@ -3,12 +3,14 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 import bson.json_util as json
-from db_access.named_queries import NAMED_QUERIES
 from django.contrib.auth.models import User
-from documents.models import InformedConsent
 from django.conf import settings
-from utils import db_wrapper, SECURE_settings, database
 import pymongo
+
+from db_access.named_queries.named_queries import NAMED_QUERIES
+from documents.models import InformedConsent
+from utils import db_wrapper, SECURE_settings, database
+
 
 @login_required
 def status(request):
