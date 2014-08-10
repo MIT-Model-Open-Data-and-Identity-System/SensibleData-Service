@@ -7,6 +7,8 @@ from collections import defaultdict
 from anonymizer import anonymizer
 from connectors.connector_funf import device_inventory
 import pytz
+import os
+
 
 log = audit.getLogger(__name__)
 
@@ -15,13 +17,16 @@ WAVES_STRING = '1406578700!fe05bcdc,0.015,S,36,108,S,120,1;1407580200!ad782ecd,0
 #WAVES_STRING = '1406578700!Nexus,0.015,S,36,108,S,120,1'
 
 def calculate_epi_summary():
+
+	this_path = os.path.split(os.path.realpath(__file__))[0] + '/'
+
 	db = db_wrapper.DatabaseHelper()
 	waves = read_waves()
 	an = anonymizer.Anonymizer()
 	inventory = device_inventory.DeviceInventory()
 	localtz = pytz.timezone('Europe/Copenhagen')
 
-	f = open('epi_summary.json', 'w')
+	f = open(this_path+'epi_summary.json', 'w')
 
 	for wave in sorted(waves):
 		last_id = 0
