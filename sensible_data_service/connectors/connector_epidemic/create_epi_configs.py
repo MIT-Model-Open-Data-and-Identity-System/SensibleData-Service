@@ -71,6 +71,8 @@ class Args:
 	SILENT_NIGHT = True
 	HIDDEN_MODE = True
 	SHOW_WELCOME_DIALOG = 1409410800
+	SHOW_FINAL_DIALOG = 1418436000
+	FINAL_DIALOG_URL = "http://www.sensible.dtu.dk/?page_id=2044"
 
 def build_django_args():
 	return Args()
@@ -101,6 +103,8 @@ def create_epi_config(base_config, summary):
 	epi_config['dataRequests']['edu.mit.media.funf.probe.builtin.EpidemicProbe'][0]['SILENT_NIGHT'] = args.SILENT_NIGHT
 	epi_config['dataRequests']['edu.mit.media.funf.probe.builtin.EpidemicProbe'][0]['HIDDEN_MODE'] = args.HIDDEN_MODE
 	epi_config['dataRequests']['edu.mit.media.funf.probe.builtin.EpidemicProbe'][0]['SHOW_WELCOME_DIALOG'] = args.SHOW_WELCOME_DIALOG
+	epi_config['dataRequests']['edu.mit.media.funf.probe.builtin.EpidemicProbe'][0]['SHOW_FINAL_DIALOG'] = args.SHOW_FINAL_DIALOG
+	epi_config['dataRequests']['edu.mit.media.funf.probe.builtin.EpidemicProbe'][0]['FINAL_DIALOG_URL'] = args.FINAL_DIALOG_URL
 
 	epi_config['dataRequests']['edu.mit.media.funf.probe.builtin.EpidemicProbe'][0]['WAVES'] = create_waves()
 	epi_config['dataRequests']['edu.mit.media.funf.probe.builtin.EpidemicProbe'][0]['DAILY_DIGESTS'] = create_daily_digest(summary)

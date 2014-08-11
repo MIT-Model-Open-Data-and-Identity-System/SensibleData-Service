@@ -6,11 +6,12 @@ import datetime
 
 log = audit.getLogger(__name__)
 
-USER = 'd3e0c714c531f7101d36e9a1020a51'
+USER = '725188ac89900e25dffce6454379e5'
 
 def analyse_epidemic():
 	db = db_wrapper.DatabaseHelper()
-	cur = db.retrieve(params={'limit':10000, 'sortby':'timestamp', 'order':1, 'where': {'user':[USER]}}, collection='edu_mit_media_funf_probe_builtin_EpidemicProbe', roles='')
+	#cur = db.retrieve(params={'limit':1000, 'sortby':'timestamp', 'order':-1, 'where': {'user':[USER]}}, collection='edu_mit_media_funf_probe_builtin_EpidemicProbe', roles='')
+	cur = db.retrieve(params={'limit':100000, 'sortby':'timestamp', 'order':-1}, collection='edu_mit_media_funf_probe_builtin_EpidemicProbe', roles='')
 	lt = 0
 	for row in cur:
 		data = json.loads(base64.b64decode(row['data']))
@@ -24,8 +25,9 @@ def analyse_epidemic():
 		#if not user == 'a5a21108856c86bbee025c40bdf05a': continue
 
 
-		print user, timestamp, timestamp_2, lt - timestamp_2, data['self_state'], data['infected_tag'], data['to_recover_time'],
+#		print user, timestamp, timestamp_2, lt - timestamp_2, data['self_state'], data['infected_tag'], data['to_recover_time'],
 		try: print data['state']
-		except: print ''
+	#	except: print ''
+		except: pass
 		lt = timestamp_2
 		#if timestamp < datetime.datetime(2014, 07, 29): continue
