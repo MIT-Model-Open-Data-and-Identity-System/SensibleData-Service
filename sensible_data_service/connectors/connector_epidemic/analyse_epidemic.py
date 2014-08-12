@@ -26,7 +26,7 @@ def analyse_epidemic():
 
 
 #		print user, timestamp, timestamp_2, lt - timestamp_2, data['self_state'], data['infected_tag'], data['to_recover_time'],
-		try: print data['state']
+		try: print data['state'], timestamp
 	#	except: print ''
 		except: pass
 		lt = timestamp_2
