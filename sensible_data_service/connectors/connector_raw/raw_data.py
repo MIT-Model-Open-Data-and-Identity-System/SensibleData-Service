@@ -187,10 +187,9 @@ def dataBuild(request, probe_settings, users_to_return, decrypted = False, own_d
         elif proc_req['format'] == 'csv':
 		output = '#' + json.dumps(response['meta'], indent=2).replace('\n','\n#') + '\n'
 		output += array_to_csv(results)
-		return HttpResponse(output, content_type="text/plain", status=response['meta']['status']['code'])
+		return HttpResponse(output, content_type="text/plain; charset=utf-8", status=response['meta']['status']['code'])
 	else:
-		return HttpResponse(json.dumps(response), content_type="application/json", status=response['meta']['status']['code'])
-	return HttpResponse('hello decrypted')
+		return HttpResponse(json.dumps(response), content_type="application/json; charset=utf-8", status=response['meta']['status']['code'])
 
 
 def array_to_csv(results):
@@ -198,9 +197,13 @@ def array_to_csv(results):
 	fields = results[0].keys()
 	output = [','.join(fields)]
 	for result in results:
-		output.append(','.join([str(result[k]) for k in fields]))
+		output.append(','.join([to_string(result[k]).replace("\n", "\\n") for k in fields]))
 	return '\n'.join(output)
-		
+
+def to_string(obj):
+	if isinstance(obj, unicode):
+		obj = obj.encode("utf-8")
+	return str(obj)
 
 
 def cursorToArray(cursor, decrypted = False, probe = '', is_researcher=False, map_to_users=False):
