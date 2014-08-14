@@ -34,6 +34,8 @@ def location(request):
 	return get_data(request, PHONE_DATA_SETTINGS['location'])
 def calllog(request):
 	return get_data(request, PHONE_DATA_SETTINGS['calllog'])
+def cell(request):
+	return get_data(request, PHONE_DATA_SETTINGS['cell'])
 def sms(request):
 	return get_data(request, PHONE_DATA_SETTINGS['sms'])
 def questionnaire(request):
