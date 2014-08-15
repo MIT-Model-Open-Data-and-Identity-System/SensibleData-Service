@@ -1,4 +1,4 @@
-SensibleData-Service 0.2.8-devel
+SensibleData-Service 0.2.8
 * AndroidInfoProbe population
 * Escaped newlines in CSV formatting
 * CellProbe retrieval endpoint
