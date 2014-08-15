@@ -1,4 +1,25 @@
-SensibleData-Service 0.2.2-devel
+SensibleData-Service 0.2.8-devel
+* AndroidInfoProbe population
+* Escaped newlines in CSV formatting
+* CellProbe retrieval endpoint
+
+SensibleData-Service 0.2.7
+* Added support for epidemic mining
+* Improved performance of Wifi data retrieval
+* Experience sampling retrieval endpoint
+
+SensibleData-Service 0.2.6
+* Minor changes to stops location api
+
+SensibleData-Service 0.2.5
+* Added stops location questions
+
+SensibleData-Service 0.2.4
+* The retrieval API now uses MySQL as a backend
+
+SensibleData-Service 0.2.3
+* Added support for experience sampling
+* Added support for audit info requests. Performance improvement for fluentd logging
 
 SensibleData-Service 0.2.2
 
@@ -6,4 +27,3 @@ SensibleData-Service 0.2.2
 * Support for languages in informed consent
 * Questionnaires endpoint, including human-redeable questions and answers
 * Added logging using fluentd
-* Added support for experience sampling
