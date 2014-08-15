@@ -3,16 +3,19 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 import bson.json_util as json
-from utils import database
 from django.contrib.auth.models import User
-from documents.models import InformedConsent
 from django.conf import settings
 import pymongo
 
+from db_access.named_queries.named_queries import NAMED_QUERIES
+from documents.models import InformedConsent
+from utils import db_wrapper, SECURE_settings, database
+
+
 @login_required
 def status(request):
-	authorized_users = ['arks@dtu.dk', 'sljo@dtu.dk', 'lasse.valentini@gmail.com', 'pisa@dtu.dk']
-	if not request.user.email in authorized_users and not request.user.username in authorized_users:
+	authorized_users = SECURE_settings.AUTHORIZED_STATUS_VIEWERS#['arks@dtu.dk', 'sljo@dtu.dk', 'lasse.valentini@gmail.com', "radu.gatej@gmail.com"]
+	if not request.user.email in authorized_users:
 		return HttpResponse(json.dumps({'error':'sorry, %s you are not authorized :('%request.user.username}))
 	query = request.REQUEST.get('query', '')
 	if query == '':
@@ -43,35 +46,35 @@ def database_request(request):
 
 def questionnaires_request(request):
 	values = {}
-	try:
-		db = database.Database()
-		values['documents_no'] = db.getDocuments(query={}, collection='dk_dtu_compute_questionnaire').count()
-		values['users'] = len(db.getDocuments(query={}, collection='dk_dtu_compute_questionnaire').distinct('user'))
-		values['finished'] = db.getDocuments(query={'variable_name':'_submitted'}, collection='dk_dtu_compute_questionnaire').count()
-		values['male'] = db.getDocuments(query={'variable_name':'sex', 'response':'mand'}, collection='dk_dtu_compute_questionnaire').count()
-		values['female'] = db.getDocuments(query={'variable_name':'sex', 'response':'kvinde'}, collection='dk_dtu_compute_questionnaire').count()
-	except: pass
+	#try:
+	db = db_wrapper.DatabaseHelper()
+	values['documents_no'] = db.retrieve({}, "dk_dtu_compute_questionnaire").rowcount
+	values['users'] = db.execute_named_query(NAMED_QUERIES["count_unique_questionnaire_users"], None).fetchone().values()[0]
+	values['finished'] = db.execute_named_query(NAMED_QUERIES["count_questionnaire_users_with_variable"], ("_submitted",)).fetchone().values()[0]
+	values['male'] = db.execute_named_query(NAMED_QUERIES["count_questionnaire_users_by_sex"], ("mand",)).fetchone().values()[0]
+	values['female'] = db.execute_named_query(NAMED_QUERIES["count_questionnaire_users_by_sex"], ("kvinde",)).fetchone().values()[0]
+	#except: pass
 	return HttpResponse(json.dumps(values))
 
 def facebook_request(request):
 	values = {}
-	sections = ['birthday','education','feed','friendlists','friendrequests','friends','groups','hometown','interests','likes','location','locations','political','religion','statuses','work']
-	try:
-		db = database.Database()
-		for x in sections:
-			values[x+'_doc'] = db.getDocuments(query={}, collection='dk_dtu_compute_facebook_'+x).count()
-			values[x+'_users'] = len(db.getDocuments(query={}, collection='dk_dtu_compute_facebook_'+x).distinct('user'))
-	except: pass
+	fb_data_types = ['birthday','education','feed','friendlists','friendrequests','friends','groups','hometown','interests','likes','location','locations','political','religion','statuses','work']
+	db = db_wrapper.DatabaseHelper()
+	for data_type in fb_data_types:
+		values[data_type+'_doc'] = db.retrieve({}, 'dk_dtu_compute_facebook_' + data_type).rowcount
+		values[data_type+'_users'] = db.execute_named_query(NAMED_QUERIES["count_unique_facebook_users"], (data_type,)).fetchone().values()[0]
 	return HttpResponse(json.dumps(values))
 
 def mobile_request(request):
 	values = {}
 	sections =['BluetoothProbe','CallLogProbe','CellProbe','ContactProbe','HardwareInfoProbe','LocationProbe','ScreenProbe','SMSProbe','TimeOffsetProbe','WifiProbe']
 	try:
-		db = database.Database()
+		db = db_wrapper.DatabaseHelper()
 		for x in sections:
-			values[x+'_doc'] = db.getDocuments(query={}, collection = 'edu_mit_media_funf_probe_builtin_'+x).count()
-			values[x+'_users'] = db.getDocuments(query={}, collection='statistics_question_edu_mit_media_funf_probe_builtin_'+x).count()
+			values[x+'_doc'] = db.retrieve({}, 'edu_mit_media_funf_probe_builtin_'+x).rowcount
+			count_funf_users_query = NAMED_QUERIES["count_funf_unique_users_by_probe"]
+			count_funf_users_query["database"] = 'edu_mit_media_funf_probe_builtin_'+x
+			values[x+'_users'] = db.execute_named_query(count_funf_users_query, None).fetchone().values()[0]
 	except: pass
 	return HttpResponse(json.dumps(values))
 

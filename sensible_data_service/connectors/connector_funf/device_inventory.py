@@ -1,7 +1,8 @@
-from db_access.named_queries import NAMED_QUERIES
-from utils import db_wrapper
 from collections import defaultdict
-import json
+
+from db_access.named_queries.named_queries import NAMED_QUERIES
+from utils import db_wrapper
+
 
 class DeviceInventory(object):
 	

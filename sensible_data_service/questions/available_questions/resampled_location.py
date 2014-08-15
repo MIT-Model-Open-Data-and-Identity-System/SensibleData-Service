@@ -1,9 +1,10 @@
+import time
+
 import pandas as pd
 from questions.available_questions import dateutils
 from sensible_audit import audit
 from utils import db_wrapper
-from db_access.named_queries import NAMED_QUERIES
-import time
+from db_access.named_queries.named_queries import NAMED_QUERIES
 
 
 log = audit.getLogger(__name__)

@@ -1,13 +1,16 @@
-from django.core.management.base import NoArgsCommand
-from authorization_manager.models import Authorization
-from application_manager.models import Application, GcmRegistration
 from collections import defaultdict
 import json
 import time
-from db_access.named_queries import NAMED_QUERIES
+
+from django.core.management.base import NoArgsCommand
+
+from authorization_manager.models import Authorization
+from application_manager.models import Application, GcmRegistration
+from db_access.named_queries.named_queries import NAMED_QUERIES
 from utils import db_wrapper
 from application_manager import gcm_server
 from connectors.connector_facebook import auth
+
 
 class Command(NoArgsCommand):
 	def handle_noargs(self, **options):
