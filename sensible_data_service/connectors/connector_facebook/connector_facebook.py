@@ -2,7 +2,7 @@ import auth
 import json
 import time
 import urllib2
-from utils import database
+#from utils import database
 from anonymizer.anonymizer import Anonymizer
 from backup import backup
 from accounts.models import UserRole
@@ -16,8 +16,8 @@ anonymizer = None
 
 def collect_facebook():
 	authorizations = auth.getAllInboundAuth()
-	global db 
-	db = database.Database()
+	#global db 
+	#db = database.Database()
 	global anonymizer
 	anonymizer = Anonymizer()
 

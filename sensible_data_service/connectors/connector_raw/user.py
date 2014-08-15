@@ -1,16 +1,16 @@
+import time
+
 from django.http import HttpResponse
 import bson.json_util as json
-from authorization_manager import authorization_manager
-from db_access.named_queries import NAMED_QUERIES
-from utils import db_wrapper
 from django.shortcuts import render_to_response
+
+from authorization_manager import authorization_manager
+from db_access.named_queries.named_queries import NAMED_QUERIES
+from utils import db_wrapper
 from accounts.models import UserRole
-from django.contrib.auth.models import User
-import re
-import urllib
-import time
 from connector_utils import *
 from sensible_audit import audit
+
 
 log = audit.getLogger(__name__)
 
