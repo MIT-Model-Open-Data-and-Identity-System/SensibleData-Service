@@ -45,12 +45,15 @@ class DatabaseHelper:
 
 	def insert_rows(self, rows, collection, roles = None):
 		try:
+			if not rows:
+				self.log.debug({'type': 'MYSQL', 'tag': 'insert', 'message': "No rows to insert"})
+				return
 			self.engine.insert(rows, collection, roles)
 		except Exception, e:
 			self.log.error({'type': 'MYSQL', 'tag': 'insert', 'exception': str(e)})
 
 
-	def retrieve(self, params, collection, roles = None, from_secondary = True):
+	def retrieve(self, params, collection, roles = None):
 		"""params: dictionary used to construct engine specific query. Keys:
 			'sortby' - column to sort by (enforced to timestamp)
 			'decrypted',
