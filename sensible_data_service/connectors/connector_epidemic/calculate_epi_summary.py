@@ -143,6 +143,7 @@ def calculate_epi_summary():
 		user_dict['user'] = user
 		user_dict['values'] = {}
 		for day in sorted(all_days):
+			if day < (datetime.datetime.now().date() + datetime.timedelta(days=-4)): continue
 			all_l = float(len(infected_interactions[day]) + len(vaccinated_interactions[day]) + len(vaccinated_side_interactions[day]) + len(susceptible_interactions[day]))
 			
 			user_dict['values'][str(day)] = {}
@@ -161,6 +162,7 @@ def calculate_epi_summary():
 			user_dict['values'][str(day)]['vaccinated_all'] = global_stats[day]['V']
 			user_dict['values'][str(day)]['vaccinated_side_all'] = global_stats[day]['VS']
 			user_dict['values'][str(day)]['susceptible_all'] = global_stats[day]['S']
+			user_dict['values'][str(day)]['day'] = str(day)
 
 		f.write(json.dumps(user_dict) + '\n')
 	f.close()

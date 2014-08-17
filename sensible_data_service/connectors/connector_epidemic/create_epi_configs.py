@@ -136,7 +136,6 @@ def create_waves():
 	add_wave(waves, start_time='2014-11-10 08:00:00', infected_tag=make_hash('nine9'), infection_probability=0.0225, starting_state='RA_0.015', exposed_duration=360, recovered_duration=1080, state_after_infected='R', vaccinated_duration=120, wave_no=9)
 	add_wave(waves, start_time='2014-11-17 08:00:00', infected_tag=make_hash('ten10'), infection_probability=0.0225, starting_state='RA_0.015', exposed_duration=360, recovered_duration=1080, state_after_infected='R', vaccinated_duration=120, wave_no=10)
 	add_wave(waves, start_time='2014-11-24 08:00:00', infected_tag=make_hash('eleven11'), infection_probability=0.0225, starting_state='RA_0.015', exposed_duration=360, recovered_duration=1080, state_after_infected='R', vaccinated_duration=120, wave_no=11)
-	add_wave(waves, start_time='2014-11-24 08:00:00', infected_tag=make_hash('eleven11'), infection_probability=0.0225, starting_state='RA_0.015', exposed_duration=360, recovered_duration=1080, state_after_infected='R', vaccinated_duration=120, wave_no=11)
 	add_wave(waves, start_time='2014-12-01 08:00:00', infected_tag=make_hash('twelve12'), infection_probability=0.0225, starting_state='RA_0.015', exposed_duration=360, recovered_duration=1080, state_after_infected='R', vaccinated_duration=120, wave_no=12)
 
 
