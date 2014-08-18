@@ -80,7 +80,7 @@ class DBWrapper:
 
                 values_to_insert = self.get_values_to_insert(rows, keys, PROBE_SETTINGS.UNIQUE_FIELDS[settings.DATA_DATABASE_SQL["DATABASES"][probe]])
                 cursor = connection.cursor()
-                cursor.executemany(insert_query, values_to_insert)
+		cursor.executemany(insert_query, values_to_insert)
                 connection.commit()
 	
 	#Notice the small (as in non-capital) letters used for
@@ -142,7 +142,7 @@ class DBWrapper:
 		query += self.__order(params)
 		query += self.__limit(params)
 
-		print query
+		#print query
 		connection = self.get_read_db_connection_for_probe(probe)
 		return self.execute_query_on_db(query, connection, where_query_params)
 
@@ -260,8 +260,6 @@ class DBWrapper:
 
 	def __get_user_constraint(self, params):
 		users = params.get('users', [])
-		print users
-		print params
 		if not type(users) is list:
 			raise BaseException("Users parameter is incorrectly formatted: needs to be a list")
 		query_formatted_usernames = ["%s" for u in users]

@@ -38,24 +38,28 @@ def run():
 	print "Executing ", NAME
 	print "Start time: " + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
 	process_pool = Pool(5)
-	process_pool.map(PROBES.keys(), compute_data_quality_for_probe)
+	process_pool.map(compute_data_quality_for_probe, PROBES.keys())
 	print "End time: " + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
 
 def compute_data_quality_for_probe(probe):
 	users = [x['user'] for x in db_helper.execute_named_query(NAMED_QUERIES["get_unique_users_in_device_inventory"], None)]
 	for user in users:
 		timestamps = get_latest_timestamps_for_user_and_probe(user, probe)
+		if not timestamps:
+			continue
 		daily_count = map_timestamps_to_days(timestamps)
-		latest_scan_id = max(timestamps, key=lambda(timestamp): timestamp['id'])
+		latest_scan_id = max(timestamps, key=lambda(timestamp): timestamp['id'])['id']
 		rows = [{"user": user, "timestamp": day.strftime('%Y-%m-%d %H:%M:%S'), "count": daily_count[day],
-				 "type": PROBES[probe]['tag'], "last_scan_id": latest_scan_id, "quality": max(1.0, daily_count[day]/PROBES[probe]['daily_expected_count'])} for day in daily_count]
+				 "type": PROBES[probe]['tag'], "last_scan_id": latest_scan_id, "quality": min(1.0, daily_count[day]/PROBES[probe]['daily_expected_count'])} for day in daily_count]
 		db_helper.insert_rows(rows, "data_quality")
 
 def get_latest_timestamps_for_user_and_probe(user, probe):
 	distinct_timestamps_query = NAMED_QUERIES["get_distinct_timestamps_by_user"]
 	distinct_timestamps_query['database'] = probe
 	last_scan_id_result = db_helper.retrieve({"limit": 1, "fields": ['last_scan_id'], "users": [user], "where": {"type": [PROBES[probe]['tag']]}}, "data_quality").fetchone()
-	last_scan_id = last_scan_id_result.get("last_scan_id", 0)
+	last_scan_id = 0
+	if last_scan_id_result:
+		last_scan_id = last_scan_id_result.get("last_scan_id", 0)
 	return db_helper.execute_named_query(distinct_timestamps_query, (user, last_scan_id)).fetchall()
 
 def map_timestamps_to_days(timestamps):
