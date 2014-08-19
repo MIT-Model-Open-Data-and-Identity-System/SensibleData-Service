@@ -15,11 +15,11 @@ from utils.db_wrapper import DatabaseHelper
 
 NAME = 'data_quality_question'
 
-PROBES = {'edu_mit_media_funf_probe_builtin_BluetoothProbe': {'tag': 'bluetooth', 'daily_expected_count': 288},
+PROBES = {#'edu_mit_media_funf_probe_builtin_BluetoothProbe': {'tag': 'bluetooth', 'daily_expected_count': 288},
 		  'edu_mit_media_funf_probe_builtin_CallLogProbe': {'tag': 'calllog', 'daily_expected_count': 2},
 			'edu_mit_media_funf_probe_builtin_SMSProbe': {'tag': 'sms', 'daily_expected_count': 2},
-			'edu_mit_media_funf_probe_builtin_WifiProbe': {'tag': 'wifi', 'daily_expected_count': 144},
-			'edu_mit_media_funf_probe_builtin_LocationProbe': {'tag': 'location', 'daily_expected_count': 288}
+	#		'edu_mit_media_funf_probe_builtin_WifiProbe': {'tag': 'wifi', 'daily_expected_count': 144},
+	#		'edu_mit_media_funf_probe_builtin_LocationProbe': {'tag': 'location', 'daily_expected_count': 288}
 }
 
 # Quality settings
@@ -68,3 +68,23 @@ def map_timestamps_to_days(timestamps):
 		timestamp = doc['timestamp']
 		daily_count[datetime.datetime(timestamp.year, timestamp.month, timestamp.day)] += 1
 	return daily_count
+
+
+def get_data_stats_for_period(request, users, data_type, output_type, start_date, end_date):
+	if users == "all":
+		users = [x['user'] for x in
+				 db_helper.execute_named_query(NAMED_QUERIES["get_unique_users_in_device_inventory"], None)]
+
+	print len(users)
+	params = []
+	params += users
+	params += [start_date]
+	params += [end_date]
+	params += [data_type]
+
+	number_of_days = float((datetime.datetime.strptime(end_date, '%Y-%m-%d %H:%M:%S') - datetime.datetime.strptime(start_date, '%Y-%m-%d %H:%M:%S')).days)
+	quality_named_query = NAMED_QUERIES["get_quality"]
+
+	formatted_query = quality_named_query["query"] % (number_of_days, ','.join(['%s'] * len(users)))
+	month_stats = db_helper.execute_named_query({"database": quality_named_query["database"], "query": formatted_query}, tuple(params))
+	return json.dumps([{"user": doc["user"], "month_quality": doc["quality"] if doc["quality"] else 0.0} for doc in month_stats.fetchall()])
