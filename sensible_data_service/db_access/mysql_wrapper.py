@@ -267,10 +267,13 @@ class DBWrapper:
 			return {"query_string": "user IN " + "(" + ",".join(query_formatted_usernames) + ")", "query_params": users}
 		return ""
 
-	def execute_query_on_db(self, query, connection, parameters=None):
+	def execute_query_on_db(self, query, connection, parameters=None, bulk_insert = False):
 		#self.log.d({"type": "MYSQL", "tag":"query", "query": query, "query_params": str(parameters) })
 		cursor = connection.cursor(mdb.cursors.DictCursor)
-		cursor.execute(query, parameters)
+		if bulk_insert:
+			cursor.executemany(query, parameters)
+		else:
+			cursor.execute(query, parameters)
 		return cursor
 
 	def update_device_info(self, device_info_document):

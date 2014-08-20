@@ -83,13 +83,13 @@ class DatabaseHelper:
 		if isinstance(self.engine, mysql_wrapper.DBWrapper):
 			self.engine.update_device_info(device_info_document)
 
-        def execute_named_query(self, named_query, params, readonly=True):
+        def execute_named_query(self, named_query, params, readonly=True, bulk_insert = False):
                 if isinstance(self.engine, mysql_wrapper.DBWrapper):
                         if readonly:
                                 connection = self.engine.get_read_db_connection_for_probe(named_query["database"])
                         else:
                                 connection = self.engine.get_write_db_connection_for_probe(named_query["database"])
-                        cur = self.engine.execute_query_on_db(named_query["query"], connection, params)
+                        cur = self.engine.execute_query_on_db(named_query["query"], connection, params, bulk_insert=bulk_insert)
                         if not readonly:
                                 connection.commit()
                         return cur
