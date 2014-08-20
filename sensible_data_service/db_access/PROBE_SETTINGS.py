@@ -16,5 +16,6 @@ UNIQUE_FIELDS = {
 	"edu_mit_media_funf_probe_builtin_WifiProbe": ["bssid", "level", "timestamp", "user"],
 	"edu_mit_media_funf_probe_builtin_ExperienceSamplingProbe": [],
 	"edu_mit_media_funf_probe_builtin_EpidemicProbe": [],
-	"edu_mit_media_funf_probe_builtin_AndroidInfoProbe": ['build_number', 'user', 'timestamp']
+	"edu_mit_media_funf_probe_builtin_AndroidInfoProbe": ['build_number', 'user', 'timestamp'],
+	"data_quality": []
 }

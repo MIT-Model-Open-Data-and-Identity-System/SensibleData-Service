@@ -45,12 +45,15 @@ class DatabaseHelper:
 
 	def insert_rows(self, rows, collection, roles = None):
 		try:
+			if not rows:
+				self.log.debug({'type': 'MYSQL', 'tag': 'insert', 'message': "No rows to insert"})
+				return
 			self.engine.insert(rows, collection, roles)
 		except Exception, e:
 			self.log.error({'type': 'MYSQL', 'tag': 'insert', 'exception': str(e)})
 
 
-	def retrieve(self, params, collection, roles = None, from_secondary = True):
+	def retrieve(self, params, collection, roles = None):
 		"""params: dictionary used to construct engine specific query. Keys:
 			'sortby' - column to sort by (enforced to timestamp)
 			'decrypted',
@@ -80,13 +83,13 @@ class DatabaseHelper:
 		if isinstance(self.engine, mysql_wrapper.DBWrapper):
 			self.engine.update_device_info(device_info_document)
 
-        def execute_named_query(self, named_query, params, readonly=True):
+        def execute_named_query(self, named_query, params, readonly=True, bulk_insert = False):
                 if isinstance(self.engine, mysql_wrapper.DBWrapper):
                         if readonly:
                                 connection = self.engine.get_read_db_connection_for_probe(named_query["database"])
                         else:
                                 connection = self.engine.get_write_db_connection_for_probe(named_query["database"])
-                        cur = self.engine.execute_query_on_db(named_query["query"], connection, params)
+                        cur = self.engine.execute_query_on_db(named_query["query"], connection, params, bulk_insert=bulk_insert)
                         if not readonly:
                                 connection.commit()
                         return cur

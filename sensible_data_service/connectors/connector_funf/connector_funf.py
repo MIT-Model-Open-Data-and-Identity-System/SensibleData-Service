@@ -20,6 +20,7 @@ import authorization_manager
 
 from subprocess import Popen, PIPE
 from django.shortcuts import redirect
+from accounts.models import UserRole
 
 # bug fix
 # see http://stackoverflow.com/questions/13193278/understand-python-threading-bug
@@ -85,7 +86,12 @@ def write_file(filepath, file):
 			if not chunk:
 				break
 			output_file.write(chunk)
-
+def get_roles(user):
+	roles = []
+	try: roles = [str(v) for v in UserRole.objects.get(user=user).roles.all()]
+	except: pass
+	return roles
+	
 
 def config(request):
 	access_token = request.REQUEST.get('access_token', None)
@@ -106,10 +112,16 @@ def config(request):
 
 def readConfig(user):
 	config = None
+	user_roles = get_roles(user)
 	try:
 		with open(myConnector['config_path']+'_'+user.username) as config_file: config = config_file.read()
 	except:
 		try:
-			with open(myConnector['config_path']) as config_file: config = config_file.read()
+			if 'researcher' in user_roles and os.path.isfile(myConnector['config_path']+'_researcher'):
+				with open(myConnector['config_path']+'_researcher') as config_file: config = config_file.read()
+			elif 'developer' in user_roles and os.path.isfile(myConnector['config_path']+'_developer'):
+				with open(myConnector['config_path']+'_developer') as config_file: config = config_file.read()
+			else:
+				with open(myConnector['config_path']) as config_file: config = config_file.read()
 		except: pass
 	return config
