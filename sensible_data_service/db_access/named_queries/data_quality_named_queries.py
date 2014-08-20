@@ -6,7 +6,12 @@ NAMED_QUERIES = {
         },
 
 		"get_quality": {
-			"query": "select user, sum(quality)/%s as quality from main where user in (%s) and timestamp between %%s and %%s and type = %%s group by user",
+			"query": "select user, sum(least(1.0, count/%s))/%s as quality from main where user in (%s) and timestamp between %%s and %%s and type = %%s group by user",
+			"database": "data_quality"
+		},
+
+		"update_qualities": {
+			"query": "insert into main (user, timestamp, count, type, last_scan_id) values (%s, %s, %s, %s, %s) on duplicate key update count = count + values(count), last_scan_id = values(last_scan_id)",
 			"database": "data_quality"
 		}
 
