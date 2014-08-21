@@ -210,9 +210,9 @@ def cursorToArray(cursor, decrypted = False, probe = '', is_researcher=False, ma
 	array = []
 	for row in cursor:
 		if 'timestamp' in row:
-			row['timestamp'] = int(calendar.timegm(row['timestamp'].timetuple()))
+			row['timestamp'] = int(time.mktime(row['timestamp'].timetuple()))
 		if 'timestamp_added' in row:
-			row['timestamp_added'] = int(calendar.timegm(row['timestamp_added'].timetuple()))
+			row['timestamp_added'] = int(time.mktime(row['timestamp_added'].timetuple()))
 		array.append(row)
 
 	if 'ExperienceSamplingProbe' in probe:
@@ -285,11 +285,10 @@ def processApiCall(request, probe_settings, users_to_return):
 	
 	### deal with fields
 	fields_string = request.REQUEST.get('fields', '')
-	print fields_string
 	if len(fields_string) > 0:
 		response['fields'] = ['id', 'user', 'timestamp']
 		response['fields'] += [field for field in fields_string.split(',') if len(field) > 0 and field != 'sensible_token']
-		print response['fields']
+		response['fields'] = list(set(response['fields']))  # avoid duplication in field names
 	# default set of fields
 	else:
 		response['fields'] = set(probe_settings['default_fields'])
