@@ -7,7 +7,7 @@ from utils import db_wrapper
 db_helper = db_wrapper.DatabaseHelper()
 
 def get_aggregated_questionnaire_data(request, user, scopes, users_to_return, user_roles, own_data):
-	form_version = request.get("form_version", "")
+	form_version = request.REQUEST.get("form_version", "")
 	if "all" in users_to_return:
 		users_to_return = [x['user'] for x in
 				 db_helper.execute_named_query(NAMED_QUERIES["get_unique_users_in_device_inventory"], None)]
