@@ -12,10 +12,10 @@ import os
 
 log = audit.getLogger(__name__)
 
-#WAVES_STRING = '1406578700!fe05bcdc,0.015,S,36,108,S,120,1;1407580200!ad782ecd,0.015,I,36,108,S,120,2'
-WAVES_STRING = '1406733000!fe05bcdc,0.015,I,360,1080,R,120,1;1407718800!deadbeef,0.015,RA_0.3,360,1080,R,120,2'
-#WAVES_STRING = '1407580200!ad782ecd,0.015,I,36,108,S,120,2'
-#WAVES_STRING = '1407999869!cc5a0c50,0.0225,S,36,108,R,2,9'
+WAVES_STRING = '1410156000!4e438dc1,0.0225,RA_0.015,360,1080,R,360,1;1410760800!7a38ff78,0.0225,RA_0.015,360,1080,R,360,2;1411365600!fbe94d0c,0.0225,RA_0.015,360,1080,R,360,3;1411970400!4fe22a66,0.0225,RA_0.015,360,1080,R,360,4;1412575200!810593a7,0.0225,RA_0.015,360,1080,R,360,5;1413180000!3fd38796,0.0225,S,360,1080,R,360,-2;1413784800!82ce2c28,0.0225,RA_0.015,360,1080,R,360,6;1414393200!8b8ab516,0.0225,RA_0.015,360,1080,R,360,7;1414998000!8cf7b288,0.0225,RA_0.015,360,1080,R,360,8;1415602800!1e3a30e9,0.0225,RA_0.015,360,1080,R,360,9;1416207600!e45c2615,0.0225,RA_0.015,360,1080,R,360,10;1416812400!4a6be6e0,0.0225,RA_0.015,360,1080,R,360,11;1417417200!6c530ef8,0.0225,RA_0.015,360,1080,R,360,12'
+
+#TEST
+#WAVES_STRING = '1408638690!4e438dc1,0.0225,RA_0.015,360,1080,R,360,1;1410760800!7a38ff78,0.0225,RA_0.015,360,1080,R,360,2;1411365600!fbe94d0c,0.0225,RA_0.015,360,1080,R,360,3;1411970400!4fe22a66,0.0225,RA_0.015,360,1080,R,360,4;1412575200!810593a7,0.0225,RA_0.015,360,1080,R,360,5;1413180000!3fd38796,0.0225,S,360,1080,R,360,-2;1413784800!82ce2c28,0.0225,RA_0.015,360,1080,R,360,6;1414393200!8b8ab516,0.0225,RA_0.015,360,1080,R,360,7;1414998000!8cf7b288,0.0225,RA_0.015,360,1080,R,360,8;1415602800!1e3a30e9,0.0225,RA_0.015,360,1080,R,360,9;1416207600!e45c2615,0.0225,RA_0.015,360,1080,R,360,10;1416812400!4a6be6e0,0.0225,RA_0.015,360,1080,R,360,11;1417417200!6c530ef8,0.0225,RA_0.015,360,1080,R,360,12'
 
 
 def calculate_epi_summary():
@@ -49,14 +49,14 @@ def calculate_epi_summary():
 					user = row['user']
 					data = row['data']
 					data = json.loads(base64.b64decode(data))
-					#if not data['wave_no'] == int(waves[wave]['wave_no']): continue
+					if not data['wave_no'] == int(waves[wave]['wave_no']): continue
 					timestamp = data['TIMESTAMP']
 					date = localtz.localize(datetime.datetime.fromtimestamp(timestamp)).date()
 					state = data['self_state']
-					#try: side_effects_lost_points = int(data['side_effects_lost_points'])
-					#except: continue
+					try: side_effects_lost_points = int(data['side_effects_lost_points'])
+					except: continue
 						#print user, timestamp, state, side_effects_lost_points, date
-					#if state == 'V' and side_effects_lost_points > 0: state = 'VS'
+					if state == 'V' and side_effects_lost_points > 0: state = 'VS'
 					states[user][date].add(state)
 				except: continue
 
@@ -167,72 +167,6 @@ def calculate_epi_summary():
 		f.write(json.dumps(user_dict) + '\n')
 	f.close()
 
-
-def calculate_epi_summary_OLD():
-
-	this_path = os.path.split(os.path.realpath(__file__))[0] + '/'
-
-	db = db_wrapper.DatabaseHelper()
-	waves = read_waves()
-	an = anonymizer.Anonymizer()
-	inventory = device_inventory.DeviceInventory()
-	localtz = pytz.timezone('Europe/Copenhagen')
-
-	f = open(this_path+'epi_summary.json', 'w')
-
-	for wave in sorted(waves):
-		last_id = 0
-		next_wave_begins = waves[wave]['next_wave_begins']
-		interactions = defaultdict(set)
-
-		while True:
-			cur = db.retrieve(params={'limit':100000, 'sortby':'timestamp', 'order':1, 'after': last_id, 'start_date': wave, 'end_date': next_wave_begins}, collection='edu_mit_media_funf_probe_builtin_BluetoothProbe', roles='')
-			if cur.rowcount == 0: break
-			last_id += 1
-			for row in cur:
-				if row['timestamp_added'] < row['timestamp'] : continue
-				user = row['user']
-				timestamp = row['timestamp']
-				bt_mac = row['bt_mac']
-				bt_name = row['name']
-				if bt_mac == '-1': continue
-
-				if bt_name: bt_name = an.deanonymizeValue('bluetooth_name', bt_name)
-				else: bt_name = ''
-				userB = inventory.mapBtToUser(bt_mac, long(timestamp.strftime('%s')))
-				if userB == bt_mac: continue
-
-				interactions[user].add(timestamp.strftime('%s')+'_'+userB+'_'+bt_name.decode('utf-8'))
-			
-
-		for user in interactions:
-			save_string = ''
-			infected_interactions = defaultdict(set)
-			vaccinated_interactions = defaultdict(set)
-			susceptible_interactions = defaultdict(set)
-			all_days = set()
-			for interaction in interactions[user]:
-				t = long(interaction.split('_')[0])/int(300)
-				tt = long(interaction.split('_')[0])
-				date = localtz.localize(datetime.datetime.fromtimestamp(tt)).date()
-				userB = interaction.split('_')[1]
-				name = interaction.split('_')[2]
-				all_days.add(date)
-				if name.endswith(waves[wave]['infected_tag'].decode('utf-8')): infected_interactions[date].add(str(t) + userB)
-				elif name.endswith(waves[wave]['vaccinated_tag']): vaccinated_interactions[date].add(str(t) + userB)
-				else: susceptible_interactions[date].add(str(t) + userB)
-			user_dict = {}
-			user_dict['user'] = user
-			user_dict['values'] = {}
-			for day in sorted(all_days):
-				user_dict['values'][str(day)] = {}
-				user_dict['values'][str(day)]['wave_no'] = int(waves[wave]['wave_no'])
-				user_dict['values'][str(day)]['infected_interactions'] = len(infected_interactions[day])
-				user_dict['values'][str(day)]['vaccinated_interactions'] = len(vaccinated_interactions[day])
-				user_dict['values'][str(day)]['susceptible_interactions'] = len(susceptible_interactions[day])
-
-			f.write(json.dumps(user_dict) + '\n')
-	f.close()
 
 
 def read_waves():

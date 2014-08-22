@@ -19,7 +19,9 @@ def create_epi_configs():
 	global args
 	this_path = os.path.split(os.path.realpath(__file__))[0] + '/'
 	myConnector = connectors.connectors_config.CONNECTORS['ConnectorFunf']['config']
-	config_path = os.path.split(myConnector['config_path'])[0]+'/'
+	#FIXME
+	#config_path = os.path.split(myConnector['config_path'])[0]+'/'
+	config_path = "/home/sensibleDTU/temp_configs/"
 	args = build_django_args()
 
 	base_config = load_base_config(this_path+'funf_config_base.json')
@@ -55,10 +57,12 @@ def build_args():
 
 def load_summary(name):
 	summary = {}
-	for line in open(name):
-		line = line.strip()
-		values = json.loads(line)
-		summary[values['user']] = values['values']
+	try:
+		for line in open(name):
+			line = line.strip()
+			values = json.loads(line)
+			summary[values['user']] = values['values']
+	except IOError: pass
 
 	return summary
 
@@ -119,23 +123,6 @@ def create_daily_digest(summary):
 def create_waves():
 	waves = {}
 
-	#TEST STUFF
-#	add_wave(waves, start_time='2014-08-20 11:00:00', infected_tag='dupa1', infection_probability=1.0225, starting_state='S', exposed_duration=36, recovered_duration=108, state_after_infected='R', vaccinated_duration=36, wave_no=1)
-#	add_wave(waves, start_time='2014-08-20 13:00:00', infected_tag='dupa2', infection_probability=1.0225, starting_state='RA_1.0', exposed_duration=36, recovered_duration=108, state_after_infected='R', vaccinated_duration=36, wave_no=2)
-#	add_wave(waves, start_time='2014-08-20 15:00:00', infected_tag='dupa3', infection_probability=1.0225, starting_state='RA_0.0', exposed_duration=36, recovered_duration=108, state_after_infected='R', vaccinated_duration=36, wave_no=3)
-#	add_wave(waves, start_time='2014-08-20 17:00:00', infected_tag='dupa4', infection_probability=1.0225, starting_state='RA_0.9', exposed_duration=36, recovered_duration=108, state_after_infected='R', vaccinated_duration=36, wave_no=4)
-
-#	add_wave(waves, start_time='2014-08-20 19:00:00', infected_tag='dupa5', infection_probability=1.0225, starting_state='S', exposed_duration=36, recovered_duration=108, state_after_infected='R', vaccinated_duration=36, wave_no=5)
-
-#	add_wave(waves, start_time='2014-08-20 21:00:00', infected_tag='dummy', infection_probability=1.0225, starting_state='S', exposed_duration=36, recovered_duration=108, state_after_infected='R', vaccinated_duration=36, wave_no=-1)
-
-#	add_wave(waves, start_time='2014-08-20 23:00:00', infected_tag='dupa6', infection_probability=1.0225, starting_state='S', exposed_duration=36, recovered_duration=108, state_after_infected='R', vaccinated_duration=36, wave_no=6)
-#	add_wave(waves, start_time='2014-08-21 09:00:00', infected_tag='dupa7', infection_probability=1.0225, starting_state='S', exposed_duration=36, recovered_duration=108, state_after_infected='R', vaccinated_duration=36, wave_no=7)
-#	add_wave(waves, start_time='2014-08-21 11:00:00', infected_tag='dupa8', infection_probability=1.0225, starting_state='S', exposed_duration=36, recovered_duration=108, state_after_infected='R', vaccinated_duration=36, wave_no=8)
-#	add_wave(waves, start_time='2014-08-21 13:00:00', infected_tag='dupa9', infection_probability=1.0225, starting_state='S', exposed_duration=36, recovered_duration=108, state_after_infected='R', vaccinated_duration=36, wave_no=9)
-#	add_wave(waves, start_time='2014-08-21 15:00:00', infected_tag='dupa10', infection_probability=1.0225, starting_state='S', exposed_duration=36, recovered_duration=108, state_after_infected='R', vaccinated_duration=36, wave_no=10)
-#	add_wave(waves, start_time='2014-08-21 17:00:00', infected_tag='dupa11', infection_probability=1.0225, starting_state='S', exposed_duration=36, recovered_duration=108, state_after_infected='R', vaccinated_duration=36, wave_no=11)
-#	add_wave(waves, start_time='2014-08-21 19:00:00', infected_tag='dupa12', infection_probability=1.0225, starting_state='S', exposed_duration=36, recovered_duration=108, state_after_infected='R', vaccinated_duration=36, wave_no=12)
 	
 	add_wave(waves, start_time='2014-09-08 08:00:00', infected_tag=make_hash('one1'), infection_probability=0.0225, starting_state='RA_0.015', exposed_duration=360, recovered_duration=1080, state_after_infected='R', vaccinated_duration=360, wave_no=1)
 	add_wave(waves, start_time='2014-09-15 08:00:00', infected_tag=make_hash('two2'), infection_probability=0.0225, starting_state='RA_0.015', exposed_duration=360, recovered_duration=1080, state_after_infected='R', vaccinated_duration=360, wave_no=2)
@@ -155,6 +142,24 @@ def create_waves():
 	add_wave(waves, start_time='2014-11-24 08:00:00', infected_tag=make_hash('eleven11'), infection_probability=0.0225, starting_state='RA_0.015', exposed_duration=360, recovered_duration=1080, state_after_infected='R', vaccinated_duration=360, wave_no=11)
 	add_wave(waves, start_time='2014-12-01 08:00:00', infected_tag=make_hash('twelve12'), infection_probability=0.0225, starting_state='RA_0.015', exposed_duration=360, recovered_duration=1080, state_after_infected='R', vaccinated_duration=360, wave_no=12)
 
+# Arek configs
+#	add_wave(waves, start_time='2014-09-01 08:00:00', infected_tag=make_hash('one11'), infection_probability=0.0225, starting_state='RA_0.015', exposed_duration=360, recovered_duration=1080, state_after_infected='R', vaccinated_duration=360, wave_no=1)
+#	add_wave(waves, start_time='2014-09-08 08:00:00', infected_tag=make_hash('two21'), infection_probability=0.0225, starting_state='RA_0.015', exposed_duration=360, recovered_duration=1080, state_after_infected='R', vaccinated_duration=360, wave_no=2)
+#	add_wave(waves, start_time='2014-09-15 08:00:00', infected_tag=make_hash('three31'), infection_probability=0.0225, starting_state='RA_0.015', exposed_duration=360, recovered_duration=1080, state_after_infected='R', vaccinated_duration=360, wave_no=3)
+#	add_wave(waves, start_time='2014-09-22 08:00:00', infected_tag=make_hash('four41'), infection_probability=0.0225, starting_state='RA_0.015', exposed_duration=360, recovered_duration=1080, state_after_infected='R', vaccinated_duration=360, wave_no=4)
+	
+#	add_wave(waves, start_time='2014-09-29 08:00:00', infected_tag=make_hash('five51'), infection_probability=0.0225, starting_state='RA_0.015', exposed_duration=360, recovered_duration=1080, state_after_infected='R', vaccinated_duration=360, wave_no=5)
+
+#	add_wave(waves, start_time='2014-10-06 08:00:00', infected_tag=make_hash('dummy19691'), infection_probability=0.0225, starting_state='S', exposed_duration=360, recovered_duration=1080, state_after_infected='R', vaccinated_duration=360, wave_no=-2)
+	
+#	add_wave(waves, start_time='2014-10-13 08:00:00', infected_tag=make_hash('six61'), infection_probability=0.0225, starting_state='RA_0.015', exposed_duration=360, recovered_duration=1080, state_after_infected='R', vaccinated_duration=360, wave_no=6)
+#	add_wave(waves, start_time='2014-10-20 08:00:00', infected_tag=make_hash('seven71'), infection_probability=0.0225, starting_state='RA_0.015', exposed_duration=360, recovered_duration=1080, state_after_infected='R', vaccinated_duration=360, wave_no=7)
+#	add_wave(waves, start_time='2014-10-27 08:00:00', infected_tag=make_hash('eight81'), infection_probability=0.0225, starting_state='RA_0.015', exposed_duration=360, recovered_duration=1080, state_after_infected='R', vaccinated_duration=360, wave_no=8)
+
+#	add_wave(waves, start_time='2014-11-03 08:00:00', infected_tag=make_hash('nine91'), infection_probability=0.0225, starting_state='RA_0.015', exposed_duration=360, recovered_duration=1080, state_after_infected='R', vaccinated_duration=360, wave_no=9)
+#	add_wave(waves, start_time='2014-11-10 08:00:00', infected_tag=make_hash('ten101'), infection_probability=0.0225, starting_state='RA_0.015', exposed_duration=360, recovered_duration=1080, state_after_infected='R', vaccinated_duration=360, wave_no=10)
+#	add_wave(waves, start_time='2014-11-17 08:00:00', infected_tag=make_hash('eleven111'), infection_probability=0.0225, starting_state='RA_0.015', exposed_duration=360, recovered_duration=1080, state_after_infected='R', vaccinated_duration=360, wave_no=11)
+#	add_wave(waves, start_time='2014-12-24 08:00:00', infected_tag=make_hash('twelve121'), infection_probability=0.0225, starting_state='RA_0.015', exposed_duration=360, recovered_duration=1080, state_after_infected='R', vaccinated_duration=360, wave_no=12)
 
 
 	return create_time_series(waves)
@@ -175,6 +180,7 @@ def create_time_series(values):
 	return ';'.join(time_series)
 
 def save_config(config, name):
+	pass
 	f = open(name, 'w')
 	f.write(json.dumps(config))
 	f.close()
