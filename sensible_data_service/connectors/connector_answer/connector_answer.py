@@ -60,6 +60,9 @@ def endpoint(request, answer):
 	if booleanize(request.GET.get('pretty', None)):
 		return render_to_response('pretty_json.html', {'response': json.dumps(response, indent=2)})
 
+	if booleanize(request.GET.get('csv', None)):
+		return HttpResponse(response, status=200, content_type="text/plain")
+
 	return HttpResponse(json.dumps(response), status=200, content_type="application/json")
 
 
