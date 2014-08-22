@@ -1,4 +1,3 @@
-users = ','.join(['%s'] * 814)
 NAMED_QUERIES = {
         "get_distinct_timestamps_by_user": {
                 "query": "select timestamp, max(id) as id from main where user = %s and id > %s  group by timestamp",
