@@ -20,4 +20,4 @@ def get_aggregated_questionnaire_data(request, user, scopes, users_to_return, us
 			results[result['variable_name']] = result['response']
 		response.append(",".join([results.get(variable_name, "") for variable_name in header]))
 	print len(response)
-	return {"result": "\n".join(response)}
+	return "\n".join(response)
