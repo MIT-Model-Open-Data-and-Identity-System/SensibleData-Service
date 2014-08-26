@@ -13,6 +13,7 @@ class AuditDB:
         self.username = SECURE_settings.AUDIT_DATABASE['USERNAME']
         self.password = SECURE_settings.AUDIT_DATABASE['PASSWORD']
         self.collection_name = LOCAL_SETTINGS.AUDIT_DATABASE['COLLECTION']
+        self.ssl = LOCAL_SETTINGS.AUDIT_DATABASE['SSL']
         self.day_user_agg_name = LOCAL_SETTINGS.AUDIT_DATABASE['DAILY_USER_AGG_COLLECTION']
         self.week_user_agg_name = LOCAL_SETTINGS.AUDIT_DATABASE['WEEKLY_USER_AGG_COLLECTION']
         self.day_researcher_agg_name = LOCAL_SETTINGS.AUDIT_DATABASE['DAILY_RESEARCHER_AGG_COLLECTION']
@@ -25,7 +26,7 @@ class AuditDB:
         """
             Establishes a connection to the database.
         """
-        self.client = MongoClient('mongodb://%s:%s' % (self.host, self.port))
+        self.client = MongoClient('mongodb://%s:%s' % (self.host, self.port), ssl=self.ssl)
         self.database = self.client[self.database_name]
         self.authenticated = self.database.authenticate(self.username, self.password)
         self.collection = self.database[self.collection_name]

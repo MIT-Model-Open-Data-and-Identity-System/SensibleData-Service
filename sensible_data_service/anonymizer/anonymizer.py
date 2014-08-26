@@ -78,6 +78,7 @@ class Anonymizer(object):
 		elif probe == 'edu_mit_media_funf_probe_builtin_HardwareInfoProbe': self.anonymizeHardwareProbe(document)
 		elif probe == 'edu_mit_media_funf_probe_builtin_ContactProbe': self.anonymizeContactProbe(document)
 		elif probe == 'edu_mit_media_funf_probe_builtin_BatteryProbe': document = self.anonymizeBatteryProbe(document)
+		elif probe == 'edu_mit_media_funf_probe_builtin_ExperienceSamplingProbe': document = self.anonymizeExperienceSamplingProbe(document)
 		
 		
 		
@@ -106,6 +107,16 @@ class Anonymizer(object):
 		elif probe == 'dk_dtu_compute_facebook_friends': document = self.deanonymizeFacebookFriendsConnections(document)
 		return document
 				
+	def anonymizeExperienceSamplingProbe(self, document):
+		document['answer'] = json.loads(document['answer'])
+		if document['answer']['question_type'] == 'SOCIAL_RATE_TWO_FRIENDS' or document['answer']['question_type'] == 'SOCIAL_CLOSER_FRIEND':
+			document['answer']['friend_one_uid'] = self.encrypt(document['answer']['friend_one_uid'])
+			document['answer']['friend_two_uid'] = self.encrypt(document['answer']['friend_two_uid'])
+		elif document['answer']['question_type'] == 'SOCIAL_RATE_ONE_FRIEND':
+			document['answer']['friend_uid'] = self.encrypt(document['answer']['friend_uid'])
+		document['answer'] = json.dumps(document['answer'])
+		return document
+
 	def anonymizeBatteryProbe(self, document):
 		document.pop('icon-small', None)
 		document.pop('invalid_charger',None)
@@ -135,30 +146,25 @@ class Anonymizer(object):
 		names = {}
 		if type(documents) == dict:
 			documents = [documents]
+
 		for document in documents:
-			#document['originals'] = []
-			for device in document['data']['DEVICES']:
-				#document['originals'].append(str(device['android_bluetooth_device_extra_DEVICE']['mAddress']))
-				#device['android_bluetooth_device_extra_DEVICE']['mAddress'] = self.decrypt(str(device['android_bluetooth_device_extra_DEVICE']['mAddress']))
-				#continue
-				#document['originals'].append(device)
-				enc_mac = str(device['android_bluetooth_device_extra_DEVICE']['mAddress'])
+			enc_mac = str(document['bt_mac'])
+			try:
+				document['bt_mac'] = addresses[enc_mac]
+			except KeyError:
+				dec_mac = self.decrypt(enc_mac)
+				addresses[enc_mac] = dec_mac
+				document['bt_mac'] = dec_mac
+			try:
+				enc_name = ''
 				try:
-					device['android_bluetooth_device_extra_DEVICE']['mAddress'] = addresses[enc_mac]
-				except KeyError:
-					dec_mac = self.decrypt(enc_mac)
-					addresses[enc_mac] = dec_mac
-					device['android_bluetooth_device_extra_DEVICE']['mAddress'] = dec_mac
-				try:
-					enc_name = ''	
-					try:	
-						enc_name = str(device['android_bluetooth_device_extra_NAME'])
-					except KeyError: continue
-					device['android_bluetooth_device_extra_NAME'] = names[enc_name]
-				except KeyError:
-					dec_name = self.decrypt(enc_name)
-					names[enc_name] = dec_name		
-					device['android_bluetooth_device_extra_NAME'] = dec_name
+					enc_name = str(document['name'])
+				except KeyError: continue
+				document['name'] = names[enc_name]
+			except KeyError:
+				dec_name = self.decrypt(enc_name)
+				names[enc_name] = dec_name
+				document['name'] = dec_name
 		
 		#if len(documents) > 0:
 		#	documents[0]['addresses'] = addresses

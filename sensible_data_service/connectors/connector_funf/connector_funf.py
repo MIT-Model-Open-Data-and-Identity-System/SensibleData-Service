@@ -19,6 +19,8 @@ import connectors.connectors_config
 import authorization_manager
 
 from subprocess import Popen, PIPE
+from django.shortcuts import redirect
+from accounts.models import UserRole
 
 # bug fix
 # see http://stackoverflow.com/questions/13193278/understand-python-threading-bug
@@ -84,11 +86,25 @@ def write_file(filepath, file):
 			if not chunk:
 				break
 			output_file.write(chunk)
-
+def get_roles(user):
+	roles = []
+	try: roles = [str(v) for v in UserRole.objects.get(user=user).roles.all()]
+	except: pass
+	return roles
+	
 
 def config(request):
-	access_token = request.REQUEST.get('access_token', '')
-	config = readConfig('dummy')
+	access_token = request.REQUEST.get('access_token', None)
+	bearer_token = request.REQUEST.get('bearer_token', None)
+
+	if not bearer_token and access_token:
+		current_url = request.build_absolute_uri()
+		url = current_url.replace('access_token', 'bearer_token')
+		return redirect(url) 
+
+	try: user = authorization_manager.authorization_manager.authenticate_token(request)['user']
+	except: user = None
+	config = readConfig(user)
 	if config:
 		return HttpResponse(config)
 	else:
@@ -96,12 +112,16 @@ def config(request):
 
 def readConfig(user):
 	config = None
+	user_roles = get_roles(user)
 	try:
-		with open(myConnector['config_path']) as config_file:
-			config = config_file.read()
-	except IOError: pass
+		with open(myConnector['config_path']+'_'+user.username) as config_file: config = config_file.read()
+	except:
+		try:
+			if 'researcher' in user_roles and os.path.isfile(myConnector['config_path']+'_researcher'):
+				with open(myConnector['config_path']+'_researcher') as config_file: config = config_file.read()
+			elif 'developer' in user_roles and os.path.isfile(myConnector['config_path']+'_developer'):
+				with open(myConnector['config_path']+'_developer') as config_file: config = config_file.read()
+			else:
+				with open(myConnector['config_path']) as config_file: config = config_file.read()
+		except: pass
 	return config
-
-def chooseConfig(user):
-	return "config.json"
-

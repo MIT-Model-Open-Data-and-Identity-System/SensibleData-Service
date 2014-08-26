@@ -255,6 +255,15 @@ CACHES = {
 	'default': {
 		'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
 		'LOCATION': '/var/tmp/django_cache',
+	},
+
+	'memory': {
+		'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+		'LOCATION': 'query_paging',
+		'TIMEOUT': 60,
+		'OPTIONS': {
+			'MAX_ENTRIES': 1000
+		}
 	}
 }
 

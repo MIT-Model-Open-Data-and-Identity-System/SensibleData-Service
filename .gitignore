@@ -5,7 +5,8 @@
 SECURE_*
 TEMP_*
 LOCAL_*
-.DS_Store
+*.DS_Store
 *.orig
 *.db
 celerybeat-schedule
+.idea

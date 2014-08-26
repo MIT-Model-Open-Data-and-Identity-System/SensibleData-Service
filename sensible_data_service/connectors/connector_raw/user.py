@@ -1,15 +1,16 @@
+import time
+
 from django.http import HttpResponse
 import bson.json_util as json
-from authorization_manager import authorization_manager
-from utils import database
 from django.shortcuts import render_to_response
+
+from authorization_manager import authorization_manager
+from db_access.named_queries.named_queries import NAMED_QUERIES
+from utils import db_wrapper
 from accounts.models import UserRole
-from django.contrib.auth.models import User
-import re
-import urllib
-import time
 from connector_utils import *
 from sensible_audit import audit
+
 
 log = audit.getLogger(__name__)
 
@@ -63,11 +64,11 @@ def userBuild(request, users_to_return, decrypted = False, own_data = False, rol
 	response = {}
 	response['meta'] = {}
 
-	db = database.Database()
+	db = db_wrapper.DatabaseHelper()
 
 	collection= 'device_inventory'
 
-	response['results'] = [x for x in db.getDocuments(query={}, collection=collection).distinct('user') if x in users_to_return or 'all' in users_to_return]
+	response['results'] = [x['user'] for x in db.execute_named_query(NAMED_QUERIES["get_unique_users_in_device_inventory"], None) if x['user'] in users_to_return or 'all' in users_to_return]
 
 	response['meta']['execution_time_seconds'] = time.time()-_start_time
 	response['meta']['status'] = {'status':'OK','code':200, 'desc':''}
