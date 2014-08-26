@@ -78,9 +78,9 @@ def get_data(request, probe_settings):
 	own_data = False
 	if len(users_to_return) == 1 and users_to_return[0] == auth['user'].username: own_data = True
 
-	return dataBuild(request, probe_settings, users_to_return, decrypted = decrypted, own_data = own_data, roles = roles)
+	return dataBuild(request, probe_settings, users_to_return, auth['user'], decrypted = decrypted, own_data = own_data, roles = roles)
 
-def dataBuild(request, probe_settings, users_to_return, decrypted = False, own_data = False, roles = []):
+def dataBuild(request, probe_settings, users_to_return, user, decrypted = False, own_data = False, roles = []):
 	_start_time = time.time()
 	
 	results = None
@@ -151,14 +151,14 @@ def dataBuild(request, probe_settings, users_to_return, decrypted = False, own_d
 
 	if len(callback) > 0:
 		data = '%s(%s);' % (callback, json.dumps(response))
-		log.info(audit.message(request, response['meta']))
+		log.info(audit.message(request, response, user))
 		return HttpResponse(data, content_type="text/plain", status=response['meta']['status']['code'])
 
 	if decrypted:
 		pass
 	
 	if proc_req['format'] == 'pretty':
-		log.info(audit.message(request, response['meta']))
+		log.info(audit.message(request, response, user))
 		return render_to_response('pretty_json.html', {'response': json.dumps(response, indent=2)})
         elif proc_req['format'] == 'csv':
 		output = '#' + json.dumps(response['meta'], indent=2).replace('\n','\n#') + '\n'
@@ -167,10 +167,10 @@ def dataBuild(request, probe_settings, users_to_return, decrypted = False, own_d
 			output += locationfacebook_to_csv(results,output2)
 		else:
 			output += array_to_csv(results,probe_settings['collection'])
-			log.info(audit.message(request, response['meta']))
+			log.info(audit.message(request, response, audit))
 		return HttpResponse(output, content_type="text/plain", status=response['meta']['status']['code'])
 	else:
-		log.info(audit.message(request, response['meta']))
+		log.info(audit.message(request, response, user))
 		return HttpResponse(json.dumps(response), content_type="application/json", status=response['meta']['status']['code'])
 	return HttpResponse('hello decrypted')
 
