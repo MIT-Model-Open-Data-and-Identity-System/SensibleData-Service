@@ -57,10 +57,10 @@ def endpoint(request, answer):
 	response = method(request=request, user=auth['user'], scopes=auth_scopes, users_to_return=users_to_return, user_roles=user_roles, own_data = own_data)
 
 
-	if booleanize(request.GET.get('pretty', None)):
+	if request.GET.get('format', None) == 'pretty':
 		return render_to_response('pretty_json.html', {'response': json.dumps(response, indent=2)})
 
-	if booleanize(request.GET.get('csv', None)):
+	if request.GET.get('format', None) == 'csv':
 		return HttpResponse(response, status=200, content_type="text/plain")
 
 	return HttpResponse(json.dumps(response), status=200, content_type="application/json")

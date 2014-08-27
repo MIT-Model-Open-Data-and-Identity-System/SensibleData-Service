@@ -8,6 +8,8 @@ db_helper = db_wrapper.DatabaseHelper()
 
 def get_aggregated_questionnaire_data(request, user, scopes, users_to_return, user_roles, own_data):
 	form_version = request.REQUEST.get("form_version", "")
+	if not form_version:
+		return {"error": "Please select a questionnaire version"}
 	if "all" in users_to_return:
 		users_to_return = [x['user'] for x in
 				 db_helper.execute_named_query(NAMED_QUERIES["get_unique_users_in_device_inventory"], None)]
@@ -19,5 +21,4 @@ def get_aggregated_questionnaire_data(request, user, scopes, users_to_return, us
 		for result in db_helper.retrieve({"limit": 10000, "users": [user], "fields": ["variable_name", "response"], "where": {"form_version": [form_version]}}, "dk_dtu_compute_questionnaire").fetchall():
 			results[result['variable_name']] = result['response']
 		response.append(",".join([results.get(variable_name, "") for variable_name in header]))
-	print len(response)
 	return "\n".join(response)
