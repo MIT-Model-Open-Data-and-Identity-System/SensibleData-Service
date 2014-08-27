@@ -24,6 +24,8 @@ PROBES = {'bluetooth': {'database': 'edu_mit_media_funf_probe_builtin_BluetoothP
 			'location': {'database': 'edu_mit_media_funf_probe_builtin_LocationProbe', 'daily_expected_count': 288}
 }
 
+ROLES = ['main', 'researcher', 'developer']
+
 db_helper = DatabaseHelper()
 log = audit.getLogger(__name__)
 
@@ -32,8 +34,9 @@ def run():
 	"""Main loop of data quality question. """
 	print "Executing ", NAME
 	print "Start time: " + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-	process_pool = Pool(5)
-	process_pool.map(compute_data_quality_for_probe, PROBES.keys())
+	for probe in PROBES.keys():
+		for role in ROLES:
+			compute_data_quality_for_probe(probe, role=role)
 	print "End time: " + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
 
 def get_users_for_role(role):
@@ -41,13 +44,12 @@ def get_users_for_role(role):
 	if role == "main":  # return all users without a role (students)
 		return [user.username for user in users if not hasattr(user, "userrole")]
 	users_with_roles = [user for user in users if hasattr(user, "userrole")]
-	user_roles = UserRole.objects.filter(user__in = users_with_roles)
+	user_roles = UserRole.objects.filter(user__in=users_with_roles)
 
 	return [user_role.user.username for user_role in user_roles if role in user_role.roles.values_list("role", flat=True)]
 
 def compute_data_quality_for_probe(probe, role="main"):
 	users = get_users_for_role(role)
-
 	for user in users:
 		timestamps = get_latest_timestamps_for_user_and_probe(user, probe, role)
 		if not timestamps:
@@ -62,11 +64,11 @@ def compute_data_quality_for_probe(probe, role="main"):
 
 def get_latest_timestamps_for_user_and_probe(user, probe, role="main"):
 	distinct_timestamps_query = NAMED_QUERIES["get_distinct_timestamps_by_user"]
-	formatted_query = distinct_timestamps_query % role
+	formatted_query = distinct_timestamps_query["query"] % role
 	distinct_timestamps_query['database'] = PROBES[probe]['database']
-	last_scan_ids = db_helper.retrieve({"limit": 10000, "fields": ['last_scan_id'], "users": [user], "where": {"type": [probe]}}, "data_quality")
+	last_scan_ids = db_helper.retrieve({"limit": 10000, "fields": ['last_scan_id'], "users": [user], "where": {"type": [probe]}}, "data_quality", roles=[role])
 	last_scan_id = 0
-	if last_scan_ids:
+	if last_scan_ids.rowcount > 0:
 		last_scan_id = max([scan_id.get("last_scan_id", 0) for scan_id in last_scan_ids])
 	return db_helper.execute_named_query({"query": formatted_query, "database": PROBES[probe]['database']}, (user, last_scan_id)).fetchall()
 
