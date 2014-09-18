@@ -46,6 +46,7 @@ AUTHENTICATION_BACKENDS = (
 OPENID_CREATE_USERS = True
 OPENID_UPDATE_DETAILS_FROM_SREG = False
 
+DATABASE_ROUTERS = ['questions.router.QuestionsDatabaseRouter']
 def failure_handler_function(request, message, status=None, template_name=None, exception=None):
 	from django.shortcuts import redirect
 	from django.http import HttpResponse
