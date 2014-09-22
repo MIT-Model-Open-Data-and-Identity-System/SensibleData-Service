@@ -182,6 +182,7 @@ INSTALLED_APPS = (
     'connectors.connector_facebook',
     'connectors.connector_raw',
     'connectors.connector_answer',
+    'connectors.connector_epidemic',
     'anonymizer',
     'oauth2app',
     'documents',
