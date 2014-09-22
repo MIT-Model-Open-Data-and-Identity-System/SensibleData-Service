@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    <script>
+    function claimPrize(prize_id) {
+        $.ajax ({
+        url: "{{ root_url }}" + "claim_prize",
+        data: {"prize_entry_id": prize_id},
+            success: function(data) {
+                $("#entry-" + prize_id.toString()).text("Ticket code: " + data);
+            },
+            error: function(data) {
+                console.log("error");
+            }
+        });
+    }
+    </script>
+    <div class="page-header">
+	      <h1>Data quality prizes</h1>
+    </div>
+
+    <h3>Your prizes so far:</h3>
+    <table class="table table-condensed">
+            <thead>
+    			<tr>
+				    <th>Prize</th>
+				    <th>Data quality period</th>
+				    <th>Quality</th>
+                    <th>Claim</th>
+			    </tr>
+            </thead>
+            <tbody>
+                {% for start_date, end_date, quality, prize_id, prize_code in prizes %}
+                    <tr>
+	                    <td>1 x TDC streaming ticket</td>
+		                <td>{{ start_date }} - {{ end_date }}</td>
+		                <td>{{ quality }}%</td>
+                        {% if prize_code %}
+                            <td>Ticket code: {{ prize_code }}</td>
+                        {% else %}
+                            <td id="entry-{{ prize_id }}"><a class="btn btn-success" type="button" href="#" onclick=claimPrize({{ prize_id }})>Claim prize</a></td>
+                        {% endif %}
+
+		            </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+{#    </div>#}
+{% endblock %}
