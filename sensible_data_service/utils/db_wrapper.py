@@ -36,10 +36,10 @@ class DatabaseHelper:
 			except Exception, e: 
 				self.log.error({'type': 'MYSQL', 'tag': 'insert', 'exception': str(e)})
 
-			try:
-				self.filestorage_wrapper.insert(documents, probe, roles)
-			except Exception, e:
-				self.log.error({'type': 'FileStorage', 'tag': 'insert', 'exception': str(e)})
+			#try:
+			#	self.filestorage_wrapper.insert(documents, probe, roles)
+			#except Exception, e:
+			#	self.log.error({'type': 'FileStorage', 'tag': 'insert', 'exception': str(e)})
 		
 
 
