@@ -3,6 +3,7 @@ SensibleData-Service 0.2.8-devel
 * Escaped newlines in CSV formatting
 * CellProbe retrieval endpoint
 * Data quality endpoint
+* Data quality prizes
 
 SensibleData-Service 0.2.7
 * Added support for epidemic mining
