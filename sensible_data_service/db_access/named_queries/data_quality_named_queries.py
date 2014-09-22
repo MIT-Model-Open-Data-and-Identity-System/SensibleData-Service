@@ -5,7 +5,7 @@ NAMED_QUERIES = {
         },
 
 		"get_quality": {
-			"query": "select user, sum(least(1.0, count/%s))/%s as quality from %s where user in (%s) and timestamp between %%s and %%s and type = %%s group by user",
+			"query": "select user, sum(least(1.0, count/%s))/%s as quality from %s where user in (%s) and timestamp >= %%s and timestamp < %%s and type = %%s group by user",
 			"database": "data_quality"
 		},
 

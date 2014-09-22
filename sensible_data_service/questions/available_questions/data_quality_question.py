@@ -93,6 +93,9 @@ def get_data_stats_for_period(request, user, scopes, users_to_return, user_roles
 	end_date = request.REQUEST.get('end_date')
 	data_type = request.REQUEST.get("data_type")
 
+	return get_quality_for_users_and_period(start_date, end_date, users_to_return, data_type, role)
+
+def get_quality_for_users_and_period(start_date, end_date, users_to_return, data_type, role):
 	params = []
 	params += users_to_return
 	params += [start_date]
@@ -104,4 +107,4 @@ def get_data_stats_for_period(request, user, scopes, users_to_return, user_roles
 
 	formatted_query = quality_named_query["query"] % (PROBES[data_type]["daily_expected_count"], number_of_days, role, ','.join(['%s'] * len(users_to_return)))
 	month_stats = db_helper.execute_named_query({"database": quality_named_query["database"], "query": formatted_query}, tuple(params))
-	return [{"user": doc["user"], "month_quality": float(doc["quality"]) if doc["quality"] else 0.0} for doc in month_stats.fetchall()]
+	return [{"user": doc["user"], "quality": float(doc["quality"]) if doc["quality"] else 0.0} for doc in month_stats.fetchall()]
