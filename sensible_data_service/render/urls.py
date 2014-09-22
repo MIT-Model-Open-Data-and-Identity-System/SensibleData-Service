@@ -14,6 +14,7 @@ urlpatterns = patterns('',
 	url(r'^logout/', 'application_manager.logout.logout', name='logout'),
 	url(r'^status/', 'render.status.status', name='status'),
 	url(r'^researcher/', 'render.researcher.researcher', name='researcher'),
-	 
+	url(r'^claim_prize/', 'render.quality_prize.claim_prize', name='claim_prize'),
+	url(r'^prizes/', 'render.quality_prize.see_prizes', name='prizes'),
 	url(r'^test/', include('testing.urls')),
 )
