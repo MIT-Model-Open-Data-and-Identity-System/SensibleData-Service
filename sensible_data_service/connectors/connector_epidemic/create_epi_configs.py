@@ -19,24 +19,28 @@ def create_epi_configs():
 	global args
 	this_path = os.path.split(os.path.realpath(__file__))[0] + '/'
 	myConnector = connectors.connectors_config.CONNECTORS['ConnectorFunf']['config']
-	#FIXME
-	#config_path = os.path.split(myConnector['config_path'])[0]+'/'
-	config_path = "/home/sensibleDTU/temp_configs/"
+	config_path = os.path.split(myConnector['config_path'])[0]+'/'
+	#config_path = "/home/sensibleDTU/temp_configs/"
 	args = build_django_args()
 
 	base_config = load_base_config(this_path+'funf_config_base.json')
-	debug(base_config)
+	#debug(base_config)
 
 	summary = load_summary(this_path+'epi_summary.json')
-	debug(summary)
+	#debug(summary)
 
-	for user in summary:
-		epi_config = create_epi_config(base_config, summary[user])
+	users_ready_for_infection = load_users_with_new_version(this_path+'users_ready_for_infection.json')
+
+	#for user in summary:
+	for user in users_ready_for_infection:
+		epi_config = create_epi_config(base_config, summary[user], ready_for_infection = (user in users_ready_for_infection))
 		save_config(epi_config, config_path+'config.json_'+user)
 	
-	epi_config = create_epi_config(base_config, {})
+	epi_config = create_epi_config(base_config, {}, ready_for_infection = False)
 	save_config(epi_config, config_path+'config.json')
 
+def load_users_with_new_version(filename):
+	return set(json.loads(open(filename).read()))
 
 def build_args():
 	parser = argparse.ArgumentParser(description='Create epi config for users.')
@@ -56,7 +60,7 @@ def build_args():
 
 
 def load_summary(name):
-	summary = {}
+	summary = defaultdict(dict)
 	try:
 		for line in open(name):
 			line = line.strip()
@@ -74,7 +78,7 @@ class Args:
 	POPUP_PROBABILITY = 0.0
 	SILENT_NIGHT = True
 	HIDDEN_MODE = False
-	SHOW_WELCOME_DIALOG = 1409410800
+	SHOW_WELCOME_DIALOG = 1409756400
 	SHOW_FINAL_DIALOG = 1418436000
 	FINAL_DIALOG_URL = "http://www.sensible.dtu.dk/?page_id=2044"
 
@@ -97,7 +101,7 @@ def debug(v, key=None):
 	pretty_print(v, key)
 
 
-def create_epi_config(base_config, summary):
+def create_epi_config(base_config, summary, ready_for_infection = True):
 	epi_config = base_config
 	epi_config['dataRequests']['edu.mit.media.funf.probe.builtin.EpidemicProbe'] = [{}]
 	epi_config['dataRequests']['edu.mit.media.funf.probe.builtin.EpidemicProbe'][0]['SCAN_DELTA'] = args.SCAN_DELTA
@@ -105,12 +109,18 @@ def create_epi_config(base_config, summary):
 	epi_config['dataRequests']['edu.mit.media.funf.probe.builtin.EpidemicProbe'][0]['VIBRATE_PROBABILITY'] = args.VIBRATE_PROBABILITY
 	epi_config['dataRequests']['edu.mit.media.funf.probe.builtin.EpidemicProbe'][0]['POPUP_PROBABILITY'] = args.POPUP_PROBABILITY
 	epi_config['dataRequests']['edu.mit.media.funf.probe.builtin.EpidemicProbe'][0]['SILENT_NIGHT'] = args.SILENT_NIGHT
-	epi_config['dataRequests']['edu.mit.media.funf.probe.builtin.EpidemicProbe'][0]['HIDDEN_MODE'] = args.HIDDEN_MODE
+	if not ready_for_infection:
+		epi_config['dataRequests']['edu.mit.media.funf.probe.builtin.EpidemicProbe'][0]['HIDDEN_MODE'] = True
+	else:
+		epi_config['dataRequests']['edu.mit.media.funf.probe.builtin.EpidemicProbe'][0]['HIDDEN_MODE'] = args.HIDDEN_MODE
 	epi_config['dataRequests']['edu.mit.media.funf.probe.builtin.EpidemicProbe'][0]['SHOW_WELCOME_DIALOG'] = args.SHOW_WELCOME_DIALOG
 	epi_config['dataRequests']['edu.mit.media.funf.probe.builtin.EpidemicProbe'][0]['SHOW_FINAL_DIALOG'] = args.SHOW_FINAL_DIALOG
 	epi_config['dataRequests']['edu.mit.media.funf.probe.builtin.EpidemicProbe'][0]['FINAL_DIALOG_URL'] = args.FINAL_DIALOG_URL
 
-	epi_config['dataRequests']['edu.mit.media.funf.probe.builtin.EpidemicProbe'][0]['WAVES'] = create_waves()
+	if not ready_for_infection:
+		epi_config['dataRequests']['edu.mit.media.funf.probe.builtin.EpidemicProbe'][0]['WAVES'] = ""
+	else:
+		epi_config['dataRequests']['edu.mit.media.funf.probe.builtin.EpidemicProbe'][0]['WAVES'] = create_waves()
 	epi_config['dataRequests']['edu.mit.media.funf.probe.builtin.EpidemicProbe'][0]['DAILY_DIGESTS'] = create_daily_digest(summary)
 	
 

@@ -1,5 +1,5 @@
 {
-  "configUpdatePeriod": 3800,
+  "configUpdatePeriod": 7300,
   "configUpdateUrl": "https://www.sensible.dtu.dk/sensible-dtu/connectors/connector_funf/config/",
   "dataArchivePeriod": 3600,
   "dataRequests": {
@@ -50,6 +50,11 @@
       {
         "PERIOD": 600,
         "DURATION": 30
+      }
+    ],
+    "edu.mit.media.funf.probe.builtin.AndroidInfoProbe":[
+      {
+        "PERIOD": 43200
       }
     ]
   },
