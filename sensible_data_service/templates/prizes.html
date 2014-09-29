@@ -33,7 +33,7 @@
             <tbody>
                 {% for start_date, end_date, quality, prize_id, prize_code in prizes %}
                     <tr>
-	                    <td>1 x TDC streaming ticket</td>
+	                    <td>1 x YouBio streaming ticket</td>
 		                <td>{{ start_date }} - {{ end_date }}</td>
 		                <td>{{ quality }}%</td>
                         {% if prize_code %}
@@ -46,5 +46,7 @@
                 {% endfor %}
             </tbody>
         </table>
+    <p>YouBio streaming tickets give you access to YouSee's online streaming cinema.<br/><a href="#" onclick="$('#guide-div').append('{{ guide_string }}');">Click here</a> to see a Danish guide on how to use them.</p>
+    <div id="guide-div"></div>
 {#    </div>#}
 {% endblock %}
