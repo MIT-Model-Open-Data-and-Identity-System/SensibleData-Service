@@ -8,12 +8,13 @@ NAME = 'quality_prize_question'
 log = audit.getLogger(__name__)
 
 def run():
-	today = datetime.datetime.now()
+	now = datetime.datetime.now()
+	today = datetime.datetime(now.year, now.month, now.year)
 	end_date = today - datetime.timedelta(days=1)
-	start_date = end_date - datetime.timedelta(days=14)
+	start_date = end_date - datetime.timedelta(days=13)
 	users = User.objects.all()
 	users_to_return = [user.username for user in users if not hasattr(user, "userrole")]
-	user_qualities = get_quality_for_users_and_period(start_date, end_date, users_to_return, 'bluetooth', 'main')
+	user_qualities = get_quality_for_users_and_period(start_date.strftime("%Y-%m-%d"), end_date.strftime("%Y-%m-%d"), users_to_return, 'bluetooth', 'main')
 	winners = [doc for doc in user_qualities if doc['quality'] >= 0.8]
 
 	for winner in winners:
