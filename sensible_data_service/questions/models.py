@@ -10,3 +10,9 @@ class QualityPrizeWinners(models.Model):
 	quality = models.FloatField(blank=True)
 	prize = models.OneToOneField(PrizeTicket)
 	claimed = models.BooleanField(default=False)
+
+class InfectionEvent(models.Model):
+	infecting_user = models.CharField(max_length=100, blank=True)
+	infected_user = models.CharField(max_length=100, blank=True)
+	timestamp = models.DateTimeField(blank=True)
+	wave_no = models.IntegerField(blank=True)
