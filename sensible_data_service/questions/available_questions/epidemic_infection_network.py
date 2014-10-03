@@ -1,5 +1,4 @@
 import base64
-import calendar
 import datetime
 import json
 import time
@@ -18,7 +17,7 @@ def run():
 	end = datetime.datetime(2014, 10, 5)
 
 	for dt in rrule.rrule(rrule.DAILY, dtstart=start, until=end):
-		cursor = db.retrieve(params={'limit':10000000, 'sortby':'timestamp', 'order':-1, 'start_date': calendar.timegm(dt.timetuple()), 'end_date': calendar.timegm((dt + datetime.timedelta(hours=23, minutes=59)).timetuple())}, collection='edu_mit_media_funf_probe_builtin_EpidemicProbe', roles='').fetchall()
+		cursor = db.retrieve(params={'limit': 10000000, 'sortby': 'timestamp', 'order': -1, 'start_date': time.mktime(dt.timetuple()), 'end_date': time.mktime((dt + datetime.timedelta(hours=23, minutes=59)).timetuple())}, collection='edu_mit_media_funf_probe_builtin_EpidemicProbe', roles='').fetchall()
 		infection_events_tuples = set([])
 		for doc in cursor:
 			data = json.loads(base64.b64decode(doc['data']))
