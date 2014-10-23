@@ -6,6 +6,7 @@ from django.shortcuts import render_to_response
 
 from authorization_manager import authorization_manager
 from db_access.named_queries.named_queries import NAMED_QUERIES
+from user_metadata.models import UserMetadata
 from utils import db_wrapper
 from accounts.models import UserRole
 from connector_utils import *
@@ -68,8 +69,13 @@ def userBuild(request, users_to_return, decrypted = False, own_data = False, rol
 
 	collection= 'device_inventory'
 
-	response['results'] = [x['user'] for x in db.execute_named_query(NAMED_QUERIES["get_unique_users_in_device_inventory"], None) if x['user'] in users_to_return or 'all' in users_to_return]
-
+	#response['results'] = [x['user'] for x in db.execute_named_query(NAMED_QUERIES["get_unique_users_in_device_inventory"], None) if x['user'] in users_to_return or 'all' in users_to_return]
+	if "all" in users_to_return:
+		user_metadata = UserMetadata.objects.all()
+	else:
+		user_metadata = UserMetadata.objects.filter(user__in=users_to_return).all()
+	response['results'] = [{"user": metadata.user, "status": metadata.current_status.status} for metadata in user_metadata]
+	print response['results']
 	response['meta']['execution_time_seconds'] = time.time()-_start_time
 	response['meta']['status'] = {'status':'OK','code':200, 'desc':''}
 	
