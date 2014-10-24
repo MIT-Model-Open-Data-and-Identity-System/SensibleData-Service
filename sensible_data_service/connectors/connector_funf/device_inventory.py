@@ -25,7 +25,7 @@ class DeviceInventory(object):
 		return None
 
 	def mapBtToUser(self, bt_mac, timestamp, use_mac_if_empty=True):
-		devices = self.mapping[bt_mac]
+		devices = self.mapping.get(bt_mac, [])
 		if len(devices) == 0: 
 			if use_mac_if_empty: return bt_mac
 			else: return None

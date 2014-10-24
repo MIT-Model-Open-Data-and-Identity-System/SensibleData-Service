@@ -10,3 +10,10 @@ class QualityPrizeWinners(models.Model):
 	quality = models.FloatField(blank=True)
 	prize = models.OneToOneField(PrizeTicket)
 	claimed = models.BooleanField(default=False)
+
+class SensibleBluetoothScan(models.Model):
+	timestamp = models.DateTimeField()
+	scanning_user = models.CharField(max_length=100)
+	scanned_user = models.CharField(max_length=100)
+	rssi = models.IntegerField()
+	last_scan_id = models.IntegerField()
