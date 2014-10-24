@@ -1,10 +1,12 @@
 from django.contrib.auth.models import User
 from django.db.models import Max
+import time
 from accounts.models import UserRole
 from connectors.connector_funf.device_inventory import DeviceInventory
 from db_access.named_queries.named_queries import NAMED_QUERIES
 from questions.models import SensibleBluetoothScan
 from utils import db_wrapper
+import pytz
 
 NAME = "bluetooth_network_question"
 
@@ -14,19 +16,22 @@ device_inventory = DeviceInventory()
 
 def run():
 	users = get_users_for_role("main")
+	print users
 	for user in users:
 		save_sensible_connections_for_user(user)
 
 
 def save_sensible_connections_for_user(user):
 	bt_scans = get_bluetooth_scans_for_user(user)
+	if len(bt_scans) == 0: return
+	max_scan_id = max(bt_scans, key=lambda(bt_scan): bt_scan['id'])['id']
 	sensible_scans = []
 	for scan in bt_scans:
-		scanned_user = device_inventory.mapBtToUser(scan['bt_mac'], scan['timestamp'], use_mac_if_empty=False)
+		scanned_user = device_inventory.mapBtToUser(scan['bt_mac'], int(time.mktime(scan['timestamp'].timetuple())), use_mac_if_empty=False)
 		if not scanned_user:
 			continue
 
-		sensible_scans.append(SensibleBluetoothScan(timestamp=scan['timestamp'], scanning_user=scan['user'], scanned_user=scanned_user, rssi=scan['level']))
+		sensible_scans.append(SensibleBluetoothScan(timestamp=pytz.timezone("Europe/Copenhagen").localize(scan['timestamp']), scanning_user=scan['user'], scanned_user=scanned_user, rssi=scan['rssi'], last_scan_id=max_scan_id))
 	SensibleBluetoothScan.objects.bulk_create(sensible_scans)
 
 
