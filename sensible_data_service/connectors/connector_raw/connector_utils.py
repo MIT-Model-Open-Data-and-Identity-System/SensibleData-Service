@@ -170,3 +170,11 @@ QUESTIONNAIRE_DATA_SETTINGS = {\
 		'collection':'dk_dtu_compute_questionnaire',
 		'default_fields':['id','user','timestamp','variable_name','response', 'form_version']}
 }
+
+GRADES_DATA_SETTINGS = {
+	'grades': {
+		'scope': 'connector_raw.grades',
+		'collection': 'dk_dtu_compute_grades',
+		'default_fields': ['user', 'timestamp', 'class_name', 'grade', 'class_code']
+	}
+}
