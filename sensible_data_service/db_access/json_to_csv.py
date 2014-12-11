@@ -364,7 +364,12 @@ def funf_wifi_to_csv(json_obj):
 		row = {}
 		for key in metadata: row[key] = metadata[key]
 		row['bssid'] = scan.get('BSSID')
-		row['ssid'] = scan.get('SSID', "").encode('utf-8')
+		#row['ssid'] = scan.get('SSID', "").encode('utf-8')
+		try:
+			scan.get('SSID', "").encode("cp1252")
+			row['ssid'] = scan.get('SSID', "").encode("utf-8")
+		except:
+			row['ssid'] = scan.get('SSID', "").encode("cp1252", "ignore")
 		row['level'] = scan.get('level')
 		rows.append(row)
 	if len(json_obj['data']['SCAN_RESULTS']) == 0:
