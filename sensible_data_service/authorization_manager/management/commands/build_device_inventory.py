@@ -43,7 +43,7 @@ class Command(NoArgsCommand):
 				a_device_id = anonymizerObject.anonymizeValue('device_id', device_id)
 				hardware_info = None
 				try:
-				    for v in db.retrieve({'where': {'device_id':a_device_id}, "sortby": "timestamp", "order": -1}, 'edu_mit_media_funf_probe_builtin_HardwareInfoProbe'):
+				    for v in db.retrieve({'where': {'device_id':[a_device_id]}, "sortby": "timestamp", "order": -1, "limit": 10000}, 'edu_mit_media_funf_probe_builtin_HardwareInfoProbe'):
 					    if v['timestamp_added'] < v['timestamp']: continue
 					    hardware_info = v
 					    break
@@ -59,8 +59,8 @@ class Command(NoArgsCommand):
 				doc['start'] = mapping[device_id][u]['start']
 				doc['end'] = mapping[device_id][u]['end']
 				doc['bt_mac'] = hardware_info['device_bt_mac']
-				doc['a_bt_mac'] = hardware_info['data']['BLUETOOTH_MAC']
-				doc['a_wifi_mac'] = hardware_info['data']['WIFI_MAC']
+				doc['a_bt_mac'] = hardware_info['bt_mac']
+				doc['a_wifi_mac'] = hardware_info['wifi_mac']
 				doc['sensible_version'] = hardware_info['uuid'].split('-')[-2]
 				doc['funf_version'] = hardware_info['uuid'].split('-')[-1]
 				print doc
