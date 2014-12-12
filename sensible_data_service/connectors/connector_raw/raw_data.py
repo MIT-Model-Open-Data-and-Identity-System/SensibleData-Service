@@ -197,6 +197,12 @@ def array_to_csv(results):
 	fields = results[0].keys()
 	output = [','.join(fields)]
 	for result in results:
+		if result.get('human_readable_response'):
+			result['human_readable_response'] = result['human_readable_response'].replace('"', '').replace("\n", " ").replace("\r", " ")
+		if result.get('human_readable_question'):
+			result['human_readable_question'] = result['human_readable_question'].replace('"', '').replace("\n", " ").replace("\r", " ")
+		if result.get('variable_name') == 'comments' and result.get('response'):
+			result['response'] = result['response'].replace('"', '').replace("\n", " ").replace("\r", " ")
 		output.append(','.join([to_string(result[k]).replace("\n", "\\n") for k in fields]))
 	return '\n'.join(output)
 
