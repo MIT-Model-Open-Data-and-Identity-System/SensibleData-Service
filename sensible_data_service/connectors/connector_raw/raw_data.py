@@ -4,7 +4,7 @@ from django.http import HttpResponse
 import bson.json_util as json
 from authorization_manager import authorization_manager
 from sensible_audit import audit
-from utils import db_wrapper
+from utils import db_wrapper, SECURE_settings
 from django.shortcuts import render_to_response
 from accounts.models import UserRole
 from django.contrib.auth.models import User
@@ -72,6 +72,8 @@ def statuses(request):
         return get_data(request, FACEBOOK_DATA_SETTINGS['statuses'])
 def feed(request):
         return get_data(request, FACEBOOK_DATA_SETTINGS['feed'])
+def grades(request):
+	return get_data(request, GRADES_DATA_SETTINGS['grades'])
 
 def get_data(request, probe_settings):
 	decrypted = booleanize(request.REQUEST.get('decrypted', False))
@@ -85,6 +87,11 @@ def get_data(request, probe_settings):
 
 	if 'error' in auth:
 		response = {'meta':{'status':{'status':'error','code':401,'desc':auth['error']}}}
+		log.error(audit.message(request, response))
+		return HttpResponse(json.dumps(response), status=401, content_type="application/json")
+
+	if probe_settings['collection'] == 'grades' and auth['user'] not in SECURE_settings:
+		response = {'meta':{'status':{'status':'error','code':401,'desc':'Not allowed to view grades data.'}}}
 		log.error(audit.message(request, response))
 		return HttpResponse(json.dumps(response), status=401, content_type="application/json")
 
