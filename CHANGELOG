@@ -1,3 +1,6 @@
+SensibleData-Service 0.2.9
+* Endpoint for grades retrieval
+
 SensibleData-Service 0.2.8
 * AndroidInfoProbe population
 * Escaped newlines in CSV formatting

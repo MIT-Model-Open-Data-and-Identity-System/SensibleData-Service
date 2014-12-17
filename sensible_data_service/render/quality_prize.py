@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from questions.models import QualityPrizeWinners
+from pytz import timezone
 
 guide_string = """1. Du starter med at klikke på <a href="http://yousee.tv/youbio/?fromsplash&cid=youseedk_youbio_gaa-til-forsiden#fromsplash" target="_blank">dette link</a> <br\> \
 				  2. Derefter, vil du blive nødt til at oprette et Youbio login hvis du ikke allerede har et. Dette gøres oppe i højre hjørne under Opret bruger.<br\> \
@@ -21,7 +22,7 @@ guide_string = """1. Du starter med at klikke på <a href="http://yousee.tv/youb
 def see_prizes(request):
 	username = request.user.username
 	winner_entries = QualityPrizeWinners.objects.filter(user=username)
-	prizes = [(entry.start_timestamp.strftime("%d.%m.%Y"), entry.end_timestamp.strftime("%d.%m.%Y"), int(entry.quality * 100), entry.id, entry.prize.code if entry.claimed else "") for entry in winner_entries]
+	prizes = [(entry.start_timestamp.astimezone(timezone("Europe/Copenhagen")).strftime("%d.%m.%Y"), entry.end_timestamp.astimezone(timezone("Europe/Copenhagen")).strftime("%d.%m.%Y"), int(entry.quality * 100), entry.id, entry.prize.code if entry.claimed else "") for entry in winner_entries]
 	return render_to_response("prizes.html", {"prizes": prizes, "root_url": settings.BASE_URL, "guide_string": guide_string}, context_instance=RequestContext(request))
 
 @login_required

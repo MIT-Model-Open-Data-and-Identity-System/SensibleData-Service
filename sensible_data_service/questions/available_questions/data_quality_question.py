@@ -107,4 +107,7 @@ def get_quality_for_users_and_period(start_date, end_date, users_to_return, data
 
 	formatted_query = quality_named_query["query"] % (PROBES[data_type]["daily_expected_count"], number_of_days, role, ','.join(['%s'] * len(users_to_return)))
 	month_stats = db_helper.execute_named_query({"database": quality_named_query["database"], "query": formatted_query}, tuple(params))
-	return [{"user": doc["user"], "quality": float(doc["quality"]) if doc["quality"] else 0.0} for doc in month_stats.fetchall()]
+	results = [{"user": doc["user"], "quality": float(doc["quality"]) if doc["quality"] else 0.0} for doc in month_stats.fetchall()]
+	if len(results) == 0 and number_of_days < 2:
+		results = [{"user": user, "quality": 0.0} for user in users_to_return]
+	return results

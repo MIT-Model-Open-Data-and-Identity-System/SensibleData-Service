@@ -3,15 +3,19 @@ from django.contrib.auth.models import User
 from questions.available_questions.data_quality_question import get_quality_for_users_and_period
 from questions.models import QualityPrizeWinners, PrizeTicket
 from sensible_audit import audit
+import json
+import pytz
 
 NAME = 'quality_prize_question'
 log = audit.getLogger(__name__)
 
 def run():
 	now = datetime.datetime.now()
-	today = datetime.datetime(now.year, now.month, now.year)
+	today = datetime.datetime(now.year, now.month, now.day)
 	end_date = today - datetime.timedelta(days=1)
 	start_date = end_date - datetime.timedelta(days=13)
+	start_date = pytz.timezone("Europe/Copenhagen").localize(start_date)
+	end_date = pytz.timezone("Europe/Copenhagen").localize(end_date)
 	users = User.objects.all()
 	users_to_return = [user.username for user in users if not hasattr(user, "userrole")]
 	user_qualities = get_quality_for_users_and_period(start_date.strftime("%Y-%m-%d"), end_date.strftime("%Y-%m-%d"), users_to_return, 'bluetooth', 'main')
