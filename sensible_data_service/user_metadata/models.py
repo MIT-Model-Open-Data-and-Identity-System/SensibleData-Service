@@ -9,9 +9,15 @@ class TimeVariableMetadata(models.Model):
 	class Meta:
 		abstract = True
 
+	def to_dict(self):
+		pass
+
 
 class UserPhoneNumber(TimeVariableMetadata):
 	phone_number = models.CharField(max_length=100)
+
+	def to_dict(self):
+		return {"user": self.user, "phone_number": self.phone_number}
 
 
 class StudyLineType(models.Model):
@@ -21,9 +27,13 @@ class StudyLineType(models.Model):
 class UserStudyLine(TimeVariableMetadata):
 	study_line = models.ForeignKey('StudyLineType')
 
+	def to_dict(self):
+		return {"user": self.user, "study_line": self.study_line.study_line_name}
+
 
 class StaticMetadata(models.Model):
 	user = models.CharField(max_length=60)
 	facebook_id = models.CharField(max_length=100, null=True)
-	gender = models.CharField(max_length=1)
-	starting_year = models.IntegerField()
+	gender = models.CharField(max_length=1, null=True)
+	starting_year = models.IntegerField(null=True)
+	first_year_exercise_group = models.CharField(max_length=100, null=True)
