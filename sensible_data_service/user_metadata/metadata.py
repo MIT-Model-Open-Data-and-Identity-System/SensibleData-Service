@@ -17,7 +17,7 @@ def get_metadata_for_users(users, timestamp, metadata_attributes=None):
 	for user in set(static_metadata.keys()).union(set(dynamic_metadata.keys())):
 		metadata_dict[user] = dict(static_metadata.get(user, {}).items() + dynamic_metadata.get(user, {}).items())
 
-	return metadata_dict
+	return metadata_dict.values()
 
 
 def get_static_metadata_for_users(users, static_attributes):
