@@ -23,18 +23,25 @@ def get_metadata_for_users(users, timestamp, metadata_attributes=None):
 def get_static_metadata_for_users(users, static_attributes):
 	metadata_dict = {}
 	static_attributes.append("user")
-	metadata_queryset = StaticMetadata.objects.filter(user__in=users).only(*static_attributes)
+
+	metadata_queryset = StaticMetadata.objects.filter(user__in=users).values(*static_attributes)
+
 	for metadata_result in metadata_queryset:
-		metadata_dict[metadata_result.user] = model_to_dict(metadata_result)
+		metadata_dict[metadata_result["user"]] = metadata_result
+
 	return metadata_dict
 
 
 def get_dynamic_metadata_for_users(users, timestamp, dynamic_attributes):
-	metadata_dict = {}
+	metadata_dict = defaultdict(dict)
+
 	for attribute in dynamic_attributes:
-		metadata_queryset = get_model('user_metadata', DYNAMIC_METADATA[attribute]).objects.filter(user__in=users, start_timestamp__gte=timestamp, end_timestamp__lt=timestamp).defer("id", "start_timestamp", "end_timestamp")
+		dynamic_metadata_model = get_model('user_metadata', DYNAMIC_METADATA[attribute])
+
+		metadata_queryset = dynamic_metadata_model.objects.filter(user__in=users, start_timestamp__lte=timestamp, end_timestamp__gte=timestamp)
 		for metadata_result in metadata_queryset:
-			metadata_dict[metadata_result.user] = model_to_dict(metadata_result)
+			metadata_dict[metadata_result.user] = dict(metadata_dict[metadata_result.user].items() +  metadata_result.to_dict().items())
+
 	return metadata_dict
 
 
