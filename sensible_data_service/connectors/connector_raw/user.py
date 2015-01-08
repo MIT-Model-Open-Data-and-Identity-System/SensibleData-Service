@@ -7,6 +7,7 @@ import bson.json_util as json
 from django.shortcuts import render_to_response
 
 from authorization_manager import authorization_manager
+from connectors.connector_raw.raw_data import array_to_csv
 from db_access.named_queries.named_queries import NAMED_QUERIES
 from user_metadata import metadata
 from user_metadata.models import StaticMetadata
@@ -66,17 +67,17 @@ def user_metadata(request, users_to_return, decrypted = False, own_data = False,
 	_start_time = time.time()
 
 	pretty = booleanize(request.REQUEST.get('pretty', False))
+	csv = booleanize(request.REQUEST.get('csv', False))
+
 	response = {}
 	response['meta'] = {}
 
 	timestamp = request.REQUEST.get("timestamp", datetime.datetime.now())
 	metadata_attributes = request.REQUEST.get("attributes", "").split(",")
-	print metadata_attributes
 
 	if 'all' in users_to_return:
 		users = User.objects.all()
 		users_to_return = [user.username for user in users if not hasattr(user, "userrole")]
-
 	response['results'] = metadata.get_metadata_for_users(users_to_return, timestamp, metadata_attributes=metadata_attributes)
 
 	response['meta']['execution_time_seconds'] = time.time()-_start_time
@@ -85,6 +86,10 @@ def user_metadata(request, users_to_return, decrypted = False, own_data = False,
 	if pretty:
 		log.info(audit.message(request, response['meta']))
 		return render_to_response('pretty_json.html', {'response': json.dumps(response, indent=2)})
+	elif csv:
+		output = '#' + json.dumps(response['meta'], indent=2).replace('\n','\n#') + '\n'
+		output += array_to_csv(response['results'], metadata_attributes)
+		return HttpResponse(output, content_type="text/plain; charset=utf-8", status=response['meta']['status']['code'])
 	else:
 		log.info(audit.message(request, response['meta']))
 		return HttpResponse(json.dumps(response), content_type="application/json", status=response['meta']['status']['code'])

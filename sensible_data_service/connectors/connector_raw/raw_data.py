@@ -192,12 +192,12 @@ def dataBuild(request, probe_settings, users_to_return, decrypted = False, own_d
 		return HttpResponse(json.dumps(response), content_type="application/json; charset=utf-8", status=response['meta']['status']['code'])
 
 
-def array_to_csv(results):
+def array_to_csv(results, column_names=None):
 	if not results: return ''
-	fields = results[0].keys()
+	fields = results[0].keys() if not column_names else column_names
 	output = [','.join(fields)]
 	for result in results:
-		output.append(','.join([to_string(result[k]).replace("\n", "\\n") for k in fields]))
+		output.append(','.join([to_string(result.get(k, "")).replace("\n", "\\n") for k in fields]))
 	return '\n'.join(output)
 
 def to_string(obj):
