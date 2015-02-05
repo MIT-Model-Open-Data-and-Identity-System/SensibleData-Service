@@ -73,12 +73,20 @@ def user_metadata(request, users_to_return, decrypted = False, own_data = False,
 	response['meta'] = {}
 
 	timestamp = request.REQUEST.get("timestamp", datetime.datetime.now())
-	metadata_attributes = request.REQUEST.get("attributes", "").split(",")
+	metadata_attributes = request.REQUEST.get("attributes")
+	metadata_attributes = [] if not metadata_attributes else metadata_attributes.split(",")
 
 	if 'all' in users_to_return:
 		users = User.objects.all()
 		users_to_return = [user.username for user in users if not hasattr(user, "userrole")]
-	response['results'] = metadata.get_metadata_for_users(users_to_return, timestamp, metadata_attributes=metadata_attributes)
+	users_with_metadata = metadata.get_metadata_for_users(users_to_return, timestamp, metadata_attributes=metadata_attributes)
+
+	users_without_metadata = set(users_to_return) - set(users_with_metadata.keys())
+
+	response['results'] = users_with_metadata.values()
+
+	for user in users_without_metadata:
+		response['results'].append({"user": user})
 
 	response['meta']['execution_time_seconds'] = time.time()-_start_time
 	response['meta']['status'] = {'status':'OK','code':200, 'desc':''}
@@ -88,7 +96,7 @@ def user_metadata(request, users_to_return, decrypted = False, own_data = False,
 		return render_to_response('pretty_json.html', {'response': json.dumps(response, indent=2)})
 	elif csv:
 		output = '#' + json.dumps(response['meta'], indent=2).replace('\n','\n#') + '\n'
-		output += array_to_csv(response['results'], metadata_attributes)
+		output += array_to_csv(response['results'], metadata_attributes + ["user"])
 		return HttpResponse(output, content_type="text/plain; charset=utf-8", status=response['meta']['status']['code'])
 	else:
 		log.info(audit.message(request, response['meta']))
