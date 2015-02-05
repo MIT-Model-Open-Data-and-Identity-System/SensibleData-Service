@@ -90,8 +90,8 @@ def get_data(request, probe_settings):
 		log.error(audit.message(request, response))
 		return HttpResponse(json.dumps(response), status=401, content_type="application/json")
 
-	if probe_settings['collection'] == 'grades' and auth['user'] not in SECURE_settings:
-		response = {'meta':{'status':{'status':'error','code':401,'desc':'Not allowed to view grades data.'}}}
+	if probe_settings['collection'] == 'dk_dtu_compute_grades' and str(auth['user']) not in SECURE_settings.GRADES_WHITELIST:
+		response = {'meta':{'status':{'status':'error','code':401,'desc':'Not allowed to view grades data for user:' + str(auth['user'])}}}
 		log.error(audit.message(request, response))
 		return HttpResponse(json.dumps(response), status=401, content_type="application/json")
 
@@ -287,7 +287,8 @@ def processApiCall(request, probe_settings, users_to_return):
 
 	### deal with sorting
 	# sorting will be supported later. Now, we can only sort by data.TIMESTAMP, either asc or desc
-	response['sortby'] = 'timestamp'
+	if request.REQUEST.get('sortby', None):
+		response['sortby'] = 'timestamp'
 	if request.REQUEST.get('order', None) is not None:
 		if request.REQUEST.get('order',None) not in ['-1','1']:
 			raise BadRequestException('error',400,str(request.REQUEST.get('order')) + ' is not a valid value for order parameter. Use 1 for ascending or -1 for descending')
