@@ -280,3 +280,5 @@ djcelery.setup_loader()
 CELERYBEAT_SCHEDULER = djcelery.schedulers.DatabaseScheduler
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+
+OAUTH2_ACCESS_TOKEN_EXPIRATION = LOCAL_SETTINGS.OAUTH2_ACCESS_TOKEN_EXPIRATION
