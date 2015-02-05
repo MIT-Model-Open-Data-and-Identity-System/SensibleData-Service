@@ -46,7 +46,7 @@ AUTHENTICATION_BACKENDS = (
 OPENID_CREATE_USERS = True
 OPENID_UPDATE_DETAILS_FROM_SREG = False
 
-DATABASE_ROUTERS = ['questions.router.QuestionsDatabaseRouter']
+DATABASE_ROUTERS = ['questions.router.QuestionsDatabaseRouter', 'user_metadata.router.UserMetadataDatabaseRouter']
 
 def failure_handler_function(request, message, status=None, template_name=None, exception=None):
 	from django.shortcuts import redirect
@@ -192,6 +192,7 @@ INSTALLED_APPS = (
     'backup',
 	'djcelery',
 	'questions',
+	'user_metadata',
 	'sensible_audit',
 	'db_access',
 	'django_nose',
@@ -279,3 +280,5 @@ djcelery.setup_loader()
 CELERYBEAT_SCHEDULER = djcelery.schedulers.DatabaseScheduler
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+
+OAUTH2_ACCESS_TOKEN_EXPIRATION = LOCAL_SETTINGS.OAUTH2_ACCESS_TOKEN_EXPIRATION
