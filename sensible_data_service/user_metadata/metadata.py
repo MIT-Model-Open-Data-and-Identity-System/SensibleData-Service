@@ -40,7 +40,7 @@ def get_dynamic_metadata_for_users(users, timestamp, dynamic_attributes):
 
 		metadata_queryset = dynamic_metadata_model.objects.filter(user__in=users, start_timestamp__lte=timestamp, end_timestamp__gte=timestamp)
 		for metadata_result in metadata_queryset:
-			metadata_dict[metadata_result.user] = dict(metadata_dict[metadata_result.user].items() +  metadata_result.to_dict().items())
+			metadata_dict[metadata_result.user] = dict(metadata_dict[metadata_result.user].items() + metadata_result.to_dict().items())
 
 	return metadata_dict
 
