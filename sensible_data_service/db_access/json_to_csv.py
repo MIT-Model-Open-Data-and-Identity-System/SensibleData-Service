@@ -195,11 +195,13 @@ def funf_activity_recognition_to_csv(json_obj):
 	rows = []
 	metadata = funf_metadata(json_obj)
 
-	row = {}
+
 	for index, activity in enumerate(json_obj['data']['ACTIVITY']):
+		row = {}
 		for key in metadata: row[key] = metadata[key]
 		row['activity'] = activity
 		row['confidence'] = json_obj['data']['CONFIDENCE'][index]
+		print row
 		rows.append(row)
 
 	return rows
