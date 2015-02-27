@@ -144,6 +144,7 @@ def funf_to_csv(json_obj, probe):
 	if probe == 'edu_mit_media_funf_probe_builtin_EpidemicProbe': return funf_epidemic_to_csv(json_obj)
 	if probe == 'edu_mit_media_funf_probe_builtin_AndroidInfoProbe': return funf_android_info_to_csv(json_obj)
 	if probe == 'edu_mit_media_funf_probe_ActivityRecognitionProbe': return funf_activity_recognition_to_csv(json_obj)
+	if probe == 'edu_mit_media_funf_probe_builtin_BatchedAccelerometerSensorProbe': return funf_accelerometer_to_csv(json_obj)
 
 def funf_metadata(json_obj):
 	metadata = {}
@@ -204,6 +205,21 @@ def funf_activity_recognition_to_csv(json_obj):
 		print row
 		rows.append(row)
 
+	return rows
+
+def funf_accelerometer_to_csv(json_obj):
+	rows = []
+	metadata = funf_metadata(json_obj)
+
+	row = {}
+	for key in metadata: row[key] = metadata[key]
+	row['x'] = base64.b64encode(",".join([str(x) for x in json_obj['data']['X']]))
+	row['y'] = base64.b64encode(",".join([str(x) for x in json_obj['data']['Y']]))
+	row['z'] = base64.b64encode(",".join([str(x) for x in json_obj['data']['Z']]))
+	row['event_timestamp'] = base64.b64encode(",".join([str(x) for x in json_obj['data']['EVENT_TIMESTAMP']]))
+	row['accuracy'] = base64.b64encode(",".join([str(x) for x in json_obj['data']['ACCURACY']]))
+
+	rows.append(row)
 	return rows
 
 def funf_bluetooth_to_csv(json_obj):

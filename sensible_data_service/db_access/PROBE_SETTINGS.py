@@ -18,5 +18,6 @@ UNIQUE_FIELDS = {
 	"edu_mit_media_funf_probe_builtin_EpidemicProbe": [],
 	"edu_mit_media_funf_probe_builtin_AndroidInfoProbe": ['build_number', 'user', 'timestamp'],
 	"edu_mit_media_funf_probe_builtin_ActivityRecognitionProbe": ['user', 'timestamp', 'confidence', 'activity'],
+	"edu_mit_media_funf_probe_builtin_BatchedAccelerometerProbe": ['user', 'timestamp'],
 	"data_quality": []
 }
