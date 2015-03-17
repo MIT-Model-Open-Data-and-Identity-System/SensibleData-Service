@@ -4,3 +4,8 @@ django-openid-auth
 pymongo
 python-gcm
 django-uni-form
+django-nose
+fluent-logger
+django-celery
+pycrypto
+python-dateutil
