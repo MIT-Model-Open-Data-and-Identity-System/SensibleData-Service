@@ -17,7 +17,6 @@ BASE_DIR = LOCAL_SETTINGS.BASE_DIR
 ROOT_DIR = LOCAL_SETTINGS.ROOT_DIR
 ROOT_URL = LOCAL_SETTINGS.ROOT_URL
 BASE_URL = LOCAL_SETTINGS.BASE_URL
-DATA_DATABASE = LOCAL_SETTINGS.DATA_DATABASE
 DATA_DATABASE_SQL = LOCAL_SETTINGS.DATA_DATABASE_SQL
 FILESYSTEM_DATABASE = LOCAL_SETTINGS.FILESYSTEM_DATABASE
 AUDIT_DATABASE = LOCAL_SETTINGS.AUDIT_DATABASE
@@ -65,7 +64,7 @@ MAINTENANCE_IGNORE_URLS = (
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = ['54.229.13.160']
+ALLOWED_HOSTS = ['neuro247data.compute.dtu.dk']
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
