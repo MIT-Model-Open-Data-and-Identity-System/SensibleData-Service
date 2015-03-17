@@ -114,7 +114,7 @@ def load_file(filename):
 				roles = [x.role for x in UserRole.objects.get(user=user).roles.all()]
 			except: pass
 
-			meta['user'] = 'bla'
+
 			if meta['user'] == None:
 				if not os.path.exists(myConnector['decrypted_not_authorized']):
 					os.makedirs(myConnector['decrypted_not_authorized'])
@@ -164,7 +164,7 @@ def row_to_doc(row, user, anonymizerObject):
 	data = []
 	try:
 		data = json.loads(data_raw)
-		if data.has_key('PROBE') and "Batched" in data['PROBE']: #only get data from probes
+		if data.has_key('PROBE'): #only get data from probes
 			doc = {}
 			doc['timestamp'] = int(row[2])
 			doc['_id'] = hashlib.sha1(json.dumps(data)).hexdigest()+'_'+user+'_'+str(int(doc['timestamp']))
