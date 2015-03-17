@@ -175,6 +175,6 @@ GRADES_DATA_SETTINGS = {
 	'grades': {
 		'scope': 'connector_raw.grades',
 		'collection': 'dk_dtu_compute_grades',
-		'default_fields': ['user', 'timestamp', 'class_name', 'grade', 'class_code']
+		'default_fields': ['user', 'timestamp', 'class_name', 'grade', 'class_code', 'semester']
 	}
 }

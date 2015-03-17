@@ -90,8 +90,8 @@ def get_data(request, probe_settings):
 		log.error(audit.message(request, response))
 		return HttpResponse(json.dumps(response), status=401, content_type="application/json")
 
-	if probe_settings['collection'] == 'grades' and auth['user'] not in SECURE_settings:
-		response = {'meta':{'status':{'status':'error','code':401,'desc':'Not allowed to view grades data.'}}}
+	if probe_settings['collection'] == 'dk_dtu_compute_grades' and str(auth['user']) not in SECURE_settings.GRADES_WHITELIST:
+		response = {'meta':{'status':{'status':'error','code':401,'desc':'Not allowed to view grades data for user:' + str(auth['user'])}}}
 		log.error(audit.message(request, response))
 		return HttpResponse(json.dumps(response), status=401, content_type="application/json")
 
@@ -199,9 +199,9 @@ def dataBuild(request, probe_settings, users_to_return, decrypted = False, own_d
 		return HttpResponse(json.dumps(response), content_type="application/json; charset=utf-8", status=response['meta']['status']['code'])
 
 
-def array_to_csv(results):
+def array_to_csv(results, column_names=None):
 	if not results: return ''
-	fields = results[0].keys()
+	fields = results[0].keys() if not column_names else column_names
 	output = [','.join(fields)]
 	for result in results:
 		if result.get('human_readable_response'):
@@ -210,7 +210,7 @@ def array_to_csv(results):
 			result['human_readable_question'] = result['human_readable_question'].replace('"', '').replace("\n", " ").replace("\r", " ")
 		if result.get('variable_name') == 'comments' and result.get('response'):
 			result['response'] = result['response'].replace('"', '').replace("\n", " ").replace("\r", " ")
-		output.append(','.join([to_string(result[k]).replace("\n", "\\n") for k in fields]))
+		output.append(','.join([to_string(result.get(k, "")).replace("\n", "\\n") for k in fields]))
 	return '\n'.join(output)
 
 def to_string(obj):
@@ -287,7 +287,8 @@ def processApiCall(request, probe_settings, users_to_return):
 
 	### deal with sorting
 	# sorting will be supported later. Now, we can only sort by data.TIMESTAMP, either asc or desc
-	response['sortby'] = 'timestamp'
+	if request.REQUEST.get('sortby', None):
+		response['sortby'] = 'timestamp'
 	if request.REQUEST.get('order', None) is not None:
 		if request.REQUEST.get('order',None) not in ['-1','1']:
 			raise BadRequestException('error',400,str(request.REQUEST.get('order')) + ' is not a valid value for order parameter. Use 1 for ascending or -1 for descending')

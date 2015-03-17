@@ -1,11 +1,17 @@
 import time
+import datetime
+from django.contrib.auth.models import User
 
 from django.http import HttpResponse
 import bson.json_util as json
 from django.shortcuts import render_to_response
 
 from authorization_manager import authorization_manager
+from connectors.connector_raw.raw_data import array_to_csv
 from db_access.named_queries.named_queries import NAMED_QUERIES
+from user_metadata import metadata
+from user_metadata.models import StaticMetadata
+
 from utils import db_wrapper
 from accounts.models import UserRole
 from connector_utils import *
@@ -40,7 +46,7 @@ def user(request):
 	own_data = False
 	if len(users_to_return) == 1 and users_to_return[0] == auth['user'].username: own_data = True
 	
-	return userBuild(request, users_to_return, decrypted = decrypted, own_data = own_data, roles = roles)
+	return user_metadata(request, users_to_return, decrypted = decrypted, own_data = own_data, roles = roles)
 
 def buildUsersToReturn(auth_user, request, is_researcher = False):
 	users_to_return = []
@@ -56,32 +62,44 @@ def buildUsersToReturn(auth_user, request, is_researcher = False):
 	return users_to_return
 
 
-def userBuild(request, users_to_return, decrypted = False, own_data = False, roles = []):
-	
+def user_metadata(request, users_to_return, decrypted = False, own_data = False, roles = []):
+
 	_start_time = time.time()
 
 	pretty = booleanize(request.REQUEST.get('pretty', False))
+	csv = booleanize(request.REQUEST.get('csv', False))
+
 	response = {}
 	response['meta'] = {}
 
-	db = db_wrapper.DatabaseHelper()
+	timestamp = request.REQUEST.get("timestamp", datetime.datetime.now())
+	metadata_attributes = request.REQUEST.get("attributes")
+	metadata_attributes = [] if not metadata_attributes else metadata_attributes.split(",")
 
-	collection= 'device_inventory'
+	if 'all' in users_to_return:
+		users = User.objects.all()
+		users_to_return = [user.username for user in users if not hasattr(user, "userrole")]
+	users_with_metadata = metadata.get_metadata_for_users(users_to_return, timestamp, metadata_attributes=metadata_attributes)
 
-	response['results'] = [x['user'] for x in db.execute_named_query(NAMED_QUERIES["get_unique_users_in_device_inventory"], None) if x['user'] in users_to_return or 'all' in users_to_return]
+	users_without_metadata = set(users_to_return) - set(users_with_metadata.keys())
+
+	response['results'] = users_with_metadata.values()
+
+	for user in users_without_metadata:
+		response['results'].append({"user": user})
 
 	response['meta']['execution_time_seconds'] = time.time()-_start_time
 	response['meta']['status'] = {'status':'OK','code':200, 'desc':''}
-	
-
-
-	if decrypted:
-		pass
 
 	if pretty:
 		log.info(audit.message(request, response['meta']))
 		return render_to_response('pretty_json.html', {'response': json.dumps(response, indent=2)})
+	elif csv:
+		output = '#' + json.dumps(response['meta'], indent=2).replace('\n','\n#') + '\n'
+		output += array_to_csv(response['results'], metadata_attributes + ["user"])
+		return HttpResponse(output, content_type="text/plain; charset=utf-8", status=response['meta']['status']['code'])
 	else:
 		log.info(audit.message(request, response['meta']))
 		return HttpResponse(json.dumps(response), content_type="application/json", status=response['meta']['status']['code'])
-	return HttpResponse('hello decrypted')
+
+
