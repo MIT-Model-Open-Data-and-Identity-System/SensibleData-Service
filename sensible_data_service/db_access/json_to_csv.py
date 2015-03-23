@@ -145,6 +145,7 @@ def funf_to_csv(json_obj, probe):
 	if probe == 'edu_mit_media_funf_probe_builtin_AndroidInfoProbe': return funf_android_info_to_csv(json_obj)
 	if probe == 'edu_mit_media_funf_probe_ActivityRecognitionProbe': return funf_activity_recognition_to_csv(json_obj)
 	if probe == 'edu_mit_media_funf_probe_builtin_BatchedAccelerometerSensorProbe': return funf_accelerometer_to_csv(json_obj)
+	if probe == 'edu_mit_media_funf_probe_builtin_StepCounterProbe': return funf_step_counter_to_csv(json_obj)
 
 def funf_metadata(json_obj):
 	metadata = {}
@@ -202,7 +203,6 @@ def funf_activity_recognition_to_csv(json_obj):
 		for key in metadata: row[key] = metadata[key]
 		row['activity'] = activity
 		row['confidence'] = json_obj['data']['CONFIDENCE'][index]
-		print row
 		rows.append(row)
 
 	return rows
@@ -221,6 +221,22 @@ def funf_accelerometer_to_csv(json_obj):
 
 	rows.append(row)
 	return rows
+
+
+def funf_step_counter_to_csv(json_obj):
+	rows = []
+	metadata = funf_metadata(json_obj)
+
+	for index, element in enumerate(json_obj['data']['EVENT_TIMESTAMP']):
+		row = {}
+		for key in metadata: row[key] = metadata[key]
+		row['step_count'] = json_obj['data']['STEP_COUNT'][index]
+		row['timestamp'] = int(float(element)/1e9)
+		row['accuracy'] = json_obj['data']['ACCURACY'][index]
+
+		rows.append(row)
+	return rows
+
 
 def funf_bluetooth_to_csv(json_obj):
 	rows = []
