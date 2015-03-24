@@ -38,6 +38,8 @@ def cell(request):
 	return get_data(request, PHONE_DATA_SETTINGS['cell'])
 def sms(request):
 	return get_data(request, PHONE_DATA_SETTINGS['sms'])
+def screen(request):
+	return get_data(request, PHONE_DATA_SETTINGS['screen'])
 def questionnaire(request):
 	return get_data(request,QUESTIONNAIRE_DATA_SETTINGS['questionnaire'])
 def experience_sampling(request):

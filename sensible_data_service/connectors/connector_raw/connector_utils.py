@@ -73,7 +73,7 @@ PHONE_DATA_SETTINGS = {\
 	'screen':{\
 		'scope':'connector_raw.screen',\
 		'collection':'edu_mit_media_funf_probe_builtin_ScreenProbe',
-		'default_fields':['id','user','timestamp','screen_on']},
+		'default_fields':['user','timestamp','screen_on']},
 
 	'timeoffset':{\
 		'scope':'connector_raw.timeoffset',\
