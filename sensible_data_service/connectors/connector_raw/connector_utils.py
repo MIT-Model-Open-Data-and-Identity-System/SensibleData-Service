@@ -45,6 +45,11 @@ PHONE_DATA_SETTINGS = {\
 		'scope':'connector_raw.location',
 		'collection':'edu_mit_media_funf_probe_builtin_LocationProbe',
 		'default_fields':['id','user','timestamp','lat','lon','accuracy','provider']},
+	'activity': {
+		'scope': 'connector_raw.activity',
+		'collection': 'edu_mit_media_funf_probe_builtin_ActivityRecognitionProbe',
+		'default_fields': ['timestamp', 'user', 'activity', 'confidence']
+	},
 	'wifi':{\
 		'scope':'connector_raw.wifi',
 		'collection':'edu_mit_media_funf_probe_builtin_WifiProbe',
