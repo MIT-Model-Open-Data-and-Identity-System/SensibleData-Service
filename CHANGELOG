@@ -1,8 +1,9 @@
 SensibleData-Service 0.2.9
 * Endpoint for grades retrieval
 * User endpoint updated to return user metadata
-* Activity recognition probe population
+* Activity recognition probe population and endpoint
 * Accelerometer probe population
+* Screen probe endpoint
 
 SensibleData-Service 0.2.8
 * AndroidInfoProbe population
