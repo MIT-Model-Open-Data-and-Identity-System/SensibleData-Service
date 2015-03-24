@@ -197,7 +197,7 @@ def funf_activity_recognition_to_csv(json_obj):
 	metadata = funf_metadata(json_obj)
 
 
-	for index, activity in enumerate(json_obj['data']['ACTIVITY']):
+	for index, activity in enumerate(json_obj['data'].get('ACTIVITY', [])):
 		row = {}
 		for key in metadata: row[key] = metadata[key]
 		row['activity'] = activity
@@ -213,11 +213,11 @@ def funf_accelerometer_to_csv(json_obj):
 
 	row = {}
 	for key in metadata: row[key] = metadata[key]
-	row['x'] = base64.b64encode(",".join([str(x) for x in json_obj['data']['X']]))
-	row['y'] = base64.b64encode(",".join([str(x) for x in json_obj['data']['Y']]))
-	row['z'] = base64.b64encode(",".join([str(x) for x in json_obj['data']['Z']]))
-	row['event_timestamp'] = base64.b64encode(",".join([str(x) for x in json_obj['data']['EVENT_TIMESTAMP']]))
-	row['accuracy'] = base64.b64encode(",".join([str(x) for x in json_obj['data']['ACCURACY']]))
+	row['x'] = base64.b64encode(",".join([str(x) for x in json_obj['data'].get('X', [])]))
+	row['y'] = base64.b64encode(",".join([str(x) for x in json_obj['data'].get('Y', [])]))
+	row['z'] = base64.b64encode(",".join([str(x) for x in json_obj['data'].get('Z', [])]))
+	row['event_timestamp'] = base64.b64encode(",".join([str(x) for x in json_obj['data'].get('EVENT_TIMESTAMP', [])]))
+	row['accuracy'] = base64.b64encode(",".join([str(x) for x in json_obj['data'].get('ACCURACY', [])]))
 
 	rows.append(row)
 	return rows
