@@ -143,7 +143,8 @@ def funf_to_csv(json_obj, probe):
 	if probe == 'edu_mit_media_funf_probe_builtin_ExperienceSamplingProbe': return funf_experience_sampling_to_csv(json_obj)
 	if probe == 'edu_mit_media_funf_probe_builtin_EpidemicProbe': return funf_epidemic_to_csv(json_obj)
 	if probe == 'edu_mit_media_funf_probe_builtin_AndroidInfoProbe': return funf_android_info_to_csv(json_obj)
-
+	if probe == 'edu_mit_media_funf_probe_ActivityRecognitionProbe': return funf_activity_recognition_to_csv(json_obj)
+	if probe == 'edu_mit_media_funf_probe_builtin_BatchedAccelerometerSensorProbe': return funf_accelerometer_to_csv(json_obj)
 
 def funf_metadata(json_obj):
 	metadata = {}
@@ -187,6 +188,36 @@ def funf_android_info_to_csv(json_obj):
 	row['build_number'] = json_obj['data'].get('BUILD_NUMBER')
 	row['android_version'] = json_obj['data'].get('FIRMWARE_VERSION')
 	row['sdk_version'] = json_obj['data'].get('SDK')
+	rows.append(row)
+	return rows
+
+
+def funf_activity_recognition_to_csv(json_obj):
+	rows = []
+	metadata = funf_metadata(json_obj)
+
+
+	for index, activity in enumerate(json_obj['data'].get('ACTIVITY', [])):
+		row = {}
+		for key in metadata: row[key] = metadata[key]
+		row['activity'] = activity
+		row['confidence'] = json_obj['data']['CONFIDENCE'][index]
+		rows.append(row)
+
+	return rows
+
+def funf_accelerometer_to_csv(json_obj):
+	rows = []
+	metadata = funf_metadata(json_obj)
+
+	row = {}
+	for key in metadata: row[key] = metadata[key]
+	row['x'] = base64.b64encode(",".join([str(x) for x in json_obj['data'].get('X', [])]))
+	row['y'] = base64.b64encode(",".join([str(x) for x in json_obj['data'].get('Y', [])]))
+	row['z'] = base64.b64encode(",".join([str(x) for x in json_obj['data'].get('Z', [])]))
+	row['event_timestamp'] = base64.b64encode(",".join([str(x) for x in json_obj['data'].get('EVENT_TIMESTAMP', [])]))
+	row['accuracy'] = base64.b64encode(",".join([str(x) for x in json_obj['data'].get('ACCURACY', [])]))
+
 	rows.append(row)
 	return rows
 
