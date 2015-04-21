@@ -24,6 +24,9 @@
 '''Decrypt one or more sqlite3 files using the provided key.  Checks to see if it is readable
 '''
 from optparse import OptionParser
+import magic
+import os
+import subprocess
 import decrypt
 import sqlite3
 import shutil
@@ -42,6 +45,17 @@ def is_funf_database(file_name):
     finally:
         if conn is not None: conn.close()
 
+
+def uncompress(file_path):
+    f = magic.Magic()
+    if "gzip" not in f.from_file(file_path):
+        return
+
+    os.rename(file_path, file_path + ".gz")
+    p = subprocess.Popen('gzip -d ' + file_path, stdout=subprocess.PIPE, shell=True)
+    out, err = p.communicate()
+
+
 def decrypt_if_not_db_file(file_name, key, extension=None):
     if is_funf_database(file_name):
         #print "Already decrypted: '%s'" % file_name
@@ -49,6 +63,7 @@ def decrypt_if_not_db_file(file_name, key, extension=None):
     else:
         #print ("Attempting to decrypt: '%s'..." % file_name),
         decrypt.decrypt([file_name], key, extension)
+        uncompress(file_name)
         if is_funf_database(file_name):
             #print "Success!"
             return True
@@ -69,7 +84,7 @@ if __name__ == '__main__':
                       help="The DES key used to decrypt the files.  Uses the default hard coded one if one is not supplied.",)
     (options, args) = parser.parse_args()
     key = options.key if options.key else decrypt.key_from_password(decrypt.prompt_for_password())
-    
+
     try:
         for file_name in args:
             decrypt_if_not_db_file(file_name, key, options.extension)
